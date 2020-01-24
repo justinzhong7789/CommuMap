@@ -44,7 +44,7 @@ void close_map() {
 
 //Returns the distance between two coordinates in meters
 double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
-    
+    cout<<"helloworld";
 }
 
 //Returns the length of the given street segment in meters
