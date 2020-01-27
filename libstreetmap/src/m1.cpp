@@ -44,12 +44,31 @@ void close_map() {
 
 //Returns the distance between two coordinates in meters
 double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
-    cout<<"helloworld";
+    // see page 14 of milestone 1; (x,y)=(lon*cos(latavg), lat) -p
+    // note lat() and lon() are degrees, cosine uses RADIANS -p
+    double latavg = ((points.first.lat() + points.second.lat()) * DEGREE_TO_RADIAN)/2;
+    // note to self: latitude is up/down, longitude is left/right -p
+    double x1 = EARTH_RADIUS_METERS * points.first.lat() * DEGREE_TO_RADIAN * cos(latavg);
+    double y1 = EARTH_RADIUS_METERS * points.first.lat() * DEGREE_TO_RADIAN;
+    // note to self: radians * radius = arc length -p
+    double x2 = EARTH_RADIUS_METERS * points.second.lat() * DEGREE_TO_RADIAN * cos(latavg);
+    double y2 = EARTH_RADIUS_METERS * points.second.lat() * DEGREE_TO_RADIAN;
+    
+    // c^2 = a^2 + b^2 -p
+    double result = sqrt((x2-x1)^2 + (y2-y1)^2);
+    return result;
 }
 
 //Returns the length of the given street segment in meters
 double find_street_segment_length(int street_segment_id){
-    
+    // pull info from streetsdatabase library
+    InfoStreetSegment temp = getInfoStreetSegment(street_segment_id);
+    // initialize total length to 0
+    double length = 0;
+    // calculate distance from start to end
+    length = find_distance_between_two_points(getIntersectionPosition(temp.from), getIntersectionPosition(temp.to));
+    // THIS FUNCTION IS NOT COMPLETED, NEED TO ACCOUNT FOR CURVATURE
+    return length;
 }
 
 //Returns the travel time to drive a street segment in seconds 
