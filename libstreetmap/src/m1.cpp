@@ -55,19 +55,23 @@ double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     double y2 = EARTH_RADIUS_METERS * points.second.lat() * DEGREE_TO_RADIAN;
     
     // c^2 = a^2 + b^2 -p
-    double result = sqrt((x2-x1)^2 + (y2-y1)^2);
+    //DEBUGGING CHANGED THE ^ TO POW
+    double result = pow(sqrt(x2-x1),2) + pow((y2-y1),2);
     return result;
 }
 
 //MADE BY PRISCILLA -M
+//I WAS DEBUGGING. THE INPUT TO FIND_DISTANCE_BETWEEN_TWO_POINTS IS A PAIR SO I MADE IT A PAIR -M
 //Returns the length of the given street segment in meters
 double find_street_segment_length(int street_segment_id){
+ 
     // pull info from streetsdatabase library
     InfoStreetSegment temp = getInfoStreetSegment(street_segment_id);
     // initialize total length to 0
     double length = 0;
     // calculate distance from start to end
-    length = find_distance_between_two_points(getIntersectionPosition(temp.from), getIntersectionPosition(temp.to));
+    std::pair<LatLon,LatLon> priscillaMadeAMistake(getIntersectionPosition(temp.from), getIntersectionPosition(temp.to));
+    length = find_distance_between_two_points(priscillaMadeAMistake);
     // THIS FUNCTION IS NOT COMPLETED, NEED TO ACCOUNT FOR CURVATURE
     return length;
 }
@@ -82,10 +86,11 @@ double find_street_segment_travel_time(int street_segment_id){
     return travel_time;
 }
 
-//WORKING ON THIS ONE -M
+//I THINK PRISCILLA SHOULD DO THIS ONE CUZ YOU NEED HER FUNCTIONS FOR THIS -M
 //Returns the nearest intersection to the given position
 int find_closest_intersection(LatLon my_position){
     
+    //should be converted to meters?
     if( my_position == get_intersection_position(/*IntersectionIndex*/){
         return /*IntersectionIndex*/;
     }
@@ -121,16 +126,15 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
 }
 
 //DONE, NEED TESTING -M
+//DEPENDENT ON find_street_segments_of_intersection WORKING -M
 //Returns the street names at the given intersection (includes duplicate street 
 //names in returned vector)
-//DEPENDENT ON find_street_segments_of_intersection WORKING
 std::vector<std::string> find_street_names_of_intersection(int intersection_id){
-    //Am I allowed to do this? -M
+    
     std::vector<int> street_segments_of_intersection = find_street_segments_of_intersection(intersection_id);
     std::vector<std::string> intersection_street_names;
     int i;
     for (i =0; i< street_segments_of_intersection.size(); ++i){
-        //Might have been able to do this in a clearer version and not sure if this is any faster
         //Starting from outmost brackets: putting street name into vector to return
         //getting the street name from the street ID
         //found the streetID through the InfoSteetSegment struct
@@ -151,10 +155,11 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
     
     for(int i=0 ; i < intersectionSegmentsOne.size() ; ++i){
         for(int k=0; k<intersectionSegmentsTwo.size(); ++k)
-        
-            //I DONT KNOW HOW TO USE THE ONEWAY... IT MAKES NO SENSE TO ME WHY DO WE EVEN CARE ABOUT THEM
-            //if the intersections share segments then they are directly connected
-        if(intersection_ids.first == intersection_ids.second||!getInfoStreetSegment(intersectionSegmentsOne[i]).oneWay||intersectionSegmentsOne[i] == intersectionSegmentsTwo[k]){
+            
+        //if the intersections share segments then they are directly connected return true
+        if(intersection_ids.first == intersection_ids.second ||
+            //if the two intersections share a common segment, and that segment runs from the first intersection to the second intersection return true.    
+            intersectionSegmentsOne[i] == intersectionSegmentsTwo[k] && getInfoStreetSegment(intersectionSegmentsOne[i]).from == intersection_ids.first && getInfoStreetSegment(intersectionSegmentsOne[i]).to == intersection_ids.second ){
             return true;
         }
     }
@@ -173,22 +178,22 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
     std::pair<int,int> twoIntersections;
     twoIntersections.first = intersection.id;
     
-    
     for (int i = 0; i < intersectionStreetSegments.size() ; ++i){
+        
         
         //Checking for one Way
         if(getInfoStreetSegment(intersectionStreetSegments[i]).oneWay){
             
-            //if street segment goes away from intersection, put intersection id that is 'to'.
+            //if street segment goes away from intersection_id, put intersection id that is 'to'.
             if(getInfoStreetSegment(intersectionStreetSegments[i]).from == intersection_id){
-                adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).to); 
+                adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).to);
+            //if street segment goes towards intersection, it is not an adjacent intersection
+            }
             
-            //if street segment goes towards intersection, put intersection id that is 'from'
-            }else adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).from); 
         }else{
             
-            //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent
-            //does not check if the 'from' intersection is the intersection_id
+            //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
+            //checks if the 'from' intersection is the intersection_id
             twoIntersections.second = getInfoStreetSegment(intersectionStreetSegments[i]).from;
             if(are_directly_connected(twoIntersections)){
                 adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).from);
