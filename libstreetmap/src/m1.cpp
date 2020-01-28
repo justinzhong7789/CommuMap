@@ -20,7 +20,7 @@
  */
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
-
+#include <math.h>
 bool load_map(std::string /*map_path*/) {
     bool load_successful = false; //Indicates whether the map has loaded 
                                   //successfully
@@ -73,8 +73,11 @@ double find_street_segment_length(int street_segment_id){
 
 //Returns the travel time to drive a street segment in seconds 
 //(time = distance/speed_limit)
+//Justin
 double find_street_segment_travel_time(int street_segment_id){
-    
+    double travel_time;
+    travel_time=find_street_segment_length(street_segment_id)/getInfoStreetSegment(street_segment_id).speedLimit;
+    return travel_time;
 }
 
 //Returns the nearest intersection to the given position
