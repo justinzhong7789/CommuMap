@@ -41,7 +41,7 @@ void close_map() {
     //Clean-up your map related data structures here
     
 }
-
+//MADE BY PRISCILLA -M
 //Returns the distance between two coordinates in meters
 double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     // see page 14 of milestone 1; (x,y)=(lon*cos(latavg), lat) -p
@@ -59,6 +59,7 @@ double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     return result;
 }
 
+//MADE BY PRISCILLA -M
 //Returns the length of the given street segment in meters
 double find_street_segment_length(int street_segment_id){
     // pull info from streetsdatabase library
@@ -71,6 +72,7 @@ double find_street_segment_length(int street_segment_id){
     return length;
 }
 
+//WORKING ON THIS ONE -j
 //Returns the travel time to drive a street segment in seconds 
 //(time = distance/speed_limit)
 //Justin
@@ -80,14 +82,37 @@ double find_street_segment_travel_time(int street_segment_id){
     return travel_time;
 }
 
+//WORKING ON THIS ONE -M
 //Returns the nearest intersection to the given position
 int find_closest_intersection(LatLon my_position){
+    
+    if( my_position == get_intersection_position(/*IntersectionIndex*/){
+        return /*IntersectionIndex*/;
+    }
+    
+    // fetch the latlon of the i'th curve point (number of curve points specified in 
+    // InfoStreetSegment)
+    //LatLon getStreetSegmentCurvePoint(int i, StreetSegmentIndex streetSegmentIdx);
     
 }
 
 //Returns the street segments for the given intersection 
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
+    std::vector<int> street_segments_of_intersection;
     
+    //Getting the number of segments attached to the intersection
+    int num_segments = getIntersectionStreetSegmentCount(intersection_id);
+    int i;
+    
+    //going through the segment index attached to the intersection 
+    for(i=0; i < num_segments; ++i){
+        //Double checks to make sure the streetSegment is actually apart of that intersection
+        //Using an OR to make sure that a segment isn't counted twice?? DOUBLE CHECK THIS LOGIC
+        if(getInfoStreetSegment(getIntersectionStreetSegment(intersection_id, i)).from == intersection_id || getInfoStreetSegment(getIntersectionStreetSegment(intersection_id, i)).to == intersection_id){
+            street_segments_of_intersection.push_back(getIntersectionStreetSegment(intersection_id, i));
+        }
+    }
+    return street_segements_of_intersection;
 }
 
 //Returns the street names at the given intersection (includes duplicate street 
