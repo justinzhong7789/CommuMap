@@ -72,19 +72,7 @@ double find_street_segment_length(int street_segment_id){
     InfoStreetSegment street = getInfoStreetSegment(street_segment_id);
     // initialize total length to 0
     double length = 0;
-    if(temp.curvePointCount==0){
-    
-        //put start and end LatLon into a pair
-        std::pair<LatLon, LatLon> start_n_end(getIntersectionPosition(temp.from), getIntersectionPosition(temp.to));
-        // calculate distance from start to end
-        length = find_distance_between_two_points(start_n_end);
-        // THIS FUNCTION IS NOT COMPLETED, NEED TO ACCOUNT FOR CURVATURE
-        return length;
-    }
-    else{
-        //add distances between end points and curve points
-        return length;
-    }
+
     // If street has no curves, e.g. street is completely straight
     if (street.curvePointCount == 0){
         // calculate distance from start to end
@@ -252,15 +240,47 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
 }
 
 //Returns all street segments for the given street
+//j
 std::vector<int> find_street_segments_of_street(int street_id){
-
+    std::vector<int> street_segment_ids;
+    //find number of street segments 
+    //then check all street segments' street id
+    //if same as input insert it into return_me vector
+    int num_street_seg = getNumStreetSegments();
+    for(int i=0;i<num_street_seg;i++){
+        if(getInfoStreetSegment(i).streetID==street_id){
+            street_segment_ids.push_back(i);
+        }
+    }
+    return street_segment_ids;
 }
 
 //Returns all intersections along the a given street
+//j
+/* this function might be slow 
+ * might need a more efficient algorithm
+ */
 std::vector<int> find_intersections_of_street(int street_id){
-
+    std::vector<int> intersection_ids;
+    //find all street segments on the given street using the previous function
+    std::vector<int> street_segment_ids=find_street_segments_of_street(street_id);
+    int num_of_intersections = getNumIntersections();
+    
+    //if intersection id matches the from and to in any street segments, put it into vector
+    for(int inter_index=0;inter_index<num_of_intersections;inter_index++){
+        bool match=false;
+        for(int i=0;i<street_segment_ids.size();i++){
+            if(inter_index==getInfoStreetSegment(street_segment_ids[i]).from||inter_index==getInfoStreetSegment(street_segment_ids[i]).to){
+                match=true;
+                break;
+            }
+        }
+        if(match){
+            intersection_ids.push_back(inter_index);
+        }
+    }
+    return intersection_ids;
 }
-
 //Return all intersection ids for two intersecting streets
 //This function will typically return one intersection id.
 std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_ids){
