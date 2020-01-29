@@ -118,15 +118,19 @@ double find_street_segment_travel_time(int street_segment_id){
 int find_closest_intersection(LatLon my_position){
     // realistically you can only be surrounded by 4 intersections max -p...unless there's hexagon intersections
     //should be converted to meters?
-    if( my_position == get_intersection_position(/*IntersectionIndex*/){
-        return /*IntersectionIndex*/;
-    }
+    
+    //if( my_position == get_intersection_position(/*IntersectionIndex*/){
+    //    return /*IntersectionIndex*/;
+    //}
     
     // fetch the latlon of the i'th curve point (number of curve points specified in 
     // InfoStreetSegment)
     //LatLon getStreetSegmentCurvePoint(int i, StreetSegmentIndex streetSegmentIdx);
+<<<<<<< HEAD
     
 
+=======
+>>>>>>> Minimum debugging changes, trying to pull from Justin
 }
 
 //DONE, NEED TESTING -M
@@ -189,7 +193,7 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
         //if the intersections share segments then they are directly connected return true
         if(intersection_ids.first == intersection_ids.second ||
             //if the two intersections share a common segment, and that segment runs from the first intersection to the second intersection return true.    
-            intersectionSegmentsOne[i] == intersectionSegmentsTwo[k] && getInfoStreetSegment(intersectionSegmentsOne[i]).from == intersection_ids.first && getInfoStreetSegment(intersectionSegmentsOne[i]).to == intersection_ids.second ){
+            (intersectionSegmentsOne[i] == intersectionSegmentsTwo[k] && getInfoStreetSegment(intersectionSegmentsOne[i]).from == intersection_ids.first && getInfoStreetSegment(intersectionSegmentsOne[i]).to == intersection_ids.second )){
             return true;
         }
     }
@@ -207,7 +211,7 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
     std::vector<int> adjacentIntersections;
     std::vector<int> intersectionStreetSegments = find_street_segments_of_intersection(intersection_id);
     std::pair<int,int> twoIntersections;
-    twoIntersections.first = intersection.id;
+    twoIntersections.first = intersection_id;
     
     for (int i = 0; i < intersectionStreetSegments.size() ; ++i){
         
@@ -231,12 +235,11 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
             }
             //checking if its the intersection 'to' instead of the 'from'
             twoIntersections.second = getInfoStreetSegment(intersectionStreetSegments[i]).to;
-            if(are_directly_connected(twoIntersections){
+            if(are_directly_connected(twoIntersections)){
                 adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).to);
             }
         }
-    }
-    
+    }   
 }
 
 //Returns all street segments for the given street
