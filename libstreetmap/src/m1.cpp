@@ -39,7 +39,8 @@ bool load_map(std::string /*map_path*/) {
 
 void close_map() {
     //Clean-up your map related data structures here
-    
+    closeStreetDatabase();
+    // not done, needs functions from other header files (such as OSMdatabase) -p
 }
 //MADE BY PRISCILLA -M
 //Returns the distance between two coordinates in meters
@@ -56,23 +57,46 @@ double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     
     // c^2 = a^2 + b^2 -p
     //DEBUGGING CHANGED THE ^ TO POW
-    double result = pow(sqrt(x2-x1),2) + pow((y2-y1),2);
+    double result = sqrt(pow((x2-x1),2) + pow((y2-y1),2));
     return result;
 }
 
-//MADE BY PRISCILLA -M
+//MADE BY PRISCILLA -M /// status: done, needs debugging -p
 //I WAS DEBUGGING. THE INPUT TO FIND_DISTANCE_BETWEEN_TWO_POINTS IS A PAIR SO I MADE IT A PAIR -M
 //Returns the length of the given street segment in meters
 double find_street_segment_length(int street_segment_id){
  
-    // pull info from streetsdatabase library
-    InfoStreetSegment temp = getInfoStreetSegment(street_segment_id);
+    // pull info from API library
+    InfoStreetSegment street = getInfoStreetSegment(street_segment_id);
     // initialize total length to 0
     double length = 0;
-    // calculate distance from start to end
-    std::pair<LatLon,LatLon> priscillaMadeAMistake(getIntersectionPosition(temp.from), getIntersectionPosition(temp.to));
-    length = find_distance_between_two_points(priscillaMadeAMistake);
-    // THIS FUNCTION IS NOT COMPLETED, NEED TO ACCOUNT FOR CURVATURE
+    // If street has no curves, e.g. street is completely straight
+    if (street.curvePointCount == 0){
+        // calculate distance from start to end
+        std::pair<LatLon,LatLon> straight_segment (getIntersectionPosition(street.from), getIntersectionPosition(street.to));    
+        length = find_distance_between_two_points(straight_segment);        
+    } 
+    // If street has curves, use some thicc maths to fix
+    else {
+        for (int i=0; i<=street.curvePointCount; i++){
+            // note: if street has 1 corner, add two segments, if 2 corners, add three segments, etc -p
+            // assume all curve points are corners? -p
+            std::pair<LatLon,LatLon> curved_segment;
+            if (i==0){ // calculate distance from beginning of street to first curve
+                curved_segment.first = getIntersectionPosition(street.from); 
+                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);
+            }
+            else if (i==street.curvePointCount){ // calculate distance from last curve to end of street
+                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
+                curved_segment.second = getIntersectionPosition(street.to);
+            } else { // calculate distance between each curve (or realistically, each corner)
+                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);       
+            }
+            length += find_distance_between_two_points(curved_segment);
+        }
+    }
+    // should be done, needs debugging -p
     return length;
 }
 
@@ -89,7 +113,7 @@ double find_street_segment_travel_time(int street_segment_id){
 //I THINK PRISCILLA SHOULD DO THIS ONE CUZ YOU NEED HER FUNCTIONS FOR THIS -M
 //Returns the nearest intersection to the given position
 int find_closest_intersection(LatLon my_position){
-    
+    // realistically you can only be surrounded by 4 intersections max -p...unless there's hexagon intersections
     //should be converted to meters?
     if( my_position == get_intersection_position(/*IntersectionIndex*/){
         return /*IntersectionIndex*/;
@@ -122,7 +146,7 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
             street_segments_of_intersection.push_back(getIntersectionStreetSegment(intersection_id, i));
         }
     }
-    return street_segements_of_intersection;
+    return street_segments_of_intersection;
 }
 
 //DONE, NEED TESTING -M
@@ -134,12 +158,12 @@ std::vector<std::string> find_street_names_of_intersection(int intersection_id){
     std::vector<int> street_segments_of_intersection = find_street_segments_of_intersection(intersection_id);
     std::vector<std::string> intersection_street_names;
     int i;
-    for (i =0; i< street_segments_of_intersection.size(); ++i){
+    for (i=0; i< street_segments_of_intersection.size(); ++i){
         //Starting from outmost brackets: putting street name into vector to return
         //getting the street name from the street ID
         //found the streetID through the InfoSteetSegment struct
         //Used function to get the InfoStreetSegment
-        intersection_street_names.push_back(getStreetname(getInfoStreetSegment(street_segments_of_intersection[i]).streetID));
+        intersection_street_names.push_back(getStreetName(getInfoStreetSegment(street_segments_of_intersection[i]).streetID));
         //includes duplicate names so no need to check for that
     }
     return intersection_street_names;
@@ -247,4 +271,4 @@ double find_feature_area(int feature_id){
 //functions.
 double find_way_length(OSMID way_id){
     
-}
+} 
