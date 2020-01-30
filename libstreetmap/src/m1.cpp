@@ -25,7 +25,7 @@
 #include <math.h>
 #include <vector>
 #include <algorithm>
-
+#include <string>
 
 std::vector<LatLon> intersectionTable;
 std::unordered_map< std::string, StreetIndex> StreetNamesTable;
@@ -339,7 +339,61 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
 //You can choose what to return if the street prefix passed in is an empty (length 0) 
 //string, but your program must not crash if street_prefix is a length 0 string.
 std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){
+    std::vector<int> matching_street_ids;
+    int inputLength = street_prefix.length();
     
+    if(inputLength==0){
+        //do random stuff
+        matching_street_ids = {0};
+        return matching_street_ids;
+    }
+    else{
+        for(int i=0; i< getNumStreets(); i++){
+            bool match=false;
+            std::string ith_streetName=getStreetName(i);
+            int streetName_plus=0;
+            for (int j=0; j< inputLength; j++){
+                
+                if(ith_streetName[j+streetName_plus]==' ' && street_prefix[j] !=' '){
+                    streetName_plus++;
+                }
+                
+                if(     (ith_streetName[j+streetName_plus]== street_prefix[j]) || // checks for punctuations or spaces
+                   //makes comparison case insensitive
+                        ((ith_streetName[j+streetName_plus]=='a'&& street_prefix[j]=='A')||(ith_streetName[j+streetName_plus]=='A'&&street_prefix[j]=='a')) ||
+                        ((ith_streetName[j+streetName_plus]=='b'&& street_prefix[j]=='B')||(ith_streetName[j+streetName_plus]=='B'&&street_prefix[j]=='b')) ||
+                        ((ith_streetName[j+streetName_plus]=='c'&& street_prefix[j]=='C')||(ith_streetName[j+streetName_plus]=='C'&&street_prefix[j]=='c')) ||
+                        ((ith_streetName[j+streetName_plus]=='d'&& street_prefix[j]=='D')||(ith_streetName[j+streetName_plus]=='D'&&street_prefix[j]=='d')) ||
+                        ((ith_streetName[j+streetName_plus]=='e'&& street_prefix[j]=='E')||(ith_streetName[j+streetName_plus]=='E'&&street_prefix[j]=='e')) ||
+                        ((ith_streetName[j+streetName_plus]=='f'&& street_prefix[j]=='F')||(ith_streetName[j+streetName_plus]=='F'&&street_prefix[j]=='f')) ||
+                        ((ith_streetName[j+streetName_plus]=='g'&& street_prefix[j]=='G')||(ith_streetName[j+streetName_plus]=='G'&&street_prefix[j]=='g')) ||
+                        ((ith_streetName[j+streetName_plus]=='h'&& street_prefix[j]=='H')||(ith_streetName[j+streetName_plus]=='H'&&street_prefix[j]=='h')) ||
+                        ((ith_streetName[j+streetName_plus]=='i'&& street_prefix[j]=='I')||(ith_streetName[j+streetName_plus]=='I'&&street_prefix[j]=='i')) ||
+                        ((ith_streetName[j+streetName_plus]=='j'&& street_prefix[j]=='J')||(ith_streetName[j+streetName_plus]=='J'&&street_prefix[j]=='j')) ||
+                        ((ith_streetName[j+streetName_plus]=='k'&& street_prefix[j]=='K')||(ith_streetName[j+streetName_plus]=='K'&&street_prefix[j]=='j')) ||
+                        ((ith_streetName[j+streetName_plus]=='l'&& street_prefix[j]=='L')||(ith_streetName[j+streetName_plus]=='L'&&street_prefix[j]=='l')) ||
+                        ((ith_streetName[j+streetName_plus]=='m'&& street_prefix[j]=='M')||(ith_streetName[j+streetName_plus]=='M'&&street_prefix[j]=='m')) ||
+                        ((ith_streetName[j+streetName_plus]=='n'&& street_prefix[j]=='N')||(ith_streetName[j+streetName_plus]=='N'&&street_prefix[j]=='n')) ||
+                        ((ith_streetName[j+streetName_plus]=='o'&& street_prefix[j]=='O')||(ith_streetName[j+streetName_plus]=='O'&&street_prefix[j]=='o')) ||
+                        ((ith_streetName[j+streetName_plus]=='p'&& street_prefix[j]=='P')||(ith_streetName[j+streetName_plus]=='P'&&street_prefix[j]=='p')) ||
+                        ((ith_streetName[j+streetName_plus]=='q'&& street_prefix[j]=='Q')||(ith_streetName[j+streetName_plus]=='Q'&&street_prefix[j]=='q')) ||
+                        ((ith_streetName[j+streetName_plus]=='r'&& street_prefix[j]=='R')||(ith_streetName[j+streetName_plus]=='R'&&street_prefix[j]=='r')) ||
+                        ((ith_streetName[j+streetName_plus]=='s'&& street_prefix[j]=='S')||(ith_streetName[j+streetName_plus]=='S'&&street_prefix[j]=='s')) ||
+                        ((ith_streetName[j+streetName_plus]=='t'&& street_prefix[j]=='T')||(ith_streetName[j+streetName_plus]=='T'&&street_prefix[j]=='t')) ||
+                        ((ith_streetName[j+streetName_plus]=='u'&& street_prefix[j]=='U')||(ith_streetName[j+streetName_plus]=='U'&&street_prefix[j]=='u')) ||
+                        ((ith_streetName[j+streetName_plus]=='v'&& street_prefix[j]=='V')||(ith_streetName[j+streetName_plus]=='V'&&street_prefix[j]=='v')) ||
+                        ((ith_streetName[j+streetName_plus]=='w'&& street_prefix[j]=='W')||(ith_streetName[j+streetName_plus]=='W'&&street_prefix[j]=='w')) ||
+                        ((ith_streetName[j+streetName_plus]=='x'&& street_prefix[j]=='X')||(ith_streetName[j+streetName_plus]=='X'&&street_prefix[j]=='x')) ||
+                        ((ith_streetName[j+streetName_plus]=='y'&& street_prefix[j]=='Y')||(ith_streetName[j+streetName_plus]=='Y'&&street_prefix[j]=='y')) ||
+                        ((ith_streetName[j+streetName_plus]=='z'&& street_prefix[j]=='Z')||(ith_streetName[j+streetName_plus]=='Z'&&street_prefix[j]=='z'))
+                ){/*do nothing*/}
+                else{break;}
+                if(j=inputLength-1){match=true;}
+            }
+            if(match){matching_street_ids.push_back(i);}
+        }
+    }
+    return matching_street_ids;
 }
 //Returns the area of the given closed feature in square meters
 //Assume a non self-intersecting polygon (i.e. no holes)
