@@ -23,17 +23,15 @@
 #include <math.h>
 #include <vector>
 
-bool load_map(std::string /*map_path*/) {
+bool load_map(std::string map_path) {
     bool load_successful = false; //Indicates whether the map has loaded 
                                   //successfully
 
-    //
+    // added some functions -p
     //Load your map related data structures here
     //
-
-    
-
-    load_successful = true; //Make sure this is updated to reflect whether
+    load_OSMsucessful = loadOSMDatabaseBIN(const std::string&);
+    load_successful = loadStreetsDatabaseBIN(map_path); //Make sure this is updated to reflect whether
                             //loading the map succeeded or failed
 
     return load_successful;
@@ -42,7 +40,7 @@ bool load_map(std::string /*map_path*/) {
 void close_map() {
     //Clean-up your map related data structures here
     closeStreetDatabase();
-    // not done, needs functions from other header files (such as OSMdatabase) -p
+    closeOSMDatabase();
 }
 //MADE BY PRISCILLA -M
 //Returns the distance between two coordinates in meters
@@ -87,14 +85,14 @@ double find_street_segment_length(int street_segment_id){
             std::pair<LatLon,LatLon> curved_segment;
             if (i==0){ // calculate distance from beginning of street to first curve
                 curved_segment.first = getIntersectionPosition(street.from); 
-                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);
             }
             else if (i==street.curvePointCount){ // calculate distance from last curve to end of street
                 curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
                 curved_segment.second = getIntersectionPosition(street.to);
             } else { // calculate distance between each curve (or realistically, each corner)
-                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
-                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);       
+                curved_segment.first = getStreetSegmentCurvePoint(i-1, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);       
             }
             length += find_distance_between_two_points(curved_segment);
         }
@@ -115,17 +113,19 @@ double find_street_segment_travel_time(int street_segment_id){
 
 //I THINK PRISCILLA SHOULD DO THIS ONE CUZ YOU NEED HER FUNCTIONS FOR THIS -M
 //Returns the nearest intersection to the given position
+
+//finished, may need MAJOR debugging
 int find_closest_intersection(LatLon my_position){
-    // realistically you can only be surrounded by 4 intersections max -p...unless there's hexagon intersections
-    //should be converted to meters?
-    
-    //if( my_position == get_intersection_position(/*IntersectionIndex*/){
-    //    return /*IntersectionIndex*/;
-    //}
-    
-    // fetch the latlon of the i'th curve point (number of curve points specified in 
-    // InfoStreetSegment)
-    //LatLon getStreetSegmentCurvePoint(int i, StreetSegmentIndex streetSegmentIdx);
+    // distance calculated from each intersection in the city -p
+    double min_distance = 99999;
+    for (int i=0; i<getNumIntersections(); i++){
+        std::pair<LatLon, LatLon> temp (my_position, intersectionTable(i));
+        double distance = find_distance_between_two_points(temp);
+        if (distance<min_distance){
+            min_distance = distance;
+        }
+    }
+    return min_distance;
 <<<<<<< HEAD
     
 
