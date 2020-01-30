@@ -8,7 +8,7 @@
 
 std::vector<LatLon> intersectionTable;
 std::unordered_map<std::string, StreetIndex> StreetNamesTable;
-std::unordered_map<std::vector<int>, IntersectionIndex> Intersection_StreetTable;
+std::unordered_map<IntersectionIndex, std::vector<int> > intersection_StreetTable;
 
 // allocates vector of intersection ids
 void makeIntersectionTable(){
@@ -30,9 +30,9 @@ void makeIntersection_StreetTable(){
             // add each street connecting to the intersection into streets_attached vector
             StreetSegmentIndex temp = getIntersectionStreetSegment(id, i);
             streets_attached.push_back((getInfoStreetSegment(temp)).streetID);
-        }
+        
         // add vector and intersection id to the map
-        Intersection_StreetTable.insert({streets_attached, id});
+        intersection_StreetTable.insert({id, streets_attached});
         // clear vector for next for loop
         streets_attached.clear();
     }
