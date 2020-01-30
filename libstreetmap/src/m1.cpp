@@ -20,6 +20,7 @@
  */
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
+//#include "DataStructures.cpp"
 #include <math.h>
 #include <vector>
 #include <algorithm>
@@ -30,8 +31,6 @@ bool load_map(std::string map_path) {
 
     // added some functions -p
     //Load your map related data structures here
-    //
-    load_OSMsucessful = loadOSMDatabaseBIN(const std::string&);
     load_successful = loadStreetsDatabaseBIN(map_path); //Make sure this is updated to reflect whether
                             //loading the map succeeded or failed
 
@@ -41,7 +40,6 @@ bool load_map(std::string map_path) {
 void close_map() {
     //Clean-up your map related data structures here
     closeStreetDatabase();
-    closeOSMDatabase();
 }
 //MADE BY PRISCILLA -M
 //Returns the distance between two coordinates in meters
@@ -121,7 +119,7 @@ int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 99999;
     IntersectionIndex closest;
-    for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it!=intersectionTable.end(); it++){
+    for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
         std::pair<LatLon, LatLon> temp (my_position, *it);
         double distance = find_distance_between_two_points(temp);
         if (distance<min_distance){
@@ -238,7 +236,8 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
                 adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).to);
             }
         }
-    }   
+    }
+    return adjacentIntersections;
 }
 
 //Returns all street segments for the given street
@@ -311,19 +310,20 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
 //You can choose what to return if the street prefix passed in is an empty (length 0) 
 //string, but your program must not crash if street_prefix is a length 0 string.
 std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){
-
+    std::vector<int> two_street_intersection_id;
+    return two_street_intersection_id;
 }
 //Returns the area of the given closed feature in square meters
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
 double find_feature_area(int feature_id){
-
+    return 0;
 }    
 
 //Returns the length of the OSMWay that has the given OSMID, in meters.
 //To implement this function you will have to  access the OSMDatabaseAPI.h 
 //functions.
 double find_way_length(OSMID way_id){
-
+    return 0;
 }
     
