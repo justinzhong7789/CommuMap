@@ -289,6 +289,9 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     //initialize vector to be returned
     std::vector<int> two_street_intersection_id;
     // use pre-loaded map
+      
+        
+    }
     if preloadedmap_find(street_id.first) and preloadedmap_find(street.second){
         two_street_intersection_id.push_back(example_intersection_id)
     }
