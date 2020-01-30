@@ -115,24 +115,20 @@ double find_street_segment_travel_time(int street_segment_id){
 //Returns the nearest intersection to the given position
 
 //finished, may need MAJOR debugging
+// changed from index to iterator...not sure if correct
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 99999;
     IntersectionIndex closest;
-    for (int id=0; id<getNumIntersections(); id++){
-        std::pair<LatLon, LatLon> temp (my_position, intersectionTable(id));
+    for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it!=intersectionTable.end(); it++){
+        std::pair<LatLon, LatLon> temp (my_position, *it);
         double distance = find_distance_between_two_points(temp);
         if (distance<min_distance){
             min_distance = distance;
-            closest = id;
+            closest = (it-intersectionTable.begin());
         }
     }
     return closest;
-<<<<<<< HEAD
-    
-
-=======
->>>>>>> Minimum debugging changes, trying to pull from Justin
 }
 
 //DONE, NEED TESTING -M
@@ -288,8 +284,14 @@ std::vector<int> find_intersections_of_street(int street_id){
 }
 //Return all intersection ids for two intersecting streets
 //This function will typically return one intersection id.
+//working on this -p
 std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_ids){
-
+    //initialize vector to be returned
+    std::vector<int> two_street_intersection_id;
+    // use pre-loaded map
+    if preloadedmap_find(street_id.first) and preloadedmap_find(street.second){
+        two_street_intersection_id.push_back(example_intersection_id)
+    }
 }
 
 //Returns all street ids corresponding to street names that start with the given prefix
