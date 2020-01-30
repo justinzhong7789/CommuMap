@@ -349,8 +349,34 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
 //vector.
 //You can choose what to return if the street prefix passed in is an empty (length 0) 
 //string, but your program must not crash if street_prefix is a length 0 string.
+
+// should be done...idk if it works - priscilla
 std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){
-    
+    //remove all white spaces
+    street_prefix.erase(remove(street_prefix.begin(), street_prefix.end(), ' '), street_prefix.end());
+    street_prefix = toupper(street_prefix); // change all to capital
+    if (street_prefix==""){ // return null if blank
+        return {NULL};
+    }
+    std::vector<int> street_ids = {NULL};
+    std::string street_name;
+    // O(n^2) squad -p
+    std::map<string, StreetIndex>::iterator it;
+    for (it=StreetNamesTable.begin();it!=StreetNamesTable.end();it++){
+        street_name = it->first;
+        street_name.erase(remove(street_name.begin(), street_name.end(), ' '), street_name.end());
+        street_name = toupper(street_name); // all to capital
+ 
+        for (int i=0; i<street_prefix.length(); i++){
+            if (street_prefix[i]!=street_name[i]){
+                break;
+            }
+            else if ((i-1) = street_prefix.length()){
+                street_ids.push_back(it->second);
+            }
+        }
+    }
+    return street_ids;
 }
 //Returns the area of the given closed feature in square meters
 //Assume a non self-intersecting polygon (i.e. no holes)
