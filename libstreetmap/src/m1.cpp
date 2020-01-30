@@ -95,8 +95,6 @@ double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     double x2 = points.second.lon() * DEGREE_TO_RADIAN * cos(latavg);
     double y2 = points.second.lat() * DEGREE_TO_RADIAN;
     
-    // c^2 = a^2 + b^2 -p
-    //DEBUGGING CHANGED THE ^ TO POW
     double result = EARTH_RADIUS_METERS * sqrt(pow((x2-x1),2) + pow((y2-y1),2));
     return result;
 }
@@ -115,24 +113,24 @@ double find_street_segment_length(int street_segment_id){
     if (street.curvePointCount == 0){
         // calculate distance from start to end
         std::pair<LatLon,LatLon> straight_segment (getIntersectionPosition(street.from), getIntersectionPosition(street.to));    
-        length = find_distance_between_two_points(straight_segment);        
+        length += find_distance_between_two_points(straight_segment);        
     } 
     // If street has curves, use some thicc maths to fix
     else {
-        for (int i=0; i<=street.curvePointCount; i++){
+        for (int i=1; i<=street.curvePointCount; i++){
             // note: if street has 1 corner, add two segments, if 2 corners, add three segments, etc -p
             // assume all curve points are corners? -p
             std::pair<LatLon,LatLon> curved_segment;
             if (i==0){ // calculate distance from beginning of street to first curve
                 curved_segment.first = getIntersectionPosition(street.from); 
-                curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);
             }
             else if (i==street.curvePointCount){ // calculate distance from last curve to end of street
-                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
+                curved_segment.first = getStreetSegmentCurvePoint(i+1, street_segment_id);
                 curved_segment.second = getIntersectionPosition(street.to);
             } else { // calculate distance between each curve (or realistically, each corner)
-                curved_segment.first = getStreetSegmentCurvePoint(i-1, street_segment_id);
-                curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);       
+                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);       
             }
             length += find_distance_between_two_points(curved_segment);
         }
@@ -403,9 +401,9 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     //remove all white spaces
     street_prefix.erase(remove(street_prefix.begin(), street_prefix.end(), ' '), street_prefix.end());
     std::transform(street_prefix.begin(), street_prefix.end(), street_prefix.begin(), ::toupper); // change all to capital
-    if (street_prefix==""){ // return null if blank
+    /*if (street_prefix==""){ // return null if blank
         return {NULL};
-    }
+    }*/
     std::vector<int> street_ids;
     std::string street_name;
     // O(n^2) squad -p  
