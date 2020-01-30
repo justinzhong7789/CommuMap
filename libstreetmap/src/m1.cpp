@@ -310,8 +310,7 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
 //You can choose what to return if the street prefix passed in is an empty (length 0) 
 //string, but your program must not crash if street_prefix is a length 0 string.
 std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){
-    std::vector<int> two_street_intersection_id;
-    return two_street_intersection_id;
+    
 }
 //Returns the area of the given closed feature in square meters
 //Assume a non self-intersecting polygon (i.e. no holes)
