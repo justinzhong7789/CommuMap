@@ -215,22 +215,27 @@ std::vector<std::string> find_street_names_of_intersection(int intersection_id){
     return intersection_street_names;
 }
 
-//DONE, NEED TESTING, DID NOT USE THE 1-WAY HINT, MIGHT TAKE TOO LONG O(N^2) -M
+//Tested received 2 out of 4 failed -M
 //Returns true if you can get from intersection_ids.first to intersection_ids.second using a single 
 //street segment (hint: check for 1-way streets too)
 //corner case: an intersection is considered to be connected to itself
 bool are_directly_connected(std::pair<int, int> intersection_ids){
 
+    //std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
+    //std::vector<int> intersectionSegmentsTwo = find_street_segments_of_intersection(intersection_ids.second);
+    
     std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
-    std::vector<int> intersectionSegmentsTwo = find_street_segments_of_intersection(intersection_ids.second);
+    
+    if(intersection_ids.first == intersection_ids.second)return true;
     
     for(int i=0 ; i < intersectionSegmentsOne.size() ; ++i){
-        for(int k=0; k<intersectionSegmentsTwo.size(); ++k)
-            
-        //if the intersections share segments then they are directly connected return true
-        if(intersection_ids.first == intersection_ids.second ||
-            //if the two intersections share a common segment, and that segment runs from the first intersection to the second intersection return true.    
-            (intersectionSegmentsOne[i] == intersectionSegmentsTwo[k] && getInfoStreetSegment(intersectionSegmentsOne[i]).from == intersection_ids.first && getInfoStreetSegment(intersectionSegmentsOne[i]).to == intersection_ids.second )){
+        
+        if (getInfoStreetSegment(intersectionSegmentsOne[i]).oneWay){
+            if(getInfoStreetSegment(intersectionSegmentsOne[i]).to == intersection_ids.second){
+                return true;
+            }
+            return false;
+        }else if(getInfoStreetSegment(intersectionSegmentsOne[i]).to == intersection_ids.second){
             return true;
         }
     }
@@ -251,31 +256,15 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
     twoIntersections.first = intersection_id;
     
     for (int i = 0; i < intersectionStreetSegments.size() ; ++i){
-        
-        
-        //Checking for one Way
-        if(getInfoStreetSegment(intersectionStreetSegments[i]).oneWay){
-            
-            //if street segment goes away from intersection_id, put intersection id that is 'to'.
-            if(getInfoStreetSegment(intersectionStreetSegments[i]).from == intersection_id){
-                adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).to);
-            //if street segment goes towards intersection, it is not an adjacent intersection
-            }
-            
-        }else{
-            
             //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
             //checks if the 'from' intersection is the intersection_id
             twoIntersections.second = getInfoStreetSegment(intersectionStreetSegments[i]).from;
             if(are_directly_connected(twoIntersections)){
                 adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).from);
-            }
-            //checking if its the intersection 'to' instead of the 'from'
-            twoIntersections.second = getInfoStreetSegment(intersectionStreetSegments[i]).to;
-            if(are_directly_connected(twoIntersections)){
+                twoIntersections.second = getInfoStreetSegment(intersectionStreetSegments[i]).to;
+            }else if(are_directly_connected(twoIntersections)){
                 adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).to);
             }
-        }
     }
     return adjacentIntersections;
 }
