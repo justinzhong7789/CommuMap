@@ -89,15 +89,15 @@ double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     // note lat() and lon() are degrees, cosine uses RADIANS -p
     double latavg = ((points.first.lat() + points.second.lat()) * DEGREE_TO_RADIAN)/2;
     // note to self: latitude is up/down, longitude is left/right -p
-    double x1 = EARTH_RADIUS_METERS * points.first.lat() * DEGREE_TO_RADIAN * cos(latavg);
-    double y1 = EARTH_RADIUS_METERS * points.first.lat() * DEGREE_TO_RADIAN;
+    double x1 = points.first.lon() * DEGREE_TO_RADIAN * cos(latavg);
+    double y1 = points.first.lat() * DEGREE_TO_RADIAN;
     // note to self: radians * radius = arc length -p
-    double x2 = EARTH_RADIUS_METERS * points.second.lat() * DEGREE_TO_RADIAN * cos(latavg);
-    double y2 = EARTH_RADIUS_METERS * points.second.lat() * DEGREE_TO_RADIAN;
+    double x2 = points.second.lon() * DEGREE_TO_RADIAN * cos(latavg);
+    double y2 = points.second.lat() * DEGREE_TO_RADIAN;
     
     // c^2 = a^2 + b^2 -p
     //DEBUGGING CHANGED THE ^ TO POW
-    double result = sqrt(pow((x2-x1),2) + pow((y2-y1),2));
+    double result = EARTH_RADIUS_METERS * sqrt(pow((x2-x1),2) + pow((y2-y1),2));
     return result;
 }
 
@@ -406,9 +406,9 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     if (street_prefix==""){ // return null if blank
         return {NULL};
     }
-    std::vector<int> street_ids = {NULL};
+    std::vector<int> street_ids;
     std::string street_name;
-    // O(n^2) squad -p
+    // O(n^2) squad -p  
     std::unordered_map<std::string, StreetIndex>::iterator it;
     for (it=StreetNamesTable.begin();it!=StreetNamesTable.end();it++){
         street_name = it->first;
@@ -419,7 +419,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
             if (street_prefix[i]!=street_name[i]){
                 break;
             }
-            else if (i = street_prefix.length()-1){
+            else if ((street_prefix[i]!=street_name[i])&&(i = street_prefix.length()-1)){
                 street_ids.push_back(it->second);
             }
         }
