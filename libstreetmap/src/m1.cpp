@@ -190,7 +190,7 @@ int find_closest_intersection(LatLon my_position){
     return closest;
 }
 
-//DONE, NEED TESTING -M
+//I THINK THIS PASSES -M
 //Returns the street segments for the given intersection 
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
     std::vector<int> street_segments_of_intersection;
@@ -204,7 +204,7 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
     return street_segments_of_intersection;
 }
 
-//DONE, NEED TESTING -M
+//I THINK THIS ALSO PASSES -M
 //DEPENDENT ON find_street_segments_of_intersection WORKING -M
 //Returns the street names at the given intersection (includes duplicate street 
 //names in returned vector)
@@ -224,14 +224,11 @@ std::vector<std::string> find_street_names_of_intersection(int intersection_id){
     return intersection_street_names;
 }
 
-//Tested received 2 out of 4 failed -M
+//FINISHED -M
 //Returns true if you can get from intersection_ids.first to intersection_ids.second using a single 
 //street segment (hint: check for 1-way streets too)
 //corner case: an intersection is considered to be connected to itself
 bool are_directly_connected(std::pair<int, int> intersection_ids){
-
-    //std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
-    //std::vector<int> intersectionSegmentsTwo = find_street_segments_of_intersection(intersection_ids.second);
     
     std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
     int streetSegmentTo = 0;
@@ -248,8 +245,6 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
             }
             return false;
         }else{
-            
-            
             if(streetSegmentTo == intersection_ids.second || streetSegmentFrom == intersection_ids.second){
                 return true;
             }
@@ -264,23 +259,25 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
 //from given intersection (hint: you can't travel the wrong way on a 1-way street)
 //the returned vector should NOT contain duplicate intersections
 std::vector<int> find_adjacent_intersections(int intersection_id){
-
     
     std::vector<int> adjacentIntersections;
-    std::vector<int> intersectionStreetSegments = find_street_segments_of_intersection(intersection_id);
+    //std::vector<int> intersectionSegments = find_street_segments_of_intersection(intersection_id);
     std::pair<int,int> twoIntersections;
     twoIntersections.first = intersection_id;
     
-    for (int i = 0; i < intersectionStreetSegments.size() ; ++i){
-            //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
-            //checks if the 'from' intersection is the intersection_id
-            twoIntersections.second = getInfoStreetSegment(intersectionStreetSegments[i]).from;
+    for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id) ; ++i){
+        //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
+        //checks if the 'from' intersection is the intersection_id
+        twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).to;
+        if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
+            adjacentIntersections.push_back(twoIntersections.second);
+        }
+            twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).from;
             if(are_directly_connected(twoIntersections)){
-                adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).from);
-                twoIntersections.second = getInfoStreetSegment(intersectionStreetSegments[i]).to;
-            }else if(are_directly_connected(twoIntersections)){
-                adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).to);
+            adjacentIntersections.push_back(twoIntersections.second);
             }
+            
+        
     }
     return adjacentIntersections;
 }
@@ -421,6 +418,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     /*if (street_prefix==""){ // return null if blank
         return {NULL};
     }*/
+/*
     std::vector<int> street_ids;
     std::string street_name;
     // O(n^2) squad -p  
