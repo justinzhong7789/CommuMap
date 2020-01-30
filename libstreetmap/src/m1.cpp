@@ -25,6 +25,39 @@
 #include <vector>
 #include <algorithm>
 
+std::vector<LatLon> intersectionTable;
+std::unordered_map<std::string, StreetIndex> StreetNamesTable;
+std::unordered_map<IntersectionIndex, std::vector<int> > intersection_StreetTable;
+
+// allocates vector of intersection ids
+void makeIntersectionTable(){
+    for (IntersectionIndex id=0; id<getNumIntersections(); id++){
+        intersectionTable.push_back(getIntersectionPosition(id));
+    }
+}
+// allocates map of all street names + street index
+void makeStreetNamesTable(){
+    for (StreetIndex id=0; id<getNumStreets();id++){
+        StreetNamesTable.insert({getStreetName(id), id});
+    }
+}
+// my implementation of find streets in intersection -p
+void makeIntersection_StreetTable(){
+    std::vector<int> streets_attached;
+    for (IntersectionIndex id=0; id<getNumIntersections(); id++){
+        for(int i=0; i < getIntersectionStreetSegmentCount(id); ++i){
+            // add each street connecting to the intersection into streets_attached vector
+            StreetSegmentIndex temp = getIntersectionStreetSegment(id, i);
+            streets_attached.push_back((getInfoStreetSegment(temp)).streetID);
+        
+        // add vector and intersection id to the map
+        intersection_StreetTable.insert({id, streets_attached});
+        // clear vector for next for loop
+        streets_attached.clear();
+    }
+}
+
+
 bool load_map(std::string map_path) {
     bool load_successful = false; //Indicates whether the map has loaded 
                                   //successfully
