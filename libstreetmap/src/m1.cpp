@@ -146,10 +146,10 @@ double find_street_segment_length(int street_segment_id){
             std::pair<LatLon,LatLon> curved_segment;
             if (i==0){ // calculate distance from beginning of street to first curve
                 curved_segment.first = getIntersectionPosition(street.from); 
-                curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);
             }
-            else if (i==street.curvePointCount){ // calculate distance from last curve to end of street
-                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
+            else if (i==street.curvePointCount-1){ // calculate distance from last curve to end of street
+                curved_segment.first = getStreetSegmentCurvePoint(i+1, street_segment_id);
                 curved_segment.second = getIntersectionPosition(street.to);
             } else { // calculate distance between each curve (or realistically, each corner)
                 curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
@@ -326,7 +326,7 @@ std::vector<int> find_intersections_of_street(int street_id){
 }
 //Return all intersection ids for two intersecting streets
 //This function will typically return one intersection id.
-//working on this -p
+//this passes i think -p
 std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_ids){
     //initialize vector to be returned
     std::vector<int> intersections_first = find_intersections_of_street(street_ids.first);
@@ -354,7 +354,7 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
 
 // should be done...idk if it works - priscilla
 std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){
-    
+    /*
     std::vector<int> matching_street_ids;
     int inputLength = street_prefix.length();
     
@@ -411,14 +411,14 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     }
     return matching_street_ids; 
 }
- /*
+ */
     //remove all white spaces
     street_prefix.erase(remove(street_prefix.begin(), street_prefix.end(), ' '), street_prefix.end());
     std::transform(street_prefix.begin(), street_prefix.end(), street_prefix.begin(), ::toupper); // change all to capital
-    /*if (street_prefix==""){ // return null if blank
+    if (street_prefix==""){ // return null if blank
         return {NULL};
-    }*/
-/*
+    }
+
     std::vector<int> street_ids;
     std::string street_name;
     // O(n^2) squad -p  
@@ -439,8 +439,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     }
     return street_ids;
 }
-  * 
-  */ 
+  
 //Returns the area of the given closed feature in square meters
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
