@@ -22,6 +22,7 @@
 #include "StreetsDatabaseAPI.h"
 #include <math.h>
 #include <vector>
+#include <algorithm>
 
 bool load_map(std::string map_path) {
     bool load_successful = false; //Indicates whether the map has loaded 
@@ -287,14 +288,19 @@ std::vector<int> find_intersections_of_street(int street_id){
 //working on this -p
 std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_ids){
     //initialize vector to be returned
-    std::vector<int> two_street_intersection_id;
-    // use pre-loaded map
-      
-        
-    }
-    if preloadedmap_find(street_id.first) and preloadedmap_find(street.second){
-        two_street_intersection_id.push_back(example_intersection_id)
-    }
+    std::vector<int> intersections_first = find_intersections_of_street(street_ids.first);
+    std::vector<int> intersections_second = find_intersections_of_street(street_ids.second);
+    
+    std::vector<int> output(99999);
+    std::vector<int>::iterator it;
+    
+    std::sort(intersections_first.begin(), intersections_first.end());
+    std::sort(intersections_second.begin(), intersections_second.end());
+    
+    it = std::set_intersection(intersections_first.begin(), intersections_first.end(),
+            intersections_second.begin(), intersections_second.end(), output.begin());
+    output.resize(it-output.begin());
+    return output;
 }
 
 //Returns all street ids corresponding to street names that start with the given prefix
