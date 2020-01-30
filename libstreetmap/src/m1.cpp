@@ -20,14 +20,20 @@
  */
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
-//#include "DataStructures.cpp"
+#include <map>
+#include <unordered_map>
 #include <math.h>
 #include <vector>
 #include <algorithm>
 
+
 std::vector<LatLon> intersectionTable;
-std::unordered_map<std::string, StreetIndex> StreetNamesTable;
-std::unordered_map<IntersectionIndex, std::vector<int> > intersection_StreetTable;
+std::unordered_map< std::string, StreetIndex> StreetNamesTable;
+std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
+
+void makeIntersectionTable();
+void makeStreetNamesTable();
+void makeIntersection_StreetTable();
 
 // allocates vector of intersection ids
 void makeIntersectionTable(){
@@ -54,9 +60,10 @@ void makeIntersection_StreetTable(){
         intersection_StreetTable.insert({id, streets_attached});
         // clear vector for next for loop
         streets_attached.clear();
+    
+        }
     }
 }
-
 
 bool load_map(std::string map_path) {
     bool load_successful = false; //Indicates whether the map has loaded 
