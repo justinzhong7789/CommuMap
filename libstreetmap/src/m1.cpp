@@ -117,16 +117,17 @@ double find_street_segment_length(int street_segment_id){
     } 
     // If street has curves, use some thicc maths to fix
     else {
-        for (int i=1; i<=street.curvePointCount; i++){
+        for (int i=0; i<street.curvePointCount; i++){
             // note: if street has 1 corner, add two segments, if 2 corners, add three segments, etc -p
             // assume all curve points are corners? -p
+ 
             std::pair<LatLon,LatLon> curved_segment;
             if (i==0){ // calculate distance from beginning of street to first curve
                 curved_segment.first = getIntersectionPosition(street.from); 
-                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);
             }
             else if (i==street.curvePointCount){ // calculate distance from last curve to end of street
-                curved_segment.first = getStreetSegmentCurvePoint(i+1, street_segment_id);
+                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
                 curved_segment.second = getIntersectionPosition(street.to);
             } else { // calculate distance between each curve (or realistically, each corner)
                 curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
@@ -157,11 +158,11 @@ double find_street_segment_travel_time(int street_segment_id){
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 99999;
-    IntersectionIndex closest;
+    int closest;
     for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
         std::pair<LatLon, LatLon> temp (my_position, *it);
         double distance = find_distance_between_two_points(temp);
-        if (distance<min_distance){
+        if (distance < min_distance){
             min_distance = distance;
             closest = (it-intersectionTable.begin());
         }
