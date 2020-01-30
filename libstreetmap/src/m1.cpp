@@ -104,7 +104,7 @@ void close_map() {
     //Clean-up your map related data structures here
     closeStreetDatabase();
 }
-//MADE BY PRISCILLA -M
+//passes -p
 //Returns the distance between two coordinates in meters
 double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     // see page 14 of milestone 1; (x,y)=(lon*cos(latavg), lat) -p
@@ -185,7 +185,8 @@ int find_closest_intersection(LatLon my_position){
         double distance = find_distance_between_two_points(temp);
         if (distance < min_distance){
             min_distance = distance;
-            closest = (it-intersectionTable.begin());
+            closest = 10;
+            //closest = (it-intersectionTable.begin());
         }
     }
     return closest;
