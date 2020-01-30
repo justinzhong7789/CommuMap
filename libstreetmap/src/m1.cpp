@@ -254,7 +254,7 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
 }
 
 
-//SUPER ROUGH MIGHT TAKE WAYYY TOO LONG -M
+//FINISHED-M
 //Returns all intersections reachable by traveling down one street segment 
 //from given intersection (hint: you can't travel the wrong way on a 1-way street)
 //the returned vector should NOT contain duplicate intersections
@@ -273,11 +273,9 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
             adjacentIntersections.push_back(twoIntersections.second);
         }
             twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).from;
-            if(are_directly_connected(twoIntersections)){
+            if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
             adjacentIntersections.push_back(twoIntersections.second);
             }
-            
-        
     }
     return adjacentIntersections;
 }
