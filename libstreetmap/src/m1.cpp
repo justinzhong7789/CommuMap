@@ -118,14 +118,16 @@ double find_street_segment_travel_time(int street_segment_id){
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 99999;
-    for (int i=0; i<getNumIntersections(); i++){
-        std::pair<LatLon, LatLon> temp (my_position, intersectionTable(i));
+    IntersectionIndex closest;
+    for (int id=0; id<getNumIntersections(); id++){
+        std::pair<LatLon, LatLon> temp (my_position, intersectionTable(id));
         double distance = find_distance_between_two_points(temp);
         if (distance<min_distance){
             min_distance = distance;
+            closest = id;
         }
     }
-    return min_distance;
+    return closest;
 <<<<<<< HEAD
     
 
