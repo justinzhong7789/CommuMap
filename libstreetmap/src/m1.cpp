@@ -50,7 +50,7 @@ void makeStreetNamesTable(){
     }
 }
 // my implementation of find streets in intersection -p
-void makeIntersection_StreetTable(){
+/* void makeIntersection_StreetTable(){
     std::vector<int> streets_attached;
     for (IntersectionIndex id=0; id<getNumIntersections(); id++){
         for(int i=0; i < getIntersectionStreetSegmentCount(id); ++i){
@@ -65,7 +65,7 @@ void makeIntersection_StreetTable(){
     
         }
     }
-}
+}*/
 /*
 class segmentsInfo {
    
@@ -98,7 +98,7 @@ bool load_map(std::string map_path) {
                             //loading the map succeeded or failed
     makeIntersectionTable();
     makeStreetNamesTable();
-    makeIntersection_StreetTable();
+    // makeIntersection_StreetTable();
     return load_successful;
 }
 
@@ -141,21 +141,21 @@ double find_street_segment_length(int street_segment_id){
     } 
     // If street has curves, use some thicc maths to fix
     else {
-        for (int i=0; i<street.curvePointCount; i++){
+        for (int i=0; i<=street.curvePointCount; i++){
             // note: if street has 1 corner, add two segments, if 2 corners, add three segments, etc -p
             // assume all curve points are corners? -p
- 
+            int a = street.curvePointCount;
             std::pair<LatLon,LatLon> curved_segment;
             if (i==0){ // calculate distance from beginning of street to first curve
                 curved_segment.first = getIntersectionPosition(street.from); 
-                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);
             }
-            else if (i==street.curvePointCount-1){ // calculate distance from last curve to end of street
-                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
+            else if (i==street.curvePointCount){ // calculate distance from last curve to end of street
+                curved_segment.first = getStreetSegmentCurvePoint(i-1, street_segment_id);
                 curved_segment.second = getIntersectionPosition(street.to);
             } else { // calculate distance between each curve (or realistically, each corner)
-                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
-                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);       
+                curved_segment.first = getStreetSegmentCurvePoint(i-1, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);       
             }
             length += find_distance_between_two_points(curved_segment);
         }
