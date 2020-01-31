@@ -175,25 +175,21 @@ double find_street_segment_travel_time(int street_segment_id){
 //I THINK PRISCILLA SHOULD DO THIS ONE CUZ YOU NEED HER FUNCTIONS FOR THIS -M
 //Returns the nearest intersection to the given position
 
-//finished, may need MAJOR debugging
-// changed from index to iterator...not sure if correct
+//finished, fixed but may violate performance
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 999999;
     int closest;
-    // debugger skips for loop - why?
-    // it = intersectionTable.begin();
-    for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
-    // std::vector<LatLon>::iterator it = intersectionTable.begin();
-    //for (int i=0; i<getNumIntersections();i++){
-        //InfoStreetSegment idk = getInfoStreetSegment(getIntersectionStreetSegment(i));
-        //std::pair<LatLon, LatLon> temp (my_position, getIntersectionPosition(i));
-        std::pair<LatLon, LatLon> temp (my_position, *it);
+    //for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
+    for (int i=0; i<getNumIntersections();i++){
+        LatLon current = getIntersectionPosition(i);
+        std::pair<LatLon, LatLon> temp (my_position, current);
+        //std::pair<LatLon, LatLon> temp (my_position, *it);
         double distance = find_distance_between_two_points(temp);
         if (distance < min_distance){
             min_distance = distance;
-            
-            closest = (it - intersectionTable.begin());
+            closest = i;
+            //closest = (it - intersectionTable.begin());
         }
     }
     return closest;
@@ -444,12 +440,8 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
             if (street_prefix[i]!=street_name[i]){
                 break;
             }
-<<<<<<< HEAD
+
             else if ((street_prefix[i]==street_name[i])&&(i==street_prefix.length()-1)){
-=======
-            else if ((i-1) == street_prefix.length()){
-            else if ((street_prefix[i]!=street_name[i])&&(i = street_prefix.length()-1)){
->>>>>>> 456f33b3524dc5a85314d64c079088b15543dd6d
                 street_ids.push_back(it->second);
             }
         } 
