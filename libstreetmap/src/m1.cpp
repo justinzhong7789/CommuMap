@@ -119,8 +119,7 @@ double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     double x2 = points.second.lon() * DEGREE_TO_RADIAN * cos(latavg);
     double y2 = points.second.lat() * DEGREE_TO_RADIAN;
     
-    double result = EARTH_RADIUS_METERS * sqrt(pow((x2-x1),2) + pow((y2-y1),2));
-    return result;
+    return EARTH_RADIUS_METERS * sqrt(pow((x2-x1),2) + pow((y2-y1),2));
 }
 
 //MADE BY PRISCILLA -M /// status: done, needs debugging -p
@@ -166,9 +165,10 @@ double find_street_segment_length(int street_segment_id){
 //Returns the travel time to drive a street segment in seconds 
 //(time = distance/speed_limit)
 //J
+// debugging: off by 3.6 so i just multiplied it lol -p
 double find_street_segment_travel_time(int street_segment_id){
     double travel_time;
-    travel_time=find_street_segment_length(street_segment_id)/ (getInfoStreetSegment(street_segment_id).speedLimit);
+    travel_time= (find_street_segment_length(street_segment_id))*3.6 / (getInfoStreetSegment(street_segment_id).speedLimit);
     return travel_time;
 }
 
