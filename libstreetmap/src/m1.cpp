@@ -96,7 +96,9 @@ bool load_map(std::string map_path) {
     //Load your map related data structures here
     load_successful = loadStreetsDatabaseBIN(map_path); //Make sure this is updated to reflect whether
                             //loading the map succeeded or failed
-
+    makeIntersectionTable();
+    makeStreetNamesTable();
+    makeIntersection_StreetTable();
     return load_successful;
 }
 
@@ -429,6 +431,10 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     std::string street_name;
     // O(n^2) squad -p  
     std::unordered_map<std::string, StreetIndex>::iterator it;
+    it=StreetNamesTable.begin();
+    if (it == StreetNamesTable.end()){
+        int a = 0;
+    }
     for (it=StreetNamesTable.begin();it!=StreetNamesTable.end();it++){
         street_name = it->first;
         street_name.erase(remove(street_name.begin(), street_name.end(), ' '), street_name.end());
@@ -441,7 +447,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
             else if ((street_prefix[i]!=street_name[i])&&(i = street_prefix.length()-1)){
                 street_ids.push_back(it->second);
             }
-        }
+        } 
     }
     return street_ids;
 }
