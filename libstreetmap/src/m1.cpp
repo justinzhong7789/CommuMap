@@ -33,8 +33,10 @@ std::vector<LatLon> intersectionTable;
 std::unordered_map< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
 //std::unordered_map< StreetIndex, StreetSegmentIndex > SegmentsOfStreets;
-//std::multimap<StreetIndex, std::list<int> > SegmentsOfStreets;
-std::unordered_map<int, std::vector<int>> SegmentsOfStreets;
+std::multimap<StreetIndex, int> SegmentsOfStreets;
+typedef std::multimap<StreetIndex, int>::iterator SegOfStreetsIt;
+//std::pair<SegOfStreetsIt,SegOfStreetsIt> result;  
+//std::unordered_map<int, std::vector<int>> SegmentsOfStreets;
 
 
 void makeIntersectionTable();
@@ -74,7 +76,7 @@ void makeSegmentsOfStreets(){
     
     for(int i=0;i<num_street_seg;i++){
         streetID = getInfoStreetSegment(i).streetID;
-        SegmentsOfStreets[streetID].emplace_back(i);
+        SegmentsOfStreets.insert({streetID, i});
     }
 }
 
@@ -95,27 +97,6 @@ void makeSegmentsOfStreets(){
         }
     }
 }*/
-/*
-class segmentsInfo {
-   
-    OSMID wayOSMID;   // OSM ID of the source way
-                      // NOTE: Multiple segments may match a single OSM way ID
-
-    IntersectionIndex from, to;  // intersection ID this segment runs from/to
-    bool oneWay;            // if true, then can only travel in from->to direction
-
-    int curvePointCount;    // number of curve points between the ends
-    float speedLimit;            // in km/h
-
-    StreetIndex	streetID;        // index of street this segment belongs to
-
-     
-};       
-
-std::string segmentName(int segment_id){
-    return getStreetName(getInfoStreetSegment(segment_id).streetID);
-}
- */ 
 
 bool load_map(std::string map_path) {
     bool load_successful = false; //Indicates whether the map has loaded 
@@ -362,9 +343,10 @@ std::vector<int> find_street_segments_of_street(int street_id){
 std::vector<int> find_street_segments_of_street(int street_id){
     std::vector<int> street_segment_ids;
     
-    auto street = SegmentsOfStreets.find(street_id);
-    for(auto iterate = street ; street != SegmentsOfStreets.end() ; iterate)
-    
+    auto pointerToStreetSegments = SegmentsOfStreets.equal_range(street_id);
+    for(SegOfStreetsIt it = pointerToStreetSegments.first ; it != pointerToStreetSegments.second ; it++){
+        street_segment_ids.push_back(it->second);
+    }
     return street_segment_ids;
 }
 
@@ -512,7 +494,6 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
         } 
     }
     return street_ids
-    
 }
    */
 //Returns the area of the given closed feature in square meters
