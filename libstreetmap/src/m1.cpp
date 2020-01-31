@@ -566,13 +566,16 @@ double find_way_length(OSMID way_id){
     for (int i=0; i<nodes_coords.size(); i++){
         
     }
-    
+     
     return distance;*/
-    return 0;
-<<<<<<< HEAD
+    double length = 0;
+    std::vector<OSMID> wayMembers_OSMids = getWayMembers(getWayByIndex(way_id));
+    std::vector<LatLon> coords_in_latlon;
+    for(int i=0; i < wayMembers_OSMids.size() ; i++){
+        coords_in_latlon.push_back(getNodeCoords(( getNodeByIndex(wayMembers_OSMids[i]))));
+    }
+    for(int i=0; i < wayMembers_OSMids.size() ;i++){
+        length += find_distance_between_two_points(std::make_pair(coords_in_latlon[i], coords_in_latlon[i+1]));
+    }
+    return length;
 }
-    
-#include "OSMDatabaseAPI.h"
-=======
-}
->>>>>>> b615d41c17e3df36874617ee4b93e2bef20a6e85
