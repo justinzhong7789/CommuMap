@@ -226,7 +226,7 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
     
     std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
     
-    if(intersection_ids.first == intersection_ids.second)return true;
+    if(intersection_ids.first == intersection_ids.second){return true;}
     
     for(int i=0 ; i < intersectionSegmentsOne.size() ; ++i){
         
@@ -391,7 +391,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
                         (ith_streetName[j+streetName_plus]=='z'&& street_prefix[j]=='Z')||(ith_streetName[j+streetName_plus]=='Z'&&street_prefix[j]=='z')
                 ){}//do nothing
                 else{break;}
-                if(j=inputLength-1){match=true;}
+                if(j==inputLength-1){match=true;}
             }
             if(match){matching_street_ids.push_back(i);}
         }
@@ -418,7 +418,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
             if (street_prefix[i]!=street_name[i]){
                 break;
             }
-            else if ((i-1) = street_prefix.length()){
+            else if ((i-1) == street_prefix.length()){
                 street_ids.push_back(it->second);
             }
         }
@@ -429,6 +429,8 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
 double find_feature_area(int feature_id){
+    
+    
     return 0;
 }    
 
