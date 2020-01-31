@@ -21,6 +21,7 @@
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
 #include <map>
+#include <list>
 #include <unordered_map>
 #include <math.h>
 #include <cctype>
@@ -31,6 +32,9 @@
 std::vector<LatLon> intersectionTable;
 std::unordered_map< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
+//std::unordered_map< StreetIndex, StreetSegmentIndex > SegmentsOfStreets;
+//std::multimap<StreetIndex, std::list<int> > SegmentsOfStreets;
+std::unordered_map<int, std::vector<int>> SegmentsOfStreets;
 
 
 void makeIntersectionTable();
@@ -57,12 +61,23 @@ void makeIntersectionTable(){
         intersectionTable.push_back(getIntersectionPosition(id));
     }
 }
-// allocates map of all street names + street index
+
 void makeStreetNamesTable(){
     for (StreetIndex id=0; id<getNumStreets();id++){
         StreetNamesTable.insert({getStreetName(id), id});
     }
 }
+
+void makeSegmentsOfStreets(){
+    int num_street_seg = getNumStreetSegments();
+    int streetID;
+    
+    for(int i=0;i<num_street_seg;i++){
+        streetID = getInfoStreetSegment(i).streetID;
+        SegmentsOfStreets[streetID].emplace_back(i);
+    }
+}
+
 // my implementation of find streets in intersection -p
 /* void makeIntersection_StreetTable(){
     std::vector<int> streets_attached;
@@ -326,7 +341,7 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
     }
     return adjacentIntersections;
 }
-
+/*
 //Returns all street segments for the given street
 //j
 std::vector<int> find_street_segments_of_street(int street_id){
@@ -335,11 +350,21 @@ std::vector<int> find_street_segments_of_street(int street_id){
     //then check all street segments' street id
     //if same as input insert it into return_me vector
     int num_street_seg = getNumStreetSegments();
+    
     for(int i=0;i<num_street_seg;i++){
         if(getInfoStreetSegment(i).streetID==street_id){
             street_segment_ids.push_back(i);
         }
     }
+    return street_segment_ids;
+}
+*/
+std::vector<int> find_street_segments_of_street(int street_id){
+    std::vector<int> street_segment_ids;
+    
+    auto street = SegmentsOfStreets.find(street_id);
+    for(auto iterate = street ; street != SegmentsOfStreets.end() ; iterate)
+    
     return street_segment_ids;
 }
 
@@ -494,6 +519,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
 double find_feature_area(int feature_id){
+    /*
     if((getFeaturePoint(0, feature_id).lat()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lat()) &&
       ((getFeaturePoint(0, feature_id).lon()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lon()))){ // == is not defined in LatLon class
         double area=0;
@@ -523,8 +549,12 @@ double find_feature_area(int feature_id){
         return area/2;
         
     }else{return 0;}
+
+     */
+    return 0;
 }    
 
+    
 //Returns the length of the OSMWay that has the given OSMID, in meters.
 //To implement this function you will have to  access the OSMDatabaseAPI.h 
 //functions.
