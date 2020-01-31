@@ -37,7 +37,7 @@ void makeIntersectionTable();
 void makeStreetNamesTable();
 void makeIntersection_StreetTable();
 double x_distance_between_2_points(LatLon first, LatLon second);
-double y_distance_between_2_poitns(LatLon first, LatLon second);
+double y_distance_between_2_points(LatLon first, LatLon second);
 
 double x_distance_between_2_points(LatLon first, LatLon second){
     double LatAvg = (first.lat()+second.lat())*DEGREE_TO_RADIAN/2;
@@ -46,7 +46,7 @@ double x_distance_between_2_points(LatLon first, LatLon second){
     return EARTH_RADIUS_METERS*(x2-x1);
 }
 
-double y_distance_between_2_poitns(LatLon first, LatLon second){
+double y_distance_between_2_points(LatLon first, LatLon second){
     double y1= first.lat()*DEGREE_TO_RADIAN;   
     double y2= second.lat()*DEGREE_TO_RADIAN;
     return EARTH_RADIUS_METERS*(y2-y1); 
@@ -156,6 +156,7 @@ double find_street_segment_length(int street_segment_id){
         }
         length += find_distance_between_two_points(std::make_pair(getStreetSegmentCurvePoint(segInfo.curvePointCount, street_segment_id), getIntersectionPosition(segInfo.to)));
     }
+    return length;
     /*
     // pull info from API library
     InfoStreetSegment street = getInfoStreetSegment(street_segment_id);
@@ -210,7 +211,7 @@ double find_street_segment_travel_time(int street_segment_id){
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 999999;
-    int closest;
+    int closest=0;
     //for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
     for (int i=0; i<getNumIntersections();i++){
         LatLon current = getIntersectionPosition(i);
@@ -496,9 +497,10 @@ double find_feature_area(int feature_id){
     if((getFeaturePoint(0, feature_id).lat()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lat()) &&
       ((getFeaturePoint(0, feature_id).lon()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lon()))){ // == is not defined in LatLon class
         double area=0;
-        double x[getFeaturePointCount(feature_id)];
-        double y[getFeaturePointCount(feature_id)];
-        LatLon originPoint = getFeaturePoint(0, feature_id);
+        int featurePointCount=getFeaturePointCount(feature_id);
+        double x[featurePointCount];
+        double y[featurePointCount];
+        LatLon origin = getFeaturePoint(0, feature_id);
         
         //initialize the first and last elements of x and y array to 0 
         //this makes the polygon start at the origin and end at the origin
@@ -531,4 +533,3 @@ double find_way_length(OSMID way_id){
     
     return 0;
 }
-    
