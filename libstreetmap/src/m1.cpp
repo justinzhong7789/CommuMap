@@ -276,17 +276,24 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
     //std::vector<int> intersectionSegments = find_street_segments_of_intersection(intersection_id);
     std::pair<int,int> twoIntersections;
     twoIntersections.first = intersection_id;
+    std::vector<int>::iterator checkForFind;
+    
     
     for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id) ; ++i){
         //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
         //checks if the 'from' intersection is the intersection_id
         twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).to;
         if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
-            adjacentIntersections.push_back(twoIntersections.second);
+            checkForFind = std::find(adjacentIntersections.begin(), adjacentIntersections.end(), twoIntersections.second);
+                if(checkForFind == adjacentIntersections.end()) //if intersection is not found
+            
+                adjacentIntersections.push_back(twoIntersections.second);
         }
             twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).from;
             if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
-            adjacentIntersections.push_back(twoIntersections.second);
+                checkForFind = std::find(adjacentIntersections.begin(), adjacentIntersections.end(), twoIntersections.second);
+                if(checkForFind == adjacentIntersections.end())
+                    adjacentIntersections.push_back(twoIntersections.second);
             }
     }
     return adjacentIntersections;
@@ -364,7 +371,7 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
 
 // should be done...idk if it works - priscilla
 std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){
-    /*
+    
     std::vector<int> matching_street_ids;
     int inputLength = street_prefix.length();
     
@@ -421,7 +428,8 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     }
     return matching_street_ids; 
 }
- */
+ 
+    /*
     //remove all white spaces
     street_prefix.erase(remove(street_prefix.begin(), street_prefix.end(), ' '), street_prefix.end());
     std::transform(street_prefix.begin(), street_prefix.end(), street_prefix.begin(), ::toupper); // change all to capital
@@ -454,9 +462,10 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
             }
         } 
     }
-    return street_ids;
+    return street_ids
+    
 }
-  
+   */
 //Returns the area of the given closed feature in square meters
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
