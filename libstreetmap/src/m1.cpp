@@ -128,6 +128,22 @@ double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
 //Returns the length of the given street segment in meters
 double find_street_segment_length(int street_segment_id){
  
+    InfoStreetSegment segInfo = getInfoStreetSegment(street_segment_id);
+    double length = 0;
+    if(segInfo.curvePointCount==0){
+        LatLon from_position = getIntersectionPosition(segInfo.from);
+        LatLon to_position = getIntersectionPosition(segInfo.to);
+        std::pair<LatLon, LatLon> from_to_to = std::make_pair(from_position, to_position);
+        length = find_distance_between_two_points(from_to_to);
+    }
+    else{
+        length += find_distance_between_two_points(std::make_pair(getIntersectionPosition(segInfo.from), getStreetSegmentCurvePoint(1,street_segment_id)));
+        for(int i=1; i<segInfo.curvePointCount;i++){
+            length+= find_distance_between_two_points( std::make_pair(getStreetSegmentCurvePoint(i,street_segment_id), getStreetSegmentCurvePoint(i+1, street_segment_id)));
+        }
+        length += find_distance_between_two_points(std::make_pair(getStreetSegmentCurvePoint(segInfo.curvePointCount, street_segment_id), getIntersectionPosition(segInfo.to)));
+    }
+    /*
     // pull info from API library
     InfoStreetSegment street = getInfoStreetSegment(street_segment_id);
     // initialize total length to 0
@@ -141,7 +157,7 @@ double find_street_segment_length(int street_segment_id){
     } 
     // If street has curves, use some thicc maths to fix
     else {
-        for (int i=0; i<street.curvePointCount; i++){
+        for (int i=0; i<= street.curvePointCount; i++){
             // note: if street has 1 corner, add two segments, if 2 corners, add three segments, etc -p
             // assume all curve points are corners? -p
  
@@ -162,6 +178,7 @@ double find_street_segment_length(int street_segment_id){
     }
     // should be done, needs debugging -p
     return length;
+     * */
 }
 
 //Returns the travel time to drive a street segment in seconds 
@@ -446,7 +463,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
             if (street_prefix[i]!=street_name[i]){
                 break;
             }
-            else if ((i-1) == street_prefix.length()){
+            else if ((i-1) == street_prefix.length()){}
             else if ((street_prefix[i]!=street_name[i])&&(i = street_prefix.length()-1)){
                 street_ids.push_back(it->second);
             }
