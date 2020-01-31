@@ -149,7 +149,7 @@ double find_street_segment_length(int street_segment_id){
                 curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);
             }
             else if (i==street.curvePointCount-1){ // calculate distance from last curve to end of street
-                curved_segment.first = getStreetSegmentCurvePoint(i+1, street_segment_id);
+                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
                 curved_segment.second = getIntersectionPosition(street.to);
             } else { // calculate distance between each curve (or realistically, each corner)
                 curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
@@ -180,13 +180,19 @@ int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 99999;
     int closest;
-    for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
-        std::pair<LatLon, LatLon> temp (my_position, *it);
+    // debugger skips for loop - why?
+    // it = intersectionTable.begin();
+    //for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
+    // std::vector<LatLon>::iterator it = intersectionTable.begin();
+    for (int i=0; i<getNumIntersections();i++){
+        // InfoStreetSegment idk = getInfoStreetSegment(getIntersectionStreetSegment(i));
+        std::pair<LatLon, LatLon> temp (my_position, getIntersectionPosition(i));
+        //std::pair<LatLon, LatLon> temp (my_position, intersectionTable[i]);
         double distance = find_distance_between_two_points(temp);
         if (distance < min_distance){
             min_distance = distance;
-            closest = 10;
-            //closest = (it-intersectionTable.begin());
+            
+            closest = i;
         }
     }
     return closest;
