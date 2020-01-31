@@ -219,17 +219,19 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
 //Returns the street names at the given intersection (includes duplicate street 
 //names in returned vector)
 std::vector<std::string> find_street_names_of_intersection(int intersection_id){
+    
     std::vector<int> street_segments_of_intersection = find_street_segments_of_intersection(intersection_id);
     std::vector<std::string> intersection_street_names;
-    //std::string streetName;
+    
+    std::string streetName; //street name from a given streetID
+    int streetID; //street ID from a given segment
     int i;
+    
     for (i=0; i< street_segments_of_intersection.size(); ++i){
-        //Starting from outmost brackets: putting street name into vector to return
-        //getting the street name from the street ID
-        //found the streetID through the InfoSteetSegment struct
-        //Used function to get the InfoStreetSegment
-        intersection_street_names.push_back(getStreetName(getInfoStreetSegment(street_segments_of_intersection[i]).streetID));
-        //includes duplicate names so no need to check for that
+       
+        streetID = getInfoStreetSegment(street_segments_of_intersection[i]).streetID;
+        streetName = getStreetName(streetID);
+        intersection_street_names.push_back(streetName);
     }
     return intersection_street_names;
 }
@@ -252,10 +254,9 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
         streetSegmentTo = getInfoStreetSegment(intersectionSegmentsOne[i]).to; 
         streetSegmentFrom = getInfoStreetSegment(intersectionSegmentsOne[i]).from; 
         if (getInfoStreetSegment(intersectionSegmentsOne[i]).oneWay){
-            if(streetSegmentTo == intersection_ids.second){
+            if(streetSegmentTo == intersection_ids.second){ //Is not accessible on oneWay streets if segment doesnt go from intersection1 to intersection2.. || streetSegmentFrom == intersection_ids.first
                 return true;
             }
-            return false;
         }else{
             if(streetSegmentTo == intersection_ids.second || streetSegmentFrom == intersection_ids.second){
                 return true;
