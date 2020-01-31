@@ -180,21 +180,21 @@ double find_street_segment_travel_time(int street_segment_id){
 // changed from index to iterator...not sure if correct
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
-    double min_distance = 99999;
+    double min_distance = 999999;
     int closest;
     // debugger skips for loop - why?
     // it = intersectionTable.begin();
-    //for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
+    for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
     // std::vector<LatLon>::iterator it = intersectionTable.begin();
-    for (int i=0; i<getNumIntersections();i++){
-        // InfoStreetSegment idk = getInfoStreetSegment(getIntersectionStreetSegment(i));
-        std::pair<LatLon, LatLon> temp (my_position, getIntersectionPosition(i));
-        //std::pair<LatLon, LatLon> temp (my_position, intersectionTable[i]);
+    //for (int i=0; i<getNumIntersections();i++){
+        //InfoStreetSegment idk = getInfoStreetSegment(getIntersectionStreetSegment(i));
+        //std::pair<LatLon, LatLon> temp (my_position, getIntersectionPosition(i));
+        std::pair<LatLon, LatLon> temp (my_position, *it);
         double distance = find_distance_between_two_points(temp);
         if (distance < min_distance){
             min_distance = distance;
             
-            closest = i;
+            closest = (it - intersectionTable.begin());
         }
     }
     return closest;
@@ -432,9 +432,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     // O(n^2) squad -p  
     std::unordered_map<std::string, StreetIndex>::iterator it;
     it=StreetNamesTable.begin();
-    if (it == StreetNamesTable.end()){
-        int a = 0;
-    }
+
     for (it=StreetNamesTable.begin();it!=StreetNamesTable.end();it++){
         street_name = it->first;
         street_name.erase(remove(street_name.begin(), street_name.end(), ' '), street_name.end());
@@ -444,7 +442,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
             if (street_prefix[i]!=street_name[i]){
                 break;
             }
-            else if ((street_prefix[i]!=street_name[i])&&(i = street_prefix.length()-1)){
+            else if ((street_prefix[i]==street_name[i])&&(i==street_prefix.length()-1)){
                 street_ids.push_back(it->second);
             }
         } 
