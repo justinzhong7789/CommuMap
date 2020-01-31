@@ -144,7 +144,6 @@ double find_street_segment_length(int street_segment_id){
         for (int i=0; i<=street.curvePointCount; i++){
             // note: if street has 1 corner, add two segments, if 2 corners, add three segments, etc -p
             // assume all curve points are corners? -p
-            int a = street.curvePointCount;
             std::pair<LatLon,LatLon> curved_segment;
             if (i==0){ // calculate distance from beginning of street to first curve
                 curved_segment.first = getIntersectionPosition(street.from); 
@@ -219,17 +218,19 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
 //Returns the street names at the given intersection (includes duplicate street 
 //names in returned vector)
 std::vector<std::string> find_street_names_of_intersection(int intersection_id){
+    
     std::vector<int> street_segments_of_intersection = find_street_segments_of_intersection(intersection_id);
     std::vector<std::string> intersection_street_names;
-    //std::string streetName;
+    
+    std::string streetName; //street name from a given streetID
+    int streetID; //street ID from a given segment
     int i;
+    
     for (i=0; i< street_segments_of_intersection.size(); ++i){
-        //Starting from outmost brackets: putting street name into vector to return
-        //getting the street name from the street ID
-        //found the streetID through the InfoSteetSegment struct
-        //Used function to get the InfoStreetSegment
-        intersection_street_names.push_back(getStreetName(getInfoStreetSegment(street_segments_of_intersection[i]).streetID));
-        //includes duplicate names so no need to check for that
+       
+        streetID = getInfoStreetSegment(street_segments_of_intersection[i]).streetID;
+        streetName = getStreetName(streetID);
+        intersection_street_names.push_back(streetName);
     }
     return intersection_street_names;
 }
@@ -241,6 +242,8 @@ std::vector<std::string> find_street_names_of_intersection(int intersection_id){
 bool are_directly_connected(std::pair<int, int> intersection_ids){
     
     std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
+    
+    if(intersection_ids.first == intersection_ids.second){return true;}
     int streetSegmentTo = 0;
     int streetSegmentFrom = 0;
     if(intersection_ids.first == intersection_ids.second)return true;
@@ -250,10 +253,9 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
         streetSegmentTo = getInfoStreetSegment(intersectionSegmentsOne[i]).to; 
         streetSegmentFrom = getInfoStreetSegment(intersectionSegmentsOne[i]).from; 
         if (getInfoStreetSegment(intersectionSegmentsOne[i]).oneWay){
-            if(streetSegmentTo == intersection_ids.second){
+            if(streetSegmentTo == intersection_ids.second){ //Is not accessible on oneWay streets if segment doesnt go from intersection1 to intersection2.. || streetSegmentFrom == intersection_ids.first
                 return true;
             }
-            return false;
         }else{
             if(streetSegmentTo == intersection_ids.second || streetSegmentFrom == intersection_ids.second){
                 return true;
@@ -412,7 +414,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
                         (ith_streetName[j+streetName_plus]=='z'&& street_prefix[j]=='Z')||(ith_streetName[j+streetName_plus]=='Z'&&street_prefix[j]=='z')
                 ){}//do nothing
                 else{break;}
-                if(j=inputLength-1){match=true;}
+                if(j==inputLength-1){match=true;}
             }
             if(match){matching_street_ids.push_back(i);}
         }
@@ -442,7 +444,12 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
             if (street_prefix[i]!=street_name[i]){
                 break;
             }
+<<<<<<< HEAD
             else if ((street_prefix[i]==street_name[i])&&(i==street_prefix.length()-1)){
+=======
+            else if ((i-1) == street_prefix.length()){
+            else if ((street_prefix[i]!=street_name[i])&&(i = street_prefix.length()-1)){
+>>>>>>> 456f33b3524dc5a85314d64c079088b15543dd6d
                 street_ids.push_back(it->second);
             }
         } 
@@ -454,6 +461,8 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
 double find_feature_area(int feature_id){
+    
+    
     return 0;
 }    
 
