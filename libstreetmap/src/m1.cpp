@@ -352,6 +352,10 @@ std::vector<int> find_street_segments_of_street(int street_id){
 /*
 std::vector<int> find_street_segments_of_street(int street_id){
     std::vector<int> street_segment_ids;
+    auto findStreet = SegmentsOfStreets.find(street_id);
+    
+    auto streetIndex = findStreet->first;
+    auto segmentIndex = findStreet->second;
     
     auto pointerToStreetSegments = SegmentsOfStreets.equal_range(street_id);
     for(SegOfStreetsIt it = pointerToStreetSegments.first ; it != pointerToStreetSegments.second ; it++){
