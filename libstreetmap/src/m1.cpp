@@ -36,7 +36,21 @@ std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTab
 void makeIntersectionTable();
 void makeStreetNamesTable();
 void makeIntersection_StreetTable();
+double x_distance_between_2_points(LatLon first, LatLon second);
+double y_distance_between_2_poitns(LatLon first, LatLon second);
 
+double x_distance_between_2_points(LatLon first, LatLon second){
+    double LatAvg = (first.lat()+second.lat())*DEGREE_TO_RADIAN/2;
+    double x1= first.lon()*DEGREE_TO_RADIAN* cos(LatAvg);
+    double x2=second.lon()*DEGREE_TO_RADIAN* cos(LatAvg);
+    return EARTH_RADIUS_METERS*(x2-x1);
+}
+
+double y_distance_between_2_poitns(LatLon first, LatLon second){
+    double y1= first.lat()*DEGREE_TO_RADIAN;   
+    double y2= second.lat()*DEGREE_TO_RADIAN;
+    return EARTH_RADIUS_METERS*(y2-y1); 
+}
 // allocates vector of intersection ids
 void makeIntersectionTable(){
     for (IntersectionIndex id=0; id<getNumIntersections(); id++){
@@ -479,15 +493,42 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
 double find_feature_area(int feature_id){
-    
-    
-    return 0;
+    if((getFeaturePoint(0, feature_id).lat()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lat()) &&
+      ((getFeaturePoint(0, feature_id).lon()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lon()))){ // == is not defined in LatLon class
+        double area=0;
+        double x[getFeaturePointCount(feature_id)];
+        double y[getFeaturePointCount(feature_id)];
+        LatLon originPoint = getFeaturePoint(0, feature_id);
+        
+        //initialize the first and last elements of x and y array to 0 
+        //this makes the polygon start at the origin and end at the origin
+        x[0]=0;     
+        x[getFeaturePointCount(feature_id)-1]=0;
+        y[0]=0;     
+        y[getFeaturePointCount(feature_id)-1]=0;
+        
+        // fill in the array with x-y coordinates with respect to the origin in meters
+        for(int i=1; i< getFeaturePointCount(feature_id)-1 ;i++){
+            LatLon point = getFeaturePoint(i, feature_id);
+            x[i] = x_distance_between_2_points(origin, point);
+            y[i] = y_distance_between_2_points(origin, point);
+        }
+        
+        //apply shoelace formula
+        for(int i=0; i <getFeaturePointCount(feature_id) ; i++ ){
+            area += (x[i]*y[i+1])-(y[i]*x[i+1]);
+        }
+        return area/2;
+        
+    }else{return 0;}
 }    
 
 //Returns the length of the OSMWay that has the given OSMID, in meters.
 //To implement this function you will have to  access the OSMDatabaseAPI.h 
 //functions.
 double find_way_length(OSMID way_id){
+    
+    
     return 0;
 }
     
