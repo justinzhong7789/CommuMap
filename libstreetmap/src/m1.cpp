@@ -40,6 +40,7 @@ std::unordered_map<int, std::vector<int>> SegmentsOfStreets;
 void makeIntersectionTable();
 void makeStreetNamesTable();
 void makeIntersection_StreetTable();
+void makeSegmentsOfStreets();
 double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_poitns(LatLon first, LatLon second);
 
@@ -125,8 +126,10 @@ bool load_map(std::string map_path) {
     //Load your map related data structures here
     load_successful = loadStreetsDatabaseBIN(map_path); //Make sure this is updated to reflect whether
                             //loading the map succeeded or failed
-    makeIntersectionTable();
-    makeStreetNamesTable();
+    if (load_successful==true){
+        makeIntersectionTable();
+        makeStreetNamesTable();
+    }
     // makeIntersection_StreetTable();
     return load_successful;
 }
@@ -155,7 +158,7 @@ double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
 //I WAS DEBUGGING. THE INPUT TO FIND_DISTANCE_BETWEEN_TWO_POINTS IS A PAIR SO I MADE IT A PAIR -M
 //Returns the length of the given street segment in meters
 double find_street_segment_length(int street_segment_id){
- 
+ /*
     InfoStreetSegment segInfo = getInfoStreetSegment(street_segment_id);
     double length = 0;
     if(segInfo.curvePointCount==0){
@@ -170,8 +173,8 @@ double find_street_segment_length(int street_segment_id){
             length+= find_distance_between_two_points( std::make_pair(getStreetSegmentCurvePoint(i,street_segment_id), getStreetSegmentCurvePoint(i+1, street_segment_id)));
         }
         length += find_distance_between_two_points(std::make_pair(getStreetSegmentCurvePoint(segInfo.curvePointCount, street_segment_id), getIntersectionPosition(segInfo.to)));
-    }
-    /*
+    }*/
+    
     // pull info from API library
     InfoStreetSegment street = getInfoStreetSegment(street_segment_id);
     // initialize total length to 0
@@ -205,12 +208,13 @@ double find_street_segment_length(int street_segment_id){
     }
     // should be done, needs debugging -p
     return length;
-     * */
+     
 }
 
 //Returns the travel time to drive a street segment in seconds 
 //(time = distance/speed_limit)
 //J
+// convert form kmh -> m/s
 // debugging: off by 3.6 so i just multiplied it lol -p
 double find_street_segment_travel_time(int street_segment_id){
     double travel_time;
@@ -340,7 +344,7 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
     }
     return adjacentIntersections;
 }
-/*
+
 //Returns all street segments for the given street
 //j
 std::vector<int> find_street_segments_of_street(int street_id){
@@ -357,7 +361,8 @@ std::vector<int> find_street_segments_of_street(int street_id){
     }
     return street_segment_ids;
 }
-*/
+
+/*
 std::vector<int> find_street_segments_of_street(int street_id){
     std::vector<int> street_segment_ids;
     
@@ -365,7 +370,7 @@ std::vector<int> find_street_segments_of_street(int street_id){
     for(auto iterate = street ; street != SegmentsOfStreets.end() ; iterate)
     
     return street_segment_ids;
-}
+}*/
 
 //Returns all intersections along the a given street
 //j
@@ -423,7 +428,7 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
 
 // should be done...idk if it works - priscilla
 std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){
-    
+    /*
     std::vector<int> matching_street_ids;
     int inputLength = street_prefix.length();
     
@@ -480,8 +485,8 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     }
     return matching_street_ids; 
 }
- 
-    /*
+ */
+    
     //remove all white spaces
     street_prefix.erase(remove(street_prefix.begin(), street_prefix.end(), ' '), street_prefix.end());
     std::transform(street_prefix.begin(), street_prefix.end(), street_prefix.begin(), ::toupper); // change all to capital
@@ -499,21 +504,20 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
         street_name = it->first;
         street_name.erase(remove(street_name.begin(), street_name.end(), ' '), street_name.end());
         std::transform(street_name.begin(), street_name.end(), street_name.begin(), ::toupper); // all to capital
- 
+
         for (int i=0; i<street_prefix.length(); i++){
             if (street_prefix[i]!=street_name[i]){
                 break;
             }
-            else if ((i-1) == street_prefix.length()){}
-            else if ((street_prefix[i]!=street_name[i])&&(i == street_prefix.length()-1)){
+            else if ((street_prefix[i]==street_name[i])&&(i == street_prefix.length()-1)){
                 street_ids.push_back(it->second);
             }
         } 
     }
-    return street_ids
+    return street_ids;
     
 }
-   */
+   
 //Returns the area of the given closed feature in square meters
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
@@ -557,8 +561,25 @@ double find_feature_area(int feature_id){
 //To implement this function you will have to  access the OSMDatabaseAPI.h 
 //functions.
 double find_way_length(OSMID way_id){
+    /*double distance;
+    *OSMWay way = getWayByIndex(way_id);
+    LatLon position = getNodeCoords(node);
+    std::vector <LatLon> node_coords; 
     
+    std::vector<OSMID> way_members = getWayMembers(way);
+    for (int i=0; i<way_members.size();i++){
+        node_coords.push_back(getNodeCoords(getNodeByIndex(i)));
+        // members -> nodes -> latlon
+                // find distance from vector
+                // return
+    }
+    // find distance
+    for (int i=0; i<nodes_coords.size(); i++){
+        
+    }
     
+    return distance;*/
     return 0;
 }
     
+#include "OSMDatabaseAPI.h"
