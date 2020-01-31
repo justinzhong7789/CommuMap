@@ -33,8 +33,10 @@ std::vector<LatLon> intersectionTable;
 std::unordered_map< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
 //std::unordered_map< StreetIndex, StreetSegmentIndex > SegmentsOfStreets;
-//std::multimap<StreetIndex, std::list<int> > SegmentsOfStreets;
-std::unordered_map<int, std::vector<int>> SegmentsOfStreets;
+std::multimap<StreetIndex, int> SegmentsOfStreets;
+typedef std::multimap<StreetIndex, int>::iterator SegOfStreetsIt;
+//std::pair<SegOfStreetsIt,SegOfStreetsIt> result;  
+//std::unordered_map<int, std::vector<int>> SegmentsOfStreets;
 
 
 void makeIntersectionTable();
@@ -42,7 +44,7 @@ void makeStreetNamesTable();
 void makeIntersection_StreetTable();
 void makeSegmentsOfStreets();
 double x_distance_between_2_points(LatLon first, LatLon second);
-double y_distance_between_2_poitns(LatLon first, LatLon second);
+double y_distance_between_2_points(LatLon first, LatLon second);
 
 double x_distance_between_2_points(LatLon first, LatLon second){
     double LatAvg = (first.lat()+second.lat())*DEGREE_TO_RADIAN/2;
@@ -51,7 +53,7 @@ double x_distance_between_2_points(LatLon first, LatLon second){
     return EARTH_RADIUS_METERS*(x2-x1);
 }
 
-double y_distance_between_2_poitns(LatLon first, LatLon second){
+double y_distance_between_2_points(LatLon first, LatLon second){
     double y1= first.lat()*DEGREE_TO_RADIAN;   
     double y2= second.lat()*DEGREE_TO_RADIAN;
     return EARTH_RADIUS_METERS*(y2-y1); 
@@ -75,7 +77,7 @@ void makeSegmentsOfStreets(){
     
     for(int i=0;i<num_street_seg;i++){
         streetID = getInfoStreetSegment(i).streetID;
-        SegmentsOfStreets[streetID].emplace_back(i);
+        SegmentsOfStreets.insert({streetID, i});
     }
 }
 
@@ -96,27 +98,6 @@ void makeSegmentsOfStreets(){
         }
     }
 }*/
-/*
-class segmentsInfo {
-   
-    OSMID wayOSMID;   // OSM ID of the source way
-                      // NOTE: Multiple segments may match a single OSM way ID
-
-    IntersectionIndex from, to;  // intersection ID this segment runs from/to
-    bool oneWay;            // if true, then can only travel in from->to direction
-
-    int curvePointCount;    // number of curve points between the ends
-    float speedLimit;            // in km/h
-
-    StreetIndex	streetID;        // index of street this segment belongs to
-
-     
-};       
-
-std::string segmentName(int segment_id){
-    return getStreetName(getInfoStreetSegment(segment_id).streetID);
-}
- */ 
 
 bool load_map(std::string map_path) {
     bool load_successful = false; //Indicates whether the map has loaded 
@@ -173,8 +154,14 @@ double find_street_segment_length(int street_segment_id){
             length+= find_distance_between_two_points( std::make_pair(getStreetSegmentCurvePoint(i,street_segment_id), getStreetSegmentCurvePoint(i+1, street_segment_id)));
         }
         length += find_distance_between_two_points(std::make_pair(getStreetSegmentCurvePoint(segInfo.curvePointCount, street_segment_id), getIntersectionPosition(segInfo.to)));
+<<<<<<< HEAD
     }*/
     
+=======
+    }
+    return length;
+    /*
+>>>>>>> b615d41c17e3df36874617ee4b93e2bef20a6e85
     // pull info from API library
     InfoStreetSegment street = getInfoStreetSegment(street_segment_id);
     // initialize total length to 0
@@ -229,7 +216,7 @@ double find_street_segment_travel_time(int street_segment_id){
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 999999;
-    int closest;
+    int closest=0;
     //for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
     for (int i=0; i<getNumIntersections();i++){
         LatLon current = getIntersectionPosition(i);
@@ -366,9 +353,10 @@ std::vector<int> find_street_segments_of_street(int street_id){
 std::vector<int> find_street_segments_of_street(int street_id){
     std::vector<int> street_segment_ids;
     
-    auto street = SegmentsOfStreets.find(street_id);
-    for(auto iterate = street ; street != SegmentsOfStreets.end() ; iterate)
-    
+    auto pointerToStreetSegments = SegmentsOfStreets.equal_range(street_id);
+    for(SegOfStreetsIt it = pointerToStreetSegments.first ; it != pointerToStreetSegments.second ; it++){
+        street_segment_ids.push_back(it->second);
+    }
     return street_segment_ids;
 }*/
 
@@ -514,21 +502,23 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
             }
         } 
     }
+
     return street_ids;
-    
+
 }
    
 //Returns the area of the given closed feature in square meters
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
 double find_feature_area(int feature_id){
-    /*
+    
     if((getFeaturePoint(0, feature_id).lat()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lat()) &&
       ((getFeaturePoint(0, feature_id).lon()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lon()))){ // == is not defined in LatLon class
         double area=0;
-        double x[getFeaturePointCount(feature_id)];
-        double y[getFeaturePointCount(feature_id)];
-        LatLon originPoint = getFeaturePoint(0, feature_id);
+        int featurePointCount=getFeaturePointCount(feature_id);
+        double x[featurePointCount];
+        double y[featurePointCount];
+        LatLon origin = getFeaturePoint(0, feature_id);
         
         //initialize the first and last elements of x and y array to 0 
         //this makes the polygon start at the origin and end at the origin
@@ -551,8 +541,7 @@ double find_feature_area(int feature_id){
         return area/2;
         
     }else{return 0;}
-
-     */
+    
     return 0;
 }    
 
@@ -580,6 +569,10 @@ double find_way_length(OSMID way_id){
     
     return distance;*/
     return 0;
+<<<<<<< HEAD
 }
     
 #include "OSMDatabaseAPI.h"
+=======
+}
+>>>>>>> b615d41c17e3df36874617ee4b93e2bef20a6e85
