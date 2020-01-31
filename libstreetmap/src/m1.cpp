@@ -23,6 +23,7 @@
 #include <map>
 #include <unordered_map>
 #include <math.h>
+#include <cctype>
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -30,6 +31,7 @@
 std::vector<LatLon> intersectionTable;
 std::unordered_map< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
+
 
 void makeIntersectionTable();
 void makeStreetNamesTable();
@@ -64,6 +66,27 @@ void makeIntersection_StreetTable(){
         }
     }
 }
+/*
+class segmentsInfo {
+   
+    OSMID wayOSMID;   // OSM ID of the source way
+                      // NOTE: Multiple segments may match a single OSM way ID
+
+    IntersectionIndex from, to;  // intersection ID this segment runs from/to
+    bool oneWay;            // if true, then can only travel in from->to direction
+
+    int curvePointCount;    // number of curve points between the ends
+    float speedLimit;            // in km/h
+
+    StreetIndex	streetID;        // index of street this segment belongs to
+
+     
+};       
+
+std::string segmentName(int segment_id){
+    return getStreetName(getInfoStreetSegment(segment_id).streetID);
+}
+ */ 
 
 bool load_map(std::string map_path) {
     bool load_successful = false; //Indicates whether the map has loaded 
@@ -73,7 +96,9 @@ bool load_map(std::string map_path) {
     //Load your map related data structures here
     load_successful = loadStreetsDatabaseBIN(map_path); //Make sure this is updated to reflect whether
                             //loading the map succeeded or failed
-
+    makeIntersectionTable();
+    makeStreetNamesTable();
+    makeIntersection_StreetTable();
     return load_successful;
 }
 
@@ -81,22 +106,20 @@ void close_map() {
     //Clean-up your map related data structures here
     closeStreetDatabase();
 }
-//MADE BY PRISCILLA -M
+//passes -p
 //Returns the distance between two coordinates in meters
 double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     // see page 14 of milestone 1; (x,y)=(lon*cos(latavg), lat) -p
     // note lat() and lon() are degrees, cosine uses RADIANS -p
     double latavg = ((points.first.lat() + points.second.lat()) * DEGREE_TO_RADIAN)/2;
     // note to self: latitude is up/down, longitude is left/right -p
-    double x1 = EARTH_RADIUS_METERS * points.first.lat() * DEGREE_TO_RADIAN * cos(latavg);
-    double y1 = EARTH_RADIUS_METERS * points.first.lat() * DEGREE_TO_RADIAN;
+    double x1 = points.first.lon() * DEGREE_TO_RADIAN * cos(latavg);
+    double y1 = points.first.lat() * DEGREE_TO_RADIAN;
     // note to self: radians * radius = arc length -p
-    double x2 = EARTH_RADIUS_METERS * points.second.lat() * DEGREE_TO_RADIAN * cos(latavg);
-    double y2 = EARTH_RADIUS_METERS * points.second.lat() * DEGREE_TO_RADIAN;
+    double x2 = points.second.lon() * DEGREE_TO_RADIAN * cos(latavg);
+    double y2 = points.second.lat() * DEGREE_TO_RADIAN;
     
-    // c^2 = a^2 + b^2 -p
-    //DEBUGGING CHANGED THE ^ TO POW
-    double result = sqrt(pow((x2-x1),2) + pow((y2-y1),2));
+    double result = EARTH_RADIUS_METERS * sqrt(pow((x2-x1),2) + pow((y2-y1),2));
     return result;
 }
 
@@ -114,24 +137,25 @@ double find_street_segment_length(int street_segment_id){
     if (street.curvePointCount == 0){
         // calculate distance from start to end
         std::pair<LatLon,LatLon> straight_segment (getIntersectionPosition(street.from), getIntersectionPosition(street.to));    
-        length = find_distance_between_two_points(straight_segment);        
+        length += find_distance_between_two_points(straight_segment);        
     } 
     // If street has curves, use some thicc maths to fix
     else {
-        for (int i=0; i<=street.curvePointCount; i++){
+        for (int i=0; i<street.curvePointCount; i++){
             // note: if street has 1 corner, add two segments, if 2 corners, add three segments, etc -p
             // assume all curve points are corners? -p
+ 
             std::pair<LatLon,LatLon> curved_segment;
             if (i==0){ // calculate distance from beginning of street to first curve
                 curved_segment.first = getIntersectionPosition(street.from); 
-                curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);
             }
-            else if (i==street.curvePointCount){ // calculate distance from last curve to end of street
+            else if (i==street.curvePointCount-1){ // calculate distance from last curve to end of street
                 curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
                 curved_segment.second = getIntersectionPosition(street.to);
             } else { // calculate distance between each curve (or realistically, each corner)
-                curved_segment.first = getStreetSegmentCurvePoint(i-1, street_segment_id);
-                curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);       
+                curved_segment.first = getStreetSegmentCurvePoint(i, street_segment_id);
+                curved_segment.second = getStreetSegmentCurvePoint(i+1, street_segment_id);       
             }
             length += find_distance_between_two_points(curved_segment);
         }
@@ -140,7 +164,6 @@ double find_street_segment_length(int street_segment_id){
     return length;
 }
 
-//WORKING ON THIS ONE -J
 //Returns the travel time to drive a street segment in seconds 
 //(time = distance/speed_limit)
 //J
@@ -158,51 +181,47 @@ double find_street_segment_travel_time(int street_segment_id){
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 99999;
-    IntersectionIndex closest;
-    for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
-        std::pair<LatLon, LatLon> temp (my_position, *it);
+    int closest;
+    // debugger skips for loop - why?
+    // it = intersectionTable.begin();
+    //for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
+    // std::vector<LatLon>::iterator it = intersectionTable.begin();
+    for (int i=0; i<getNumIntersections();i++){
+        // InfoStreetSegment idk = getInfoStreetSegment(getIntersectionStreetSegment(i));
+        std::pair<LatLon, LatLon> temp (my_position, getIntersectionPosition(i));
+        //std::pair<LatLon, LatLon> temp (my_position, intersectionTable[i]);
         double distance = find_distance_between_two_points(temp);
-        if (distance<min_distance){
+        if (distance < min_distance){
             min_distance = distance;
-            closest = (it-intersectionTable.begin());
+            
+            closest = i;
         }
     }
     return closest;
 }
 
-//DONE, NEED TESTING -M
+//I THINK THIS PASSES -M
 //Returns the street segments for the given intersection 
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
-   
-    
     std::vector<int> street_segments_of_intersection;
-    
     //Getting the number of segments attached to the intersection
     int num_segments = getIntersectionStreetSegmentCount(intersection_id);
     int i;
-    
     //going through the segment index attached to the intersection 
     for(i=0; i < num_segments; ++i){
-        //Double checks to make sure the streetSegment is actually apart of that intersection
-        //COULD GO FASTER IF THIS IS CHECKED?
-        if(getInfoStreetSegment(getIntersectionStreetSegment(intersection_id, i)).oneWay){
-             street_segments_of_intersection.push_back(getIntersectionStreetSegment(intersection_id, i));
-        }
-        //Using an OR to make sure that a segment isn't counted twice?? DOUBLE CHECK THIS LOGIC
-        else if(getInfoStreetSegment(getIntersectionStreetSegment(intersection_id, i)).from == intersection_id || getInfoStreetSegment(getIntersectionStreetSegment(intersection_id, i)).to == intersection_id){
             street_segments_of_intersection.push_back(getIntersectionStreetSegment(intersection_id, i));
-        }
     }
     return street_segments_of_intersection;
 }
 
-//DONE, NEED TESTING -M
+//I THINK THIS ALSO PASSES -M
 //DEPENDENT ON find_street_segments_of_intersection WORKING -M
 //Returns the street names at the given intersection (includes duplicate street 
 //names in returned vector)
 std::vector<std::string> find_street_names_of_intersection(int intersection_id){
     std::vector<int> street_segments_of_intersection = find_street_segments_of_intersection(intersection_id);
     std::vector<std::string> intersection_street_names;
+    //std::string streetName;
     int i;
     for (i=0; i< street_segments_of_intersection.size(); ++i){
         //Starting from outmost brackets: putting street name into vector to return
@@ -215,55 +234,59 @@ std::vector<std::string> find_street_names_of_intersection(int intersection_id){
     return intersection_street_names;
 }
 
-//Tested received 2 out of 4 failed -M
+//FINISHED -M
 //Returns true if you can get from intersection_ids.first to intersection_ids.second using a single 
 //street segment (hint: check for 1-way streets too)
 //corner case: an intersection is considered to be connected to itself
 bool are_directly_connected(std::pair<int, int> intersection_ids){
-
-    //std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
-    //std::vector<int> intersectionSegmentsTwo = find_street_segments_of_intersection(intersection_ids.second);
     
     std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
     
     if(intersection_ids.first == intersection_ids.second){return true;}
+    int streetSegmentTo = 0;
+    int streetSegmentFrom = 0;
+    if(intersection_ids.first == intersection_ids.second)return true;
     
     for(int i=0 ; i < intersectionSegmentsOne.size() ; ++i){
         
+        streetSegmentTo = getInfoStreetSegment(intersectionSegmentsOne[i]).to; 
+        streetSegmentFrom = getInfoStreetSegment(intersectionSegmentsOne[i]).from; 
         if (getInfoStreetSegment(intersectionSegmentsOne[i]).oneWay){
-            if(getInfoStreetSegment(intersectionSegmentsOne[i]).to == intersection_ids.second){
+            if(streetSegmentTo == intersection_ids.second){
                 return true;
             }
             return false;
-        }else if(getInfoStreetSegment(intersectionSegmentsOne[i]).to == intersection_ids.second){
-            return true;
+        }else{
+            if(streetSegmentTo == intersection_ids.second || streetSegmentFrom == intersection_ids.second){
+                return true;
+            }
         }
     }
     return false;
 }
 
 
-//SUPER ROUGH MIGHT TAKE WAYYY TOO LONG -M
+//FINISHED-M
 //Returns all intersections reachable by traveling down one street segment 
 //from given intersection (hint: you can't travel the wrong way on a 1-way street)
 //the returned vector should NOT contain duplicate intersections
 std::vector<int> find_adjacent_intersections(int intersection_id){
-
     
     std::vector<int> adjacentIntersections;
-    std::vector<int> intersectionStreetSegments = find_street_segments_of_intersection(intersection_id);
+    //std::vector<int> intersectionSegments = find_street_segments_of_intersection(intersection_id);
     std::pair<int,int> twoIntersections;
     twoIntersections.first = intersection_id;
     
-    for (int i = 0; i < intersectionStreetSegments.size() ; ++i){
-            //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
-            //checks if the 'from' intersection is the intersection_id
-            twoIntersections.second = getInfoStreetSegment(intersectionStreetSegments[i]).from;
-            if(are_directly_connected(twoIntersections)){
-                adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).from);
-                twoIntersections.second = getInfoStreetSegment(intersectionStreetSegments[i]).to;
-            }else if(are_directly_connected(twoIntersections)){
-                adjacentIntersections.push_back(getInfoStreetSegment(intersectionStreetSegments[i]).to);
+    for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id) ; ++i){
+        //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
+        //checks if the 'from' intersection is the intersection_id
+        twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).to;
+        if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
+            adjacentIntersections.push_back(twoIntersections.second);
+        }
+            twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).from;
+            if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
+            adjacentIntersections.push_back(twoIntersections.second);
             }
     }
     return adjacentIntersections;
@@ -313,7 +336,7 @@ std::vector<int> find_intersections_of_street(int street_id){
 }
 //Return all intersection ids for two intersecting streets
 //This function will typically return one intersection id.
-//working on this -p
+//this passes i think -p
 std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_ids){
     //initialize vector to be returned
     std::vector<int> intersections_first = find_intersections_of_street(street_ids.first);
@@ -397,34 +420,41 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
         }
     }
     return matching_street_ids; 
-}*/
-    
+}
+ */
     //remove all white spaces
     street_prefix.erase(remove(street_prefix.begin(), street_prefix.end(), ' '), street_prefix.end());
-    street_prefix = toupper(street_prefix); // change all to capital
+    std::transform(street_prefix.begin(), street_prefix.end(), street_prefix.begin(), ::toupper); // change all to capital
     if (street_prefix==""){ // return null if blank
         return {NULL};
     }
-    std::vector<int> street_ids = {NULL};
+
+    std::vector<int> street_ids;
     std::string street_name;
-    // O(n^2) squad -p
-    std::map<std::string, StreetIndex>::iterator it;
+    // O(n^2) squad -p  
+    std::unordered_map<std::string, StreetIndex>::iterator it;
+    it=StreetNamesTable.begin();
+    if (it == StreetNamesTable.end()){
+        int a = 0;
+    }
     for (it=StreetNamesTable.begin();it!=StreetNamesTable.end();it++){
         street_name = it->first;
         street_name.erase(remove(street_name.begin(), street_name.end(), ' '), street_name.end());
-        street_name = toupper(street_name); // all to capital
+        std::transform(street_name.begin(), street_name.end(), street_name.begin(), ::toupper); // all to capital
  
         for (int i=0; i<street_prefix.length(); i++){
             if (street_prefix[i]!=street_name[i]){
                 break;
             }
             else if ((i-1) == street_prefix.length()){
+            else if ((street_prefix[i]!=street_name[i])&&(i = street_prefix.length()-1)){
                 street_ids.push_back(it->second);
             }
-        }
+        } 
     }
     return street_ids;
 }
+  
 //Returns the area of the given closed feature in square meters
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
