@@ -736,25 +736,6 @@ double find_feature_area(int feature_id){
 //To implement this function you will have to  access the OSMDatabaseAPI.h 
 //functions.
 double find_way_length(OSMID way_id){
-    /*double distance;
-    *OSMWay way = getWayByIndex(way_id);
-    LatLon position = getNodeCoords(node);
-    std::vector <LatLon> node_coords; 
-    
-    std::vector<OSMID> way_members = getWayMembers(way);
-    for (int i=0; i<way_members.size();i++){
-        node_coords.push_back(getNodeCoords(getNodeByIndex(i)));
-        // members -> nodes -> latlon
-                // find distance from vector
-                // return
-    }
-    // find distance
-    for (int i=0; i<nodes_coords.size(); i++){
-        
-    }
-     
-    return distance;*/
-    
     
     //J's edits
     //find OMSWay* 
@@ -782,11 +763,10 @@ double find_way_length(OSMID way_id){
         }
         //use latlons from above to calculate cumulative distance of way
         double length=0;
-        for(int i=0; i < latlon_of_nodes.size() ;i++){
+        for(int i=0; i < latlon_of_nodes.size()-1 ;i++){
             length += find_distance_between_two_points(std::make_pair(latlon_of_nodes[i], latlon_of_nodes[i+1]));
         }
         return length;
     }    
-    
     //for debugging purposes...can delete when this function builds -M
 }
