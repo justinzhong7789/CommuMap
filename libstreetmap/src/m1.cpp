@@ -28,24 +28,28 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+//#include "OSMDatabaseAPI.h" //I don't know if we need to add this
 
+/*==================== GLOBAL VARIABLES ====================*/
 std::vector<LatLon> intersectionTable;
 std::unordered_map< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
-//std::unordered_map< StreetIndex, StreetSegmentIndex > SegmentsOfStreets;
-std::multimap<StreetIndex, int> SegmentsOfStreets;
-typedef std::multimap<StreetIndex, int>::iterator SegOfStreetsIt;
-//std::pair<SegOfStreetsIt,SegOfStreetsIt> result;  
-//std::unordered_map<int, std::vector<int>> SegmentsOfStreets;
+std::multimap<StreetIndex, int> segmentsOfStreets;
+std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
+typedef std::multimap<int, int>::iterator StreetsIt;
 
+/*==================== GLOBAL FUNCTIONS TO BE LOADED INTO LOADMAP ====================*/
 
+//ARE THESE EVEN NEEDED?
 void makeIntersectionTable();
 void makeStreetNamesTable();
 void makeIntersection_StreetTable();
 void makeSegmentsOfStreets();
+void makeIntersectionsOfStreets();
 double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
 
+/*==================== GLOBAL FUNCTION IMPLEMENTATION ====================*/
 double x_distance_between_2_points(LatLon first, LatLon second){
     double LatAvg = (first.lat()+second.lat())*DEGREE_TO_RADIAN/2;
     double x1= first.lon()*DEGREE_TO_RADIAN* cos(LatAvg);
@@ -72,15 +76,19 @@ void makeStreetNamesTable(){
 }
 
 void makeSegmentsOfStreets(){
-    int num_street_seg = getNumStreetSegments();
+    int numStreetSeg = getNumStreetSegments();
     int streetID;
     
-    for(int i=0;i<num_street_seg;i++){
+    for(int i=0;i<numStreetSeg;i++){
         streetID = getInfoStreetSegment(i).streetID;
-        SegmentsOfStreets.insert({streetID, i});
+        segmentsOfStreets.insert({streetID, i});
     }
 }
-
+/*
+void makeIntersectionsOfStreets(){
+    int n
+}
+*/
 // my implementation of find streets in intersection -p
 /* void makeIntersection_StreetTable(){
     std::vector<int> streets_attached;
@@ -99,25 +107,39 @@ void makeSegmentsOfStreets(){
     }
 }*/
 
+
+/*============================== MILESTONE 1 ==============================*/
+
 bool load_map(std::string map_path) {
     bool load_successful = false; //Indicates whether the map has loaded 
                                   //successfully
 
     // added some functions -p
-    //Load your map related data structures here
-    load_successful = loadStreetsDatabaseBIN(map_path); //Make sure this is updated to reflect whether
-                            //loading the map succeeded or failed
-    if (load_successful==true){
+    
+    //Load StreetsDatabaseBIN and OSMDatabaseBIN
+    //change to OR doesn't work if AND -m
+    load_successful = ( loadStreetsDatabaseBIN(map_path)); 
+    //loadOSMDatabaseBIN(map_path); 
+    
+    //make sure load map succeeds before creating structures that depend on the API
+    if (load_successful){
         makeIntersectionTable();
         makeStreetNamesTable();
+        makeSegmentsOfStreets();
     }
     // makeIntersection_StreetTable();
     return load_successful;
 }
 
 void close_map() {
-    //Clean-up your map related data structures here
+    //Close StreetsDatabaseBIN and OSMDatabaseBIN
     closeStreetDatabase();
+    //closeOSMDatabase();
+    
+    //Makes sure to close the functions
+    intersectionTable.clear();
+    StreetNamesTable.clear();
+    segmentsOfStreets.clear();
 }
 //passes -p
 //Returns the distance between two coordinates in meters
@@ -154,14 +176,10 @@ double find_street_segment_length(int street_segment_id){
             length+= find_distance_between_two_points( std::make_pair(getStreetSegmentCurvePoint(i,street_segment_id), getStreetSegmentCurvePoint(i+1, street_segment_id)));
         }
         length += find_distance_between_two_points(std::make_pair(getStreetSegmentCurvePoint(segInfo.curvePointCount, street_segment_id), getIntersectionPosition(segInfo.to)));
-<<<<<<< HEAD
-    }*/
-    
-=======
+ 
     }
     return length;
-    /*
->>>>>>> b615d41c17e3df36874617ee4b93e2bef20a6e85
+    */
     // pull info from API library
     InfoStreetSegment street = getInfoStreetSegment(street_segment_id);
     // initialize total length to 0
@@ -331,7 +349,7 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
     }
     return adjacentIntersections;
 }
-
+/* //CAN BE DELETED, CREATED FUNCTION THAT'LL TAKE LESS TIME WITH A GLOBAL MULTIMAP -M
 //Returns all street segments for the given street
 //j
 std::vector<int> find_street_segments_of_street(int street_id){
@@ -348,27 +366,31 @@ std::vector<int> find_street_segments_of_street(int street_id){
     }
     return street_segment_ids;
 }
+*/
 
-/*
+//tested for a few cases. it works I think -M
 std::vector<int> find_street_segments_of_street(int street_id){
     std::vector<int> street_segment_ids;
-    auto findStreet = SegmentsOfStreets.find(street_id);
+    auto findStreet = segmentsOfStreets.find(street_id);
+    int countSegments = segmentsOfStreets.count(street_id);
     
-    auto streetIndex = findStreet->first;
-    auto segmentIndex = findStreet->second;
-    
-    auto pointerToStreetSegments = SegmentsOfStreets.equal_range(street_id);
-    for(SegOfStreetsIt it = pointerToStreetSegments.first ; it != pointerToStreetSegments.second ; it++){
+    auto pointerToStreetSegments = segmentsOfStreets.equal_range(street_id);
+    StreetsIt it = pointerToStreetSegments.first;
+            
+    for(int i =0; i < countSegments; i++){
         street_segment_ids.push_back(it->second);
+         ++it;
     }
     return street_segment_ids;
-}*/
+}
 
+//OPTIMIZING THIS FUNCTION -M
 //Returns all intersections along the a given street
 //j
 /* this function might be slow 
  * might need a more efficient algorithm
  */
+/*
 std::vector<int> find_intersections_of_street(int street_id){
     std::vector<int> intersection_ids;
     //find all street segments on the given street using the previous function
@@ -390,6 +412,36 @@ std::vector<int> find_intersections_of_street(int street_id){
     }
     return intersection_ids;
 }
+*/
+
+std::vector<int> find_intersections_of_street(int street_id){
+    std::vector<int> intersectionIDs;
+    //find all segments from the given street using SegmentsOfStreets map
+    //Loop through each segment and find each adjacent intersection with the same StreetID
+    //if intersection has not yet been placed there, place into the vector
+    
+    //find all street segments on the given street using the previous function
+    std::vector<int> street_segment_ids=find_street_segments_of_street(street_id);
+    int num_of_intersections = getNumIntersections();
+    
+    //if intersection id matches the from and to in any street segments, put it into vector
+    for(int inter_index=0;inter_index<num_of_intersections;inter_index++){
+        bool match=false;
+        for(int i=0;i<street_segment_ids.size();i++){
+            if(inter_index==getInfoStreetSegment(street_segment_ids[i]).from||inter_index==getInfoStreetSegment(street_segment_ids[i]).to){
+                match=true;
+                break;
+            }
+        }
+        if(match){
+            intersectionIDs.push_back(inter_index);
+        }
+    }
+    return intersectionIDs;
+}
+
+
+
 //Return all intersection ids for two intersecting streets
 //This function will typically return one intersection id.
 //this passes i think -p
@@ -572,6 +624,11 @@ double find_way_length(OSMID way_id){
     }
      
     return distance;*/
+    
+    
+    //J's edits
+    
+    /*
     double length = 0;
     std::vector<OSMID> wayMembers_OSMids = getWayMembers(getWayByIndex(way_id));
     std::vector<LatLon> coords_in_latlon;
@@ -582,4 +639,9 @@ double find_way_length(OSMID way_id){
         length += find_distance_between_two_points(std::make_pair(coords_in_latlon[i], coords_in_latlon[i+1]));
     }
     return length;
+
+     */
+    
+    //for debugging purposes...can delete when this function builds -M
+    return 0.;
 }
