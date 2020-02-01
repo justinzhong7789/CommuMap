@@ -499,7 +499,6 @@ std::vector<int> find_street_segments_of_street(int street_id){
 /* this function might be slow 
  * might need a more efficient algorithm
  */
-//CHECKS FOR DUPLICATES -M
 std::vector<int> find_intersections_of_street(int street_id){
     std::vector<int> segments_of_street = find_street_segments_of_street(street_id);
     std::vector<int> intersections_we_want;
@@ -513,28 +512,31 @@ std::vector<int> find_intersections_of_street(int street_id){
     return remove_dups_in_vecs(intersections_we_want);
 }
 
+
 //TRYING TO OPTOMIZE TIME -M
 //Return all intersection ids for two intersecting streets
 //This function will typically return one intersection id.
 //this passes i think -p
 std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_ids){
     //initialize vector to be returned
+    
     std::vector<int> intersections_first = find_intersections_of_street(street_ids.first);
     std::vector<int> intersections_second = find_intersections_of_street(street_ids.second);
     
     std::vector<int> commonIntersection (intersections_first.size() + intersections_second.size());
+    /*
     VectorIt it;
     
     //deleted sort because they should already be sorted -M
     std::sort(intersections_first.begin(), intersections_first.end());
     std::sort(intersections_first.begin(), intersections_first.end());
     
-    
     it = std::set_intersection(intersections_first.begin(), intersections_first.end(),
             commonIntersection.begin()); 
+    it = std::set_intersection(intersections_first.begin(), intersections_first.end(),commonIntersection.begin()); 
 
     commonIntersection.resize(it-commonIntersection.begin());
-    
+    */
     return commonIntersection;
 }
 
