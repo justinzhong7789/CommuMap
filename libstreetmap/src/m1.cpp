@@ -112,9 +112,11 @@ void makeSegmentsOfIntersections(){
  * Try using std::find(<pointer to start>, <pointer to end>, <what you're lookingfor>)
  * 
  */
+
+
 void makeIntersectionsOfStreets(){
-    
-    /*std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
+    /*
+    std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
     int numStreets = getNumStreets();
     StreetsIt it;
     for(int i = 0 ; i < numStreets ; ++i){
@@ -169,8 +171,9 @@ void makeIntersectionsOfStreets(){
         intersectionsOfStreets.insert({streetID, interId});
         }
     }
+*/
 }
-
+     
 // my implementation of find streets in intersection -p
  void makeIntersection_StreetTable(){
     std::vector<int> streets_attached;
@@ -682,7 +685,7 @@ double find_feature_area(int feature_id){
         for(int i=0; i <getFeaturePointCount(feature_id) ; i++ ){
             area += (x[i]*y[i+1])-(y[i]*x[i+1]);
         }
-        return area/2;
+        return abs(area/2);
         
     }else{return 0;}
     
@@ -725,7 +728,8 @@ double find_way_length(OSMID way_id){
         }
     }
     //use OSMWay* to find all the nodes the way contains
-    if(input_way_p!=NULL){
+    if(input_way_p==NULL){return 0;}//failed to find the way
+    else{
         std::vector<OSMID> wayMembers = getWayMembers(input_way_p);
         //find latlons of nodes using the OSMIDs from wayMembers
         std::vector<LatLon> latlon_of_nodes;
@@ -743,9 +747,7 @@ double find_way_length(OSMID way_id){
             length += find_distance_between_two_points(std::make_pair(latlon_of_nodes[i], latlon_of_nodes[i+1]));
         }
         return length;
-    }
-    else{return 0;}//cant find way
-     
+    }    
     
     //for debugging purposes...can delete when this function builds -M
 }
