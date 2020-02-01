@@ -47,6 +47,7 @@ void makeStreetNamesTable();
 void makeIntersection_StreetTable();
 void makeSegmentsOfStreets();
 void makeIntersectionsOfStreets();
+//void makeSegmentsOfInetersection();
 double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
 
@@ -86,6 +87,18 @@ void makeSegmentsOfStreets(){
     }
 }
 
+/*  //IN THE WORKS
+void makeSegmentsOfIntersections(){
+    int numStreetSeg = getNumStreetSegments();
+    int streetID;
+    
+    for(int i=0;i<numStreetSeg;i++){
+        streetID = getInfoStreetSegment(i).streetID;
+        segmentsOfStreets.insert({streetID, i});
+    }
+}
+*/
+
 //Make sure it's implemented in load map after makeSegmentsOfStreets cuz its dependant on it
 /* Makes intersectionsOfStreets multimap
  * Finds the intersections (value) related to each street (key)
@@ -98,17 +111,43 @@ void makeSegmentsOfStreets(){
  * 
  */
 void makeIntersectionsOfStreets(){
+    
+    /*std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
     int numStreets = getNumStreets();
+    StreetsIt it;
     for(int i = 0 ; i < numStreets ; ++i){
         auto pointer = segmentsOfStreets.equal_range(i);
-        StreetsIt it = pointer.first;
-        
+        it = pointer.first;
         
         for(int k=0 ; k< segmentsOfStreets.count(i) ; ++k){
             //inserts the intersection under the key i (which is the streedID)
-            intersectionsOfStreets.insert({i, it->second});
+            int segFrom = getInfoStreetSegment(it->second).from;
+            int segTo = getInfoStreetSegment(it->second).to;
+            intersectionsOfStreets.insert({i, segFrom});
+            intersectionsOfStreets.insert({i, segTo});
+            intersectionsOfStreetsTest.insert({i, segFrom});
+            intersectionsOfStreetsTest.insert({i, segTo});
             ++it;
             //Does NOT CHECK FOR DUPLICATES
+        }
+    }*/
+    
+    std::string streetName;
+    std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
+    
+    for(int i = 0 ; i< getNumStreets() ; ++i){
+        streetName = getStreetName(i);
+        
+        for(int k = 0 ; k < getNumIntersections() ; ++k){
+            auto streetsAtIntersection = find_street_names_of_intersection(k);
+            
+            for(int j = 0 ; j < streetsAtIntersection.size() ; ++j){
+                
+                if(streetName == streetsAtIntersection[j]){
+                    intersectionsOfStreets.insert({i,j});
+                    intersectionsOfStreetsTest.insert({i,j});
+                }
+            }
         }
     }
 }
@@ -275,7 +314,7 @@ int find_closest_intersection(LatLon my_position){
     return closest;
 }
 
-//I THINK THIS PASSES -M
+//I THINK THIS PASSES CREATES TIME ERROR, MAKE SUB FUNCTION -M 
 //Returns the street segments for the given intersection 
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
     std::vector<int> street_segments_of_intersection;
