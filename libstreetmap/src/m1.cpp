@@ -499,36 +499,6 @@ std::vector<int> find_street_segments_of_street(int street_id){
 /* this function might be slow 
  * might need a more efficient algorithm
  */
-<<<<<<< HEAD
-
-std::vector<int> find_intersections_of_street(int street_id){
-    /*
-    std::vector<int> intersection_ids;
-    //find all street segments on the given street using the previous function
-    std::vector<int> street_segment_ids=find_street_segments_of_street(street_id);
-    int num_of_intersections = getNumIntersections();
-    
-    //if intersection id matches the from and to in any street segments, put it into vector
- * 
-    for(int inter_index=0;inter_index<num_of_intersections;inter_index++){
-        bool match=false;
-        for(int i=0;i<street_segment_ids.size();i++){
-            if(inter_index==getInfoStreetSegment(street_segment_ids[i]).from||inter_index==getInfoStreetSegment(street_segment_ids[i]).to){
-                match=true;
-                break;
-            }
-        }
-        if(match){
-            intersection_ids.push_back(inter_index);
-        }
-    }
-    return intersection_ids;
-}
-
-/*
-=======
->>>>>>> 934b9e27f8e17b0efff7a02ca304813984f20a86
-//CHECKS FOR DUPLICATES -M
 std::vector<int> find_intersections_of_street(int street_id){
     std::vector<int> segments_of_street = find_street_segments_of_street(street_id);
     std::vector<int> intersections_we_want;
@@ -540,43 +510,8 @@ std::vector<int> find_intersections_of_street(int street_id){
     //intersection contains duplicate elements
     //remove dupes and return
     return remove_dups_in_vecs(intersections_we_want);
-<<<<<<< HEAD
-=======
-   
-    std::vector<int> intersectionIDs;
-    //find all segments from the given street using SegmentsOfStreets map
-    //Loop through each segment and find each adjacent intersection with the same StreetID
-    //if intersection has not yet been placed there, place into the vector
-    
-    //counts number of intersections associated to that street (includes duplicates)
-    int countInters = intersectionsOfStreets.count(street_id);
-    
-    //gets a pair pointer to the value and to the key (first value in the key set)
-    auto pointerToStreetIntersections = segmentsOfStreets.equal_range(street_id);
-    //starts at the beginning of index (street ID)
-    StreetsIt it = pointerToStreetIntersections.first;
-    
-    for(int i =0; i < countInters; i++){
-        //Prevents duplicates by searching for the intersection before implementing it into the vector (see std::find properties)
-        if(std::find(intersectionIDs.begin(),intersectionIDs.end(), it->second) == intersectionIDs.end()){
-        intersectionIDs.push_back(it->second);
-        }
-        
-        //changes the pointer of the value
-        ++it;
-    }
-        
-    return intersectionIDs;
-<<<<<<< HEAD
-*/
-    return 0;
 }
 
-=======
-
->>>>>>> 6b08718767eeb7e3f00067a954895d7d0de36d4a
-}
->>>>>>> 934b9e27f8e17b0efff7a02ca304813984f20a86
 
 //TRYING TO OPTOMIZE TIME -M
 //Return all intersection ids for two intersecting streets
@@ -594,9 +529,7 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     std::sort(intersections_first.begin(), intersections_first.end());
     std::sort(intersections_first.begin(), intersections_first.end());
     
-    
-    it = std::set_intersection(intersections_first.begin(), intersections_first.end(),
-            commonIntersection.begin()); 
+    it = std::set_intersection(intersections_first.begin(), intersections_first.end(),commonIntersection.begin()); 
 
     commonIntersection.resize(it-commonIntersection.begin());
     
