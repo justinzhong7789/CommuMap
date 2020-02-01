@@ -501,6 +501,7 @@ std::vector<int> find_street_segments_of_street(int street_id){
  */
 
 std::vector<int> find_intersections_of_street(int street_id){
+    /*
     std::vector<int> intersection_ids;
     //find all street segments on the given street using the previous function
     std::vector<int> street_segment_ids=find_street_segments_of_street(street_id);
@@ -561,9 +562,10 @@ std::vector<int> find_intersections_of_street(int street_id){
     }
         
     return intersectionIDs;
-
-}
 */
+    return 0;
+}
+
 
 //TRYING TO OPTOMIZE TIME -M
 //Return all intersection ids for two intersecting streets
@@ -583,7 +585,7 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     
     
     it = std::set_intersection(intersections_first.begin(), intersections_first.end(),
-            ccommonIntersection.begin()); 
+            commonIntersection.begin()); 
 
     commonIntersection.resize(it-commonIntersection.begin());
     
