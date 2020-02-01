@@ -38,6 +38,7 @@ std::unordered_map< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
 std::multimap<StreetIndex, int> segmentsOfStreets;
 std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
+std::multimap<IntersectionIndex, StreetSegmentIndex> segmentsOfIntersections;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
 //std::vector<int> intersections_of_street(int street_id);
@@ -50,7 +51,7 @@ void makeStreetNamesTable();
 void makeIntersection_StreetTable();
 void makeSegmentsOfStreets();
 void makeIntersectionsOfStreets();
-//void makeSegmentsOfInetersection();
+void makeSegmentsOfIntersections();
 double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
 std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA);
@@ -112,20 +113,36 @@ void makeSegmentsOfStreets(){
     }
 }
 
-/*  //IN THE WORKS
+// In the works
 void makeSegmentsOfIntersections(){
+    /*
+    int numIntersections = getNumIntersections();
+    int segID, countSeg;
+    
+    for(int i=0;i<numIntersections;i++){
+        countSeg = getIntersectionStreetSegmentCount(i);
+        for(int j=0 ; j<countSeg; ++j){
+            segID = getIntersectionStreetSegment(i,j);
+            segmentsOfIntersections.insert({segID, i});
+        }
+    }
+    */
     int numStreetSeg = getNumStreetSegments();
-    int streetID;
+    int interTo, interFrom;
     
     for(int i=0;i<numStreetSeg;i++){
-        streetID = getInfoStreetSegment(i).streetID;
-        segmentsOfStreets.insert({streetID, i});
+        interFrom = getInfoStreetSegment(i).from;
+        interTo = getInfoStreetSegment(i).to;
+        
+        segmentsOfStreets.insert({interTo, i});
+        segmentsOfStreets.insert({interFrom, i});
     }
 }
-*/
 
 //Make sure it's implemented in load map after makeSegmentsOfStreets cuz its dependant on it
-/* Makes intersectionsOfStreets multimap
+/* NOT SURE IF THIS WORKS CUZ NEVER TEST AND NEVER USED
+ * 
+ * Makes intersectionsOfStreets multimap
  * Finds the intersections (value) related to each street (key)
  * Does not check for duplicates
  * 
@@ -137,44 +154,6 @@ void makeSegmentsOfIntersections(){
  */
 
 void makeIntersectionsOfStreets(){
-    /*
-    std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
-    int numStreets = getNumStreets();
-    StreetsIt it;
-    for(int i = 0 ; i < numStreets ; ++i){
-        auto pointer = segmentsOfStreets.equal_range(i);
-        it = pointer.first;
-        
-        for(int k=0 ; k< segmentsOfStreets.count(i) ; ++k){
-            //inserts the intersection under the key i (which is the streedID)
-            int segFrom = getInfoStreetSegment(it->second).from;
-            int segTo = getInfoStreetSegment(it->second).to;
-            intersectionsOfStreets.insert({i, segFrom});
-            intersectionsOfStreets.insert({i, segTo});
-            intersectionsOfStreetsTest.insert({i, segFrom});
-            intersectionsOfStreetsTest.insert({i, segTo});
-            ++it;
-            //Does NOT CHECK FOR DUPLICATES
-        }
-    }
-    
-    std::string streetName;
-    
-    for(int i = 0 ; i< getNumStreets() ; ++i){
-        streetName = getStreetName(i);
-        
-        for(int k = 0 ; k < getNumIntersections() ; ++k){
-            auto streetsAtIntersection = find_street_names_of_intersection(k);
-            
-            for(int j = 0 ; j < streetsAtIntersection.size() ; ++j){
-                
-                if(streetName == streetsAtIntersection[j]){
-                    intersectionsOfStreets.insert({i,j});
-                }
-            }
-        }
-    }*/
-    
     std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
     int streetID;
     
@@ -235,6 +214,7 @@ bool load_map(std::string map_path) {
         makeStreetNamesTable();
         makeSegmentsOfStreets();
         makeIntersectionsOfStreets();
+        makeSegmentsOfIntersections();
     }
     // makeIntersection_StreetTable();
     return load_successful;
@@ -362,6 +342,8 @@ int find_closest_intersection(LatLon my_position){
 //I THINK THIS PASSES CREATES TIME ERROR, MAKE SUB FUNCTION -M 
 //Returns the street segments for the given intersection 
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
+    /*
+    //PASSES ALL TEST CASES BUT TAKES TOO LONG    
     std::vector<int> street_segments_of_intersection;
     //Getting the number of segments attached to the intersection
     int num_segments = getIntersectionStreetSegmentCount(intersection_id);
@@ -371,6 +353,20 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
             street_segments_of_intersection.push_back(getIntersectionStreetSegment(intersection_id, i));
     }
     return street_segments_of_intersection;
+    */
+    //NEW VERSION FASTER
+    
+    std::vector<int> street_segment_ids;
+    int countSegments = segmentsOfIntersections.count(intersection_id);
+    
+    auto pointerToStreetSegments = segmentsOfIntersections.equal_range(intersection_id);
+    StreetsIt it = pointerToStreetSegments.first;
+            
+    for(int i =0; i < countSegments; i++){
+        street_segment_ids.push_back(it->second);
+         ++it;
+    }
+    return street_segment_ids;
 }
 
 //CHECK IF U CAN USE ONE OF THE GLOBAL FUNCTIONS... MAP<STREETNAME, ID>
