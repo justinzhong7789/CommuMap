@@ -524,19 +524,15 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     std::vector<int> intersections_second = find_intersections_of_street(street_ids.second);
     
     std::vector<int> commonIntersection (intersections_first.size() + intersections_second.size());
-    /*
+    
     VectorIt it;
-    
-    //deleted sort because they should already be sorted -M
     std::sort(intersections_first.begin(), intersections_first.end());
-    std::sort(intersections_first.begin(), intersections_first.end());
+    std::sort(intersections_second.begin(), intersections_second.end());
     
-    it = std::set_intersection(intersections_first.begin(), intersections_first.end(),
-            commonIntersection.begin()); 
-    it = std::set_intersection(intersections_first.begin(), intersections_first.end(),commonIntersection.begin()); 
-
+    it = std::set_intersection(intersections_first.begin(), intersections_first.end(),intersections_second.begin(), intersections_second.end(),
+            commonIntersection.begin());
     commonIntersection.resize(it-commonIntersection.begin());
-    */
+    
     return commonIntersection;
 }
 
