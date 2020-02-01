@@ -20,9 +20,8 @@
  */
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
-#include <map> 
 #include "OSMDatabaseAPI.h"
-
+#include <map>
 #include <list>
 #include <unordered_map>
 #include <math.h>
@@ -30,6 +29,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+
 //#include "OSMDatabaseAPI.h" //I don't know if we need to add this
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
@@ -38,7 +38,7 @@ std::unordered_map< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
 std::multimap<StreetIndex, int> segmentsOfStreets;
 std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
-std::multimap<IntersectionIndex, StreetSegmentIndex> segmentsOfIntersections;
+std::multimap<int, int> segmentsOfIntersections;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
 //std::vector<int> intersections_of_street(int street_id);
@@ -115,7 +115,20 @@ void makeSegmentsOfStreets(){
 
 // In the works
 void makeSegmentsOfIntersections(){
-    /*
+
+    //Does not check for duplicates...must check in vector when function is implemented
+    segmentsOfIntersections.clear();
+    int numStreetSeg = getNumStreetSegments();
+    int interTo, interFrom;
+    
+    for(int i=0;i<numStreetSeg;i++){
+        interFrom = getInfoStreetSegment(i).from;
+        interTo = getInfoStreetSegment(i).to;
+        
+        segmentsOfIntersections.insert({interTo, i});
+        segmentsOfIntersections.insert({interFrom, i});
+    } 
+        /*
     int numIntersections = getNumIntersections();
     int segID, countSeg;
     
@@ -127,16 +140,7 @@ void makeSegmentsOfIntersections(){
         }
     }
     */
-    int numStreetSeg = getNumStreetSegments();
-    int interTo, interFrom;
     
-    for(int i=0;i<numStreetSeg;i++){
-        interFrom = getInfoStreetSegment(i).from;
-        interTo = getInfoStreetSegment(i).to;
-        
-        segmentsOfStreets.insert({interTo, i});
-        segmentsOfStreets.insert({interFrom, i});
-    }
 }
 
 //Make sure it's implemented in load map after makeSegmentsOfStreets cuz its dependant on it
@@ -357,13 +361,17 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
     //NEW VERSION FASTER
     
     std::vector<int> street_segment_ids;
+    street_segment_ids.clear();
+    
     int countSegments = segmentsOfIntersections.count(intersection_id);
     
-    auto pointerToStreetSegments = segmentsOfIntersections.equal_range(intersection_id);
-    StreetsIt it = pointerToStreetSegments.first;
+    auto pointerToSegments = segmentsOfIntersections.equal_range(intersection_id);
+    StreetsIt it = pointerToSegments.first;
             
     for(int i =0; i < countSegments; i++){
+        if(std::find(street_segment_ids.begin(), street_segment_ids.end(), it->second) == street_segment_ids.end()){
         street_segment_ids.push_back(it->second);
+        }
          ++it;
     }
     return street_segment_ids;
@@ -483,6 +491,7 @@ std::vector<int> find_street_segments_of_street(int street_id){
     StreetsIt it = pointerToStreetSegments.first;
             
     for(int i =0; i < countSegments; i++){
+        
         street_segment_ids.push_back(it->second);
          ++it;
     }
