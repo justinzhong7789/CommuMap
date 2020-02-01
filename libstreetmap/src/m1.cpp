@@ -136,10 +136,6 @@ void makeSegmentsOfIntersections(){
  * 
  */
 
-<<<<<<< HEAD
-=======
-
->>>>>>> d9f64011a39a065fa0136a3c19e9bc61f9b416d2
 void makeIntersectionsOfStreets(){
     /*
     std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
@@ -198,14 +194,9 @@ void makeIntersectionsOfStreets(){
         }
     }
 }
-<<<<<<< HEAD
-
-
 
 /*
-=======
-     
->>>>>>> d9f64011a39a065fa0136a3c19e9bc61f9b416d2
+
 // my implementation of find streets in intersection -p
  void makeIntersection_StreetTable(){
     std::vector<int> streets_attached;
@@ -545,7 +536,7 @@ std::vector<int> find_intersections_of_street(int street_id){
     //intersection contains duplicate elements
     //remove dupes and return
     return remove_dups_in_vecs(intersections_we_want);
-    /*
+   
     std::vector<int> intersectionIDs;
     //find all segments from the given street using SegmentsOfStreets map
     //Loop through each segment and find each adjacent intersection with the same StreetID
@@ -570,7 +561,7 @@ std::vector<int> find_intersections_of_street(int street_id){
     }
         
     return intersectionIDs;
-*/
+
 }
 */
 
@@ -587,9 +578,12 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     VectorIt it;
     
     //deleted sort because they should already be sorted -M
+    std::sort(intersections_first.begin(), intersections_first.end());
+    std::sort(intersections_first.begin(), intersections_first.end());
+    
     
     it = std::set_intersection(intersections_first.begin(), intersections_first.end(),
-            intersections_second.begin(), intersections_second.end(), commonIntersection.begin()); 
+            ccommonIntersection.begin()); 
 
     commonIntersection.resize(it-commonIntersection.begin());
     
