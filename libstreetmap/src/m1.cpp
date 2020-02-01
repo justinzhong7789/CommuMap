@@ -114,9 +114,13 @@ void makeSegmentsOfIntersections(){
  * 
  */
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> d9f64011a39a065fa0136a3c19e9bc61f9b416d2
 void makeIntersectionsOfStreets(){
-    
-    /*std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
+    /*
+    std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
     int numStreets = getNumStreets();
     StreetsIt it;
     for(int i = 0 ; i < numStreets ; ++i){
@@ -172,10 +176,14 @@ void makeIntersectionsOfStreets(){
         }
     }
 }
+<<<<<<< HEAD
 
 
 
 /*
+=======
+     
+>>>>>>> d9f64011a39a065fa0136a3c19e9bc61f9b416d2
 // my implementation of find streets in intersection -p
  void makeIntersection_StreetTable(){
     std::vector<int> streets_attached;
@@ -486,6 +494,7 @@ std::vector<int> find_intersections_of_street(int street_id){
     int num_of_intersections = getNumIntersections();
     
     //if intersection id matches the from and to in any street segments, put it into vector
+ * 
     for(int inter_index=0;inter_index<num_of_intersections;inter_index++){
         bool match=false;
         for(int i=0;i<street_segment_ids.size();i++){
@@ -504,6 +513,21 @@ std::vector<int> find_intersections_of_street(int street_id){
 /*
 //CHECKS FOR DUPLICATES -M
 std::vector<int> find_intersections_of_street(int street_id){
+    std::vector<int> segments_of_street = find_street_segments_of_street(street_id);
+    std::vector<int> intersections_we_want;
+    for(int i=0;i<segments_of_street.size();i++){
+        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).from);
+        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).to);
+    }
+    //sort vector
+    std::sort(intersections_we_want.begin(), intersections_we_want.end());
+    
+    //delete duplicates with unique
+    //erase extra size space
+    intersections_we_want.erase(std::unique(intersections_we_want.begin(), intersections_we_want.end(),intersections_we_want.end()));
+    
+    return intersections_we_want;
+    /*
     std::vector<int> intersectionIDs;
     //find all segments from the given street using SegmentsOfStreets map
     //Loop through each segment and find each adjacent intersection with the same StreetID
@@ -528,6 +552,7 @@ std::vector<int> find_intersections_of_street(int street_id){
     }
         
     return intersectionIDs;
+*/
 }
 */
 
@@ -687,7 +712,7 @@ double find_feature_area(int feature_id){
         for(int i=0; i <getFeaturePointCount(feature_id) ; i++ ){
             area += (x[i]*y[i+1])-(y[i]*x[i+1]);
         }
-        return area/2;
+        return abs(area/2);
         
     }else{return 0;}
     
@@ -730,7 +755,8 @@ double find_way_length(OSMID way_id){
         }
     }
     //use OSMWay* to find all the nodes the way contains
-    if(input_way_p!=NULL){
+    if(input_way_p==NULL){return 0;}//failed to find the way
+    else{
         std::vector<OSMID> wayMembers = getWayMembers(input_way_p);
         //find latlons of nodes using the OSMIDs from wayMembers
         std::vector<LatLon> latlon_of_nodes;
@@ -748,9 +774,7 @@ double find_way_length(OSMID way_id){
             length += find_distance_between_two_points(std::make_pair(latlon_of_nodes[i], latlon_of_nodes[i+1]));
         }
         return length;
-    }
-    else{return 0;}//cant find way
-     
+    }    
     
     //for debugging purposes...can delete when this function builds -M
 }
