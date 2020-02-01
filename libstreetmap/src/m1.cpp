@@ -132,7 +132,7 @@ void makeIntersectionsOfStreets(){
             ++it;
             //Does NOT CHECK FOR DUPLICATES
         }
-    }*/
+    }
     
     std::string streetName;
     std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
@@ -151,26 +151,43 @@ void makeIntersectionsOfStreets(){
                 }
             }
         }
+    }*/
+    
+    int streetID;
+    
+    //Loops through all the intersections
+    for (int interId=0; interId<getNumIntersections(); interId++){
+        
+        //Loops through all the segments for that intersection
+        for(int i=0; i < getIntersectionStreetSegmentCount(interId); ++i){
+            
+            // add each street connecting to the intersection into streets_attached vector
+            StreetSegmentIndex temp = getIntersectionStreetSegment(interId, i);
+            streetID = getInfoStreetSegment(temp).streetID;
+        
+        // add vector and intersection id to the map
+        intersectionsOfStreets.insert({streetID, interId});
+        }
     }
 }
 
 // my implementation of find streets in intersection -p
-/* void makeIntersection_StreetTable(){
+ void makeIntersection_StreetTable(){
     std::vector<int> streets_attached;
-    for (IntersectionIndex id=0; id<getNumIntersections(); id++){
-        for(int i=0; i < getIntersectionStreetSegmentCount(id); ++i){
+    for (int interId=0; interId<getNumIntersections(); interId++){
+        for(int i=0; i < getIntersectionStreetSegmentCount(interId); ++i){
             // add each street connecting to the intersection into streets_attached vector
-            StreetSegmentIndex temp = getIntersectionStreetSegment(id, i);
+            StreetSegmentIndex temp = getIntersectionStreetSegment(interId, i);
             streets_attached.push_back((getInfoStreetSegment(temp)).streetID);
         
         // add vector and intersection id to the map
-        intersection_StreetTable.insert({id, streets_attached});
+        intersection_StreetTable.insert({interId, streets_attached});
         // clear vector for next for loop
         streets_attached.clear();
     
         }
     }
-}*/
+}
 
 
 /*============================== MILESTONE 1 ==============================*/
