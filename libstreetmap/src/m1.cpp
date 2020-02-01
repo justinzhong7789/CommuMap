@@ -519,10 +519,12 @@ std::vector<int> find_intersections_of_street(int street_id){
 //this passes i think -p
 std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_ids){
     //initialize vector to be returned
+    
     std::vector<int> intersections_first = find_intersections_of_street(street_ids.first);
     std::vector<int> intersections_second = find_intersections_of_street(street_ids.second);
     
     std::vector<int> commonIntersection (intersections_first.size() + intersections_second.size());
+    /*
     VectorIt it;
     
     //deleted sort because they should already be sorted -M
@@ -532,7 +534,7 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     it = std::set_intersection(intersections_first.begin(), intersections_first.end(),commonIntersection.begin()); 
 
     commonIntersection.resize(it-commonIntersection.begin());
-    
+    */
     return commonIntersection;
 }
 
