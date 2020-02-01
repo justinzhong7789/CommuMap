@@ -483,6 +483,7 @@ std::vector<int> find_intersections_of_street(int street_id){
     int num_of_intersections = getNumIntersections();
     
     //if intersection id matches the from and to in any street segments, put it into vector
+ * 
     for(int inter_index=0;inter_index<num_of_intersections;inter_index++){
         bool match=false;
         for(int i=0;i<street_segment_ids.size();i++){
@@ -501,6 +502,21 @@ std::vector<int> find_intersections_of_street(int street_id){
 
 //CHECKS FOR DUPLICATES -M
 std::vector<int> find_intersections_of_street(int street_id){
+    std::vector<int> segments_of_street = find_street_segments_of_street(street_id);
+    std::vector<int> intersections_we_want;
+    for(int i=0;i<segments_of_street.size();i++){
+        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).from);
+        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).to);
+    }
+    //sort vector
+    std::sort(intersections_we_want.begin(), intersections_we_want.end());
+    
+    //delete duplicates with unique
+    //erase extra size space
+    intersections_we_want.erase(std::unique(intersections_we_want.begin(), intersections_we_want.end(),intersections_we_want.end()));
+    
+    return intersections_we_want;
+    /*
     std::vector<int> intersectionIDs;
     //find all segments from the given street using SegmentsOfStreets map
     //Loop through each segment and find each adjacent intersection with the same StreetID
@@ -525,6 +541,7 @@ std::vector<int> find_intersections_of_street(int street_id){
     }
         
     return intersectionIDs;
+*/
 }
 
 
