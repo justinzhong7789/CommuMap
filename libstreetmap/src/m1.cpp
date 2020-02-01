@@ -511,35 +511,6 @@ std::vector<int> find_intersections_of_street(int street_id){
     //intersection contains duplicate elements
     //remove dupes and return
     return remove_dups_in_vecs(intersections_we_want);
-<<<<<<< HEAD
-=======
-   
-    std::vector<int> intersectionIDs;
-    //find all segments from the given street using SegmentsOfStreets map
-    //Loop through each segment and find each adjacent intersection with the same StreetID
-    //if intersection has not yet been placed there, place into the vector
-    
-    //counts number of intersections associated to that street (includes duplicates)
-    int countInters = intersectionsOfStreets.count(street_id);
-    
-    //gets a pair pointer to the value and to the key (first value in the key set)
-    auto pointerToStreetIntersections = segmentsOfStreets.equal_range(street_id);
-    //starts at the beginning of index (street ID)
-    StreetsIt it = pointerToStreetIntersections.first;
-    
-    for(int i =0; i < countInters; i++){
-        //Prevents duplicates by searching for the intersection before implementing it into the vector (see std::find properties)
-        if(std::find(intersectionIDs.begin(),intersectionIDs.end(), it->second) == intersectionIDs.end()){
-        intersectionIDs.push_back(it->second);
-        }
-        
-        //changes the pointer of the value
-        ++it;
-    }
-        
-    return intersectionIDs;
-
->>>>>>> 6b08718767eeb7e3f00067a954895d7d0de36d4a
 }
 
 //TRYING TO OPTOMIZE TIME -M
@@ -560,7 +531,7 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     
     
     it = std::set_intersection(intersections_first.begin(), intersections_first.end(),
-            ccommonIntersection.begin()); 
+            commonIntersection.begin()); 
 
     commonIntersection.resize(it-commonIntersection.begin());
     
@@ -745,5 +716,4 @@ double find_way_length(OSMID way_id){
         }
         return length;
     }    
-    //for debugging purposes...can delete when this function builds -M
 }
