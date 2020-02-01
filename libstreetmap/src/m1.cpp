@@ -499,6 +499,7 @@ std::vector<int> find_street_segments_of_street(int street_id){
 /* this function might be slow 
  * might need a more efficient algorithm
  */
+<<<<<<< HEAD
 
 std::vector<int> find_intersections_of_street(int street_id){
     /*
@@ -525,6 +526,8 @@ std::vector<int> find_intersections_of_street(int street_id){
 }
 
 /*
+=======
+>>>>>>> 934b9e27f8e17b0efff7a02ca304813984f20a86
 //CHECKS FOR DUPLICATES -M
 std::vector<int> find_intersections_of_street(int street_id){
     std::vector<int> segments_of_street = find_street_segments_of_street(street_id);
@@ -537,6 +540,8 @@ std::vector<int> find_intersections_of_street(int street_id){
     //intersection contains duplicate elements
     //remove dupes and return
     return remove_dups_in_vecs(intersections_we_want);
+<<<<<<< HEAD
+=======
    
     std::vector<int> intersectionIDs;
     //find all segments from the given street using SegmentsOfStreets map
@@ -562,10 +567,16 @@ std::vector<int> find_intersections_of_street(int street_id){
     }
         
     return intersectionIDs;
+<<<<<<< HEAD
 */
     return 0;
 }
 
+=======
+
+>>>>>>> 6b08718767eeb7e3f00067a954895d7d0de36d4a
+}
+>>>>>>> 934b9e27f8e17b0efff7a02ca304813984f20a86
 
 //TRYING TO OPTOMIZE TIME -M
 //Return all intersection ids for two intersecting streets
