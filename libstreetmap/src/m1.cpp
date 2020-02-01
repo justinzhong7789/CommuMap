@@ -20,7 +20,7 @@
  */
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
-#include <map>
+#include <map> 
 #include "OSMDatabaseAPI.h"
 
 #include <list>
@@ -32,7 +32,7 @@
 #include <string>
 //#include "OSMDatabaseAPI.h" //I don't know if we need to add this
 
-/*==================== GLOBAL VARIABLES ====================*/
+/*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
 std::vector<LatLon> intersectionTable;
 std::unordered_map< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
@@ -40,8 +40,9 @@ std::multimap<StreetIndex, int> segmentsOfStreets;
 std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
+//std::vector<int> intersections_of_street(int street_id);
 
-/*==================== GLOBAL FUNCTIONS TO BE LOADED INTO LOADMAP ====================*/
+/*==================== GLOBAL FUNCTIONS IMPLEMENTATIONS ====================*/
 
 //ARE THESE EVEN NEEDED?
 void makeIntersectionTable();
@@ -112,6 +113,7 @@ void makeSegmentsOfIntersections(){
  * Try using std::find(<pointer to start>, <pointer to end>, <what you're lookingfor>)
  * 
  */
+
 void makeIntersectionsOfStreets(){
     
     /*std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
@@ -135,7 +137,6 @@ void makeIntersectionsOfStreets(){
     }
     
     std::string streetName;
-    std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
     
     for(int i = 0 ; i< getNumStreets() ; ++i){
         streetName = getStreetName(i);
@@ -147,12 +148,12 @@ void makeIntersectionsOfStreets(){
                 
                 if(streetName == streetsAtIntersection[j]){
                     intersectionsOfStreets.insert({i,j});
-                    intersectionsOfStreetsTest.insert({i,j});
                 }
             }
         }
     }*/
     
+    std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
     int streetID;
     
     //Loops through all the intersections
@@ -166,11 +167,15 @@ void makeIntersectionsOfStreets(){
             streetID = getInfoStreetSegment(temp).streetID;
         
         // add vector and intersection id to the map
+        intersectionsOfStreetsTest.insert({streetID, interId});
         intersectionsOfStreets.insert({streetID, interId});
         }
     }
 }
 
+
+
+/*
 // my implementation of find streets in intersection -p
  void makeIntersection_StreetTable(){
     std::vector<int> streets_attached;
@@ -188,7 +193,7 @@ void makeIntersectionsOfStreets(){
         }
     }
 }
-
+*/
 
 /*============================== MILESTONE 1 ==============================*/
 
@@ -473,7 +478,7 @@ std::vector<int> find_street_segments_of_street(int street_id){
 /* this function might be slow 
  * might need a more efficient algorithm
  */
-/*
+
 std::vector<int> find_intersections_of_street(int street_id){
     std::vector<int> intersection_ids;
     //find all street segments on the given street using the previous function
@@ -495,8 +500,8 @@ std::vector<int> find_intersections_of_street(int street_id){
     }
     return intersection_ids;
 }
-*/
 
+/*
 //CHECKS FOR DUPLICATES -M
 std::vector<int> find_intersections_of_street(int street_id){
     std::vector<int> intersectionIDs;
@@ -524,7 +529,7 @@ std::vector<int> find_intersections_of_street(int street_id){
         
     return intersectionIDs;
 }
-
+*/
 
 //TRYING TO OPTOMIZE TIME -M
 //Return all intersection ids for two intersecting streets
