@@ -53,8 +53,30 @@ void makeIntersectionsOfStreets();
 //void makeSegmentsOfInetersection();
 double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
-
+std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA);
+bool element_exists(int element, std::vector<int> vectorA);
 /*==================== GLOBAL FUNCTION IMPLEMENTATION ====================*/
+bool element_exists(int element, std::vector<int> vectorA){
+    bool found=false;
+    for (int i=0; i<vectorA.size();i++){
+        if(vectorA[i]==element){
+            found = true;
+            break;
+        }
+    }
+    return found;
+}
+std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA){
+    std::vector<int> sorted_vec;
+    for(int i=0;i<vectorA.size();i++){
+        //if element is not already in the vector, insert it
+        if(!element_exists(vectorA[i], sorted_vec)){
+            sorted_vec.push_back(vectorA[i]);
+        }
+    }
+    return sorted_vec;
+}
+
 double x_distance_between_2_points(LatLon first, LatLon second){
     double LatAvg = (first.lat()+second.lat())*DEGREE_TO_RADIAN/2;
     double x1= first.lon()*DEGREE_TO_RADIAN* cos(LatAvg);
@@ -519,14 +541,10 @@ std::vector<int> find_intersections_of_street(int street_id){
         intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).from);
         intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).to);
     }
-    //sort vector
-    std::sort(intersections_we_want.begin(), intersections_we_want.end());
     
-    //delete duplicates with unique
-    //erase extra size space
-    intersections_we_want.erase(std::unique(intersections_we_want.begin(), intersections_we_want.end(),intersections_we_want.end()));
-    
-    return intersections_we_want;
+    //intersection contains duplicate elements
+    //remove dupes and return
+    return remove_dups_in_vecs(intersections_we_want);
     /*
     std::vector<int> intersectionIDs;
     //find all segments from the given street using SegmentsOfStreets map
