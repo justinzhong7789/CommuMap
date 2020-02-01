@@ -37,6 +37,7 @@ std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTab
 std::multimap<StreetIndex, int> segmentsOfStreets;
 std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
 typedef std::multimap<int, int>::iterator StreetsIt;
+typedef std::vector<int>::iterator VectorIt;
 
 /*==================== GLOBAL FUNCTIONS TO BE LOADED INTO LOADMAP ====================*/
 
@@ -84,11 +85,34 @@ void makeSegmentsOfStreets(){
         segmentsOfStreets.insert({streetID, i});
     }
 }
-/*
+
+//Make sure it's implemented in load map after makeSegmentsOfStreets cuz its dependant on it
+/* Makes intersectionsOfStreets multimap
+ * Finds the intersections (value) related to each street (key)
+ * Does not check for duplicates
+ * 
+ * _________________________________________
+ * 
+ * 
+ * Try using std::find(<pointer to start>, <pointer to end>, <what you're lookingfor>)
+ * 
+ */
 void makeIntersectionsOfStreets(){
-    int n
+    int numStreets = getNumStreets();
+    for(int i = 0 ; i < numStreets ; ++i){
+        auto pointer = segmentsOfStreets.equal_range(i);
+        StreetsIt it = pointer.first;
+        
+        
+        for(int k=0 ; k< segmentsOfStreets.count(i) ; ++k){
+            //inserts the intersection under the key i (which is the streedID)
+            intersectionsOfStreets.insert({i, it->second});
+            ++it;
+            //Does NOT CHECK FOR DUPLICATES
+        }
+    }
 }
-*/
+
 // my implementation of find streets in intersection -p
 /* void makeIntersection_StreetTable(){
     std::vector<int> streets_attached;
@@ -126,6 +150,7 @@ bool load_map(std::string map_path) {
         makeIntersectionTable();
         makeStreetNamesTable();
         makeSegmentsOfStreets();
+        makeIntersectionsOfStreets();
     }
     // makeIntersection_StreetTable();
     return load_successful;
@@ -264,6 +289,7 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
     return street_segments_of_intersection;
 }
 
+//CHECK IF U CAN USE ONE OF THE GLOBAL FUNCTIONS... MAP<STREETNAME, ID>
 //I THINK THIS ALSO PASSES -M
 //DEPENDENT ON find_street_segments_of_intersection WORKING -M
 //Returns the street names at the given intersection (includes duplicate street 
@@ -371,7 +397,6 @@ std::vector<int> find_street_segments_of_street(int street_id){
 //tested for a few cases. it works I think -M
 std::vector<int> find_street_segments_of_street(int street_id){
     std::vector<int> street_segment_ids;
-    auto findStreet = segmentsOfStreets.find(street_id);
     int countSegments = segmentsOfStreets.count(street_id);
     
     auto pointerToStreetSegments = segmentsOfStreets.equal_range(street_id);
@@ -414,34 +439,36 @@ std::vector<int> find_intersections_of_street(int street_id){
 }
 */
 
+//CHECKS FOR DUPLICATES -M
 std::vector<int> find_intersections_of_street(int street_id){
     std::vector<int> intersectionIDs;
     //find all segments from the given street using SegmentsOfStreets map
     //Loop through each segment and find each adjacent intersection with the same StreetID
     //if intersection has not yet been placed there, place into the vector
     
-    //find all street segments on the given street using the previous function
-    std::vector<int> street_segment_ids=find_street_segments_of_street(street_id);
-    int num_of_intersections = getNumIntersections();
+    //counts number of intersections associated to that street (includes duplicates)
+    int countInters = intersectionsOfStreets.count(street_id);
     
-    //if intersection id matches the from and to in any street segments, put it into vector
-    for(int inter_index=0;inter_index<num_of_intersections;inter_index++){
-        bool match=false;
-        for(int i=0;i<street_segment_ids.size();i++){
-            if(inter_index==getInfoStreetSegment(street_segment_ids[i]).from||inter_index==getInfoStreetSegment(street_segment_ids[i]).to){
-                match=true;
-                break;
-            }
+    //gets a pair pointer to the value and to the key (first value in the key set)
+    auto pointerToStreetIntersections = segmentsOfStreets.equal_range(street_id);
+    //starts at the beginning of index (street ID)
+    StreetsIt it = pointerToStreetIntersections.first;
+    
+    for(int i =0; i < countInters; i++){
+        //Prevents duplicates by searching for the intersection before implementing it into the vector (see std::find properties)
+        if(std::find(intersectionIDs.begin(),intersectionIDs.end(), it->second) == intersectionIDs.end()){
+        intersectionIDs.push_back(it->second);
         }
-        if(match){
-            intersectionIDs.push_back(inter_index);
-        }
+        
+        //changes the pointer of the value
+        ++it;
     }
+        
     return intersectionIDs;
 }
 
 
-
+//TRYING TO OPTOMIZE TIME -M
 //Return all intersection ids for two intersecting streets
 //This function will typically return one intersection id.
 //this passes i think -p
@@ -450,16 +477,17 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     std::vector<int> intersections_first = find_intersections_of_street(street_ids.first);
     std::vector<int> intersections_second = find_intersections_of_street(street_ids.second);
     
-    std::vector<int> output(99999);
-    std::vector<int>::iterator it;
+    std::vector<int> commonIntersection (intersections_first.size() + intersections_second.size());
+    VectorIt it;
     
-    std::sort(intersections_first.begin(), intersections_first.end());
-    std::sort(intersections_second.begin(), intersections_second.end());
+    //deleted sort because they should already be sorted -M
     
     it = std::set_intersection(intersections_first.begin(), intersections_first.end(),
-            intersections_second.begin(), intersections_second.end(), output.begin());
-    output.resize(it-output.begin());
-    return output;
+            intersections_second.begin(), intersections_second.end(), commonIntersection.begin()); 
+
+    commonIntersection.resize(it-commonIntersection.begin());
+    
+    return commonIntersection;
 }
 
 //Returns all street ids corresponding to street names that start with the given prefix
