@@ -171,7 +171,6 @@ void makeIntersectionsOfStreets(){
         intersectionsOfStreets.insert({streetID, interId});
         }
     }
-*/
 }
      
 // my implementation of find streets in intersection -p
