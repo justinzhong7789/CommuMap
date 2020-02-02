@@ -30,6 +30,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <iostream>
 //#include "OSMDatabaseAPI.h" //I don't know if we need to add this
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
@@ -687,8 +688,7 @@ double find_feature_area(int feature_id){
 //functions.
 double find_way_length(OSMID way_id){
     
-    //J's edits
-    //find OMSWay* 
+    //J's edits    //find OMSWay* 
     const OSMWay* input_way_p=NULL;
     int numberOfWays = getNumberOfWays();
     for(int i=0; i < numberOfWays; i++){
@@ -696,11 +696,14 @@ double find_way_length(OSMID way_id){
             input_way_p = getWayByIndex(i);
             break;
         }
+        if(i==numberOfWays-1){
+            std::cout<< "reached last number of ways";
+        }
     }
     //use OSMWay* to find all the nodes the way contains
     if(input_way_p==NULL){return 0;}//failed to find the way
     else{
-        std::vector<OSMID> wayMembers = getWayMembers(input_way_p);
+        const std::vector<OSMID> wayMembers = getWayMembers(input_way_p);
         //find latlons of nodes using the OSMIDs from wayMembers
         std::vector<LatLon> latlon_of_nodes;
         for(int i=0;i<wayMembers.size();i++){
