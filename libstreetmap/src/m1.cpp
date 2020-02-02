@@ -39,7 +39,7 @@ std::vector<LatLon> intersectionTable;
 std::multimap< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
 std::vector<std::vector<int>> segmentsOfStreets;
-std::multimap<int,int> segmentsOfStreetsMap;
+//std::multimap<int,int> segmentsOfStreets;
 std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
 std::vector<std::vector<int>> segmentsOfIntersections;
 std::vector<std::vector<std::string>> streetNamesOfIntersections;
@@ -75,16 +75,6 @@ bool element_exists(int element, std::vector<int> vectorA){
     }
     return found;
 }
-std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA){
-    std::vector<int> sorted_vec;
-    for(int i=0;i<vectorA.size();i++){
-        //if element is not already in the vector, insert it
-        if(!element_exists(vectorA[i], sorted_vec)){
-            sorted_vec.push_back(vectorA[i]);
-        }
-    }
-    return sorted_vec;
-}
 
 double x_distance_between_2_points(LatLon first, LatLon second){
     double LatAvg = (first.lat()+second.lat())*DEGREE_TO_RADIAN/2;
@@ -111,51 +101,99 @@ void makeStreetNamesTable(){
     }
 }
 
-void makeSegmentsOfStreets(){
-    
-    /*
-    //FOR A MULTIMAP:
-    int numStreetSeg = getNumStreetSegments();
-    int streetID;
-    
-    for(int i=0;i<numStreetSeg;i++){
-        streetID = getInfoStreetSegment(i).streetID;
-        segmentsOfStreetsMap.insert({streetID, i});
-    }
-    */
-    
-    //FOR A VECTOR OF VECTORS
-    std::vector<int> street_segments_of_streets;
-    int numStreets = getNumStreets();
-    int numSegments = getNumStreetSegments();
-    segmentsOfStreets.resize(numStreets);
-    
-    for(int j =0 ; j< numStreets ; ++j){
-        
-        street_segments_of_streets.clear();
-        //going through the segment index attached to the intersection 
-        for(int i=0; i < numSegments; ++i){
-            if(getInfoStreetSegment(i).streetID == j){
-            street_segments_of_streets.push_back(getIntersectionStreetSegment(j, i));
-            }
+
+
+//void makeSegmentsOfStreets(){
+//    
+//    int numSegments = getNumStreetSegments();
+//    int streetID;
+//    
+//    
+////    for(int i=0;i<numSegments;i++){
+////        streetID = getInfoStreetSegment(i).streetID;
+////        segmentsOfStreets.insert({streetID, i});
+////    }
+//     
+//    
+//    int numStreets = getNumStreets();
+//    for(int j =0 ; j< numStreets ; ++j){
+//        
+//        //street_segments_of_streets.clear();
+//        //going through the segment index attached to the intersection 
+//        for(int i=0; i < numSegments; ++i){
+//            if(getInfoStreetSegment(i).streetID == j){
+//            segmentsOfStreets.insert({j,i});
+//            }
+//        }
+//        
+//    }
+//}
+
+std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA){
+    std::vector<int> sorted_vec;
+    for(int i=0;i<vectorA.size();i++){
+        //if element is not already in the vector, insert it
+        if(!element_exists(vectorA[i], sorted_vec)){
+            sorted_vec.push_back(vectorA[i]);
         }
-        segmentsOfStreets[j] = street_segments_of_streets;
     }
-    
+    return sorted_vec;
 }
 
-void makeSegmentsOfStreetsMap(){
+void makeSegmentsOfStreets(){    
+
+//
+//    std::multimap<int,int> segmentsOfStreetsMap;  
+//    std::vector<int> street_segment_ids;
+//    int numSegments = getNumStreetSegments();
+//    
+//    int streetID;
+//    
+//    for(int j=0;j<numSegments;j++){
+//        streetID = getInfoStreetSegment(j).streetID;
+//        segmentsOfStreetsMap.insert({streetID, j});
+//    }    
+//    
+//    for(int k=0; k<getNumStreets(); ++k){
+//        street_segment_ids.clear();
+//        
+//        int countSegments = segmentsOfStreetsMap.count(k);
+//
+//        auto pointerToStreetSegments = segmentsOfStreetsMap.equal_range(k);
+//        StreetsIt it = pointerToStreetSegments.first;
+//
+//        for(int i =0; i < countSegments; i++){
+//
+//            street_segment_ids.push_back(it->second);
+//             ++it;
+//        }
+//        segmentsOfStreets[k]=street_segment_ids;
+//    }
     
     
-    //FOR A MULTIMAP:
-    int numStreetSeg = getNumStreetSegments();
-    int streetID;
-    
-    for(int i=0;i<numStreetSeg;i++){
-        streetID = getInfoStreetSegment(i).streetID;
-        segmentsOfStreetsMap.insert({streetID, i});
+
+    int street_ID;
+    segmentsOfStreets.resize(getNumStreets());
+    for(int j =0 ; j< getNumStreetSegments() ; ++j){
+        street_ID = getInfoStreetSegment(j).streetID;
+        segmentsOfStreets[street_ID].push_back(j);
     }
+    
 }
+//
+//void makeSegmentsOfStreetsMap(){
+//    
+//    
+//    //FOR A MULTIMAP:
+//    int numStreetSeg = getNumStreetSegments();
+//    int streetID;
+//    
+//    for(int i=0;i<numStreetSeg;i++){
+//        streetID = getInfoStreetSegment(i).streetID;
+//        segmentsOfStreetsMap.insert({streetID, i});
+//    }
+//}
+//*/
 
 
 void makeSegmentsOfIntersections(){  
@@ -329,7 +367,7 @@ bool load_map(std::string map_path) {
         makeIntersectionTable();
         makeStreetNamesTable();
         makeSegmentsOfStreets();
-        makeSegmentsOfStreetsMap();
+        //makeSegmentsOfStreetsMap();
         makeIntersectionsOfStreets();
         makeSegmentsOfIntersections();
         makeStreetNamesOfIntersections();
@@ -547,27 +585,63 @@ std::vector<int> find_street_segments_of_street(int street_id){
 }
 */
 
+//tested for a few cases. it works I think -M
 std::vector<int> find_street_segments_of_street(int street_id){
-   
+//    std::vector<int> street_segment_ids;
+//    int countSegments = segmentsOfStreets.count(street_id);
+//    
+//    auto pointerToStreetSegments = segmentsOfStreets.equal_range(street_id);
+//    StreetsIt it = pointerToStreetSegments.first;
+//            
+//    for(int i =0; i < countSegments; i++){
+//        
+//        street_segment_ids.push_back(it->second);
+//         ++it;
+//    }
+//    return street_segment_ids;
     return segmentsOfStreets[street_id];
-    //std::vector<int> street_segment_ids;
-    /*
-    std::vector<int> street_segment_ids;
-    int countSegments = segmentsOfStreetsMap.count(street_id);
-    
-    auto pointerToStreetSegments = segmentsOfStreetsMap.equal_range(street_id);
-    StreetsIt it = pointerToStreetSegments.first;
-            
-    for(int i =0; i < countSegments; i++){
-        
-        street_segment_ids.push_back(it->second);
-         ++it;
-    }
-    return street_segment_ids;
-
-     */
-    //return street_segment_ids;
 }
+
+//OPTIMIZING THIS FUNCTION -M
+//Returns all intersections along the a given street
+//j
+/* this function might be slow 
+ * might need a more efficient algorithm
+ */
+std::vector<int> find_intersections_of_street(int street_id){
+    std::vector<int> segments_of_street = find_street_segments_of_street(street_id);
+    std::vector<int> intersections_we_want;
+    for(int i=0;i<segments_of_street.size();i++){
+        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).from);
+        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).to);
+    }
+    
+    //intersection contains duplicate elements
+    //remove dupes and return
+    return remove_dups_in_vecs(intersections_we_want);
+}
+
+
+
+//std::vector<int> find_street_segments_of_street(int street_id){
+//   
+//    return segmentsOfStreets[street_id];
+//    //std::vector<int> street_segment_ids;
+//    
+//    std::vector<int> street_segment_ids;
+//    int countSegments = segmentsOfStreetsMap.count(street_id);
+//    
+//    auto pointerToStreetSegments = segmentsOfStreetsMap.equal_range(street_id);
+//    StreetsIt it = pointerToStreetSegments.first;
+//            
+//    for(int i =0; i < countSegments; i++){
+//        
+//        street_segment_ids.push_back(it->second);
+//         ++it;
+//    }
+//    return street_segment_ids;
+//
+//}
 
 
 //OPTIMIZING THIS FUNCTION -M
@@ -576,6 +650,7 @@ std::vector<int> find_street_segments_of_street(int street_id){
 /* this function might be slow 
  * might need a more efficient algorithm
  */
+/*
 std::vector<int> find_intersections_of_street(int street_id){
     std::vector<int> segments_of_street = segmentsOfStreets[street_id];
     std::vector<int> intersections_we_want;
@@ -588,7 +663,7 @@ std::vector<int> find_intersections_of_street(int street_id){
     //remove dupes and return
     return remove_dups_in_vecs(intersections_we_want);
 }
-
+*/
 
 //TRYING TO OPTOMIZE TIME -M
 //Return all intersection ids for two intersecting streets
