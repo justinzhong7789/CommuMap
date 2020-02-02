@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include <set>
 
 //#include "OSMDatabaseAPI.h" //I don't know if we need to add this
 
@@ -39,8 +40,9 @@ std::multimap< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
 std::multimap<StreetIndex, StreetSegmentIndex> segmentsOfStreets;
 std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
-std::multimap<IntersectionIndex, StreetSegmentIndex> segmentsOfIntersections;
-std::multimap<IntersectionIndex, IntersectionIndex> adjacentIntersections;
+std::multimap<IntersectionIndex, StreetSegmentIndex>segmentsOfIntersections;
+std::vector<std::vector<int>> segmentsOfIntersectionsSet;
+//std::multimap<IntersectionIndex, IntersectionIndex> adjacentIntersections;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
 //std::vector<int> intersections_of_street(int street_id);
@@ -54,6 +56,7 @@ void makeIntersection_StreetTable();
 void makeSegmentsOfStreets();
 void makeIntersectionsOfStreets();
 void makeSegmentsOfIntersections();
+void makeSegmentsOfIntersectionsSet();
 double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
 std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA);
@@ -121,18 +124,44 @@ void makeSegmentsOfStreets(){
 // In the works
 void makeSegmentsOfIntersections(){
 
+    
     //Does not check for duplicates...must check in vector when function is implemented
     segmentsOfIntersections.clear();
     int numStreetSeg = getNumStreetSegments();
     int interTo, interFrom;
+    std::vector<int> segIDs;
     
     for(int i=0;i<numStreetSeg;i++){
         interFrom = getInfoStreetSegment(i).from;
         interTo = getInfoStreetSegment(i).to;
+        
         segmentsOfIntersections.insert({interTo, i});
         segmentsOfIntersections.insert({interFrom, i});
     }
 }
+
+void makeSegmentsOfIntersectionsSet(){
+
+    
+    //PASSES ALL TEST CASES BUT TAKES TOO LONG    
+    std::vector<int> street_segments_of_intersection;
+    segmentsOfIntersectionsSet.resize(getNumIntersections());
+    for(int j =0 ; j< getNumIntersections() ; ++j){
+        
+        street_segments_of_intersection.clear();
+        int num_segments = getIntersectionStreetSegmentCount(j);
+        
+        //going through the segment index attached to the intersection 
+        for(int i=0; i < num_segments; ++i){
+            street_segments_of_intersection.push_back(getIntersectionStreetSegment(j, i));
+        }
+        segmentsOfIntersectionsSet[j] = street_segments_of_intersection;
+    }
+}
+
+
+
+
 
 //Make sure it's implemented in load map after makeSegmentsOfStreets cuz its dependant on it
 /* NOT SURE IF THIS WORKS CUZ NEVER TEST AND NEVER USED
@@ -285,6 +314,7 @@ bool load_map(std::string map_path) {
         makeSegmentsOfStreets();
         makeIntersectionsOfStreets();
         makeSegmentsOfIntersections();
+        makeSegmentsOfIntersectionsSet();
         //makeAdjacentIntersections();
     }
     // makeIntersection_StreetTable();
@@ -425,8 +455,9 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
     }
     return street_segments_of_intersection;
     */
+    /*
+    //second version is bad. can be made faster
     //NEW VERSION FASTER
-    
     std::vector<int> street_segment_ids;
     street_segment_ids.clear();
     
@@ -442,6 +473,10 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
          ++it;
     }
     return street_segment_ids;
+
+     */
+    
+    return segmentsOfIntersectionsSet[intersection_id];
 }
 
 //CHECK IF U CAN USE ONE OF THE GLOBAL FUNCTIONS... MAP<STREETNAME, ID>
