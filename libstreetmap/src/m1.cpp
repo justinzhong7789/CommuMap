@@ -29,11 +29,8 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-<<<<<<< HEAD
 #include <iostream>
-=======
 
->>>>>>> 4bfb3f252f894a9d378d29b30abefc1d40fe2341
 //#include "OSMDatabaseAPI.h" //I don't know if we need to add this
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
@@ -526,7 +523,7 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
 //the returned vector should NOT contain duplicate intersections
 std::vector<int> find_adjacent_intersections(int intersection_id){
     
-    /*
+    
     std::vector<int> adjacentIntersections;
     //std::vector<int> intersectionSegments = find_street_segments_of_intersection(intersection_id);
     std::pair<int,int> twoIntersections;
@@ -552,8 +549,8 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
             }
     }
     return adjacentIntersections;
-     */
-    
+     
+    /*
     std::vector<int> foundAdjIntersections;
     int countInters = adjacentIntersections.count(intersection_id);
     
@@ -566,7 +563,7 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
          ++it;
     }
     return foundAdjIntersections;
-    
+    */
 }
 /* //CAN BE DELETED, CREATED FUNCTION THAT'LL TAKE LESS TIME WITH A GLOBAL MULTIMAP -M
 //Returns all street segments for the given street
