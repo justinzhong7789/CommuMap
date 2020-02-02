@@ -29,11 +29,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-<<<<<<< HEAD
 #include <iostream>
-=======
-
->>>>>>> 4bfb3f252f894a9d378d29b30abefc1d40fe2341
 //#include "OSMDatabaseAPI.h" //I don't know if we need to add this
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
@@ -793,21 +789,25 @@ double find_feature_area(int feature_id){
 //functions.
 double find_way_length(OSMID way_id){
     
-    //J's edits    //find OMSWay* 
-    const OSMWay* input_way_p=NULL;
+    //J's edits   
+    //find OMSWay* 
+    //const OSMWay* input_way_p;// = nullptr ;    
     int numberOfWays = getNumberOfWays();
+    //std::cout<< numberOfWays;
+    /*
     for(int i=0; i < numberOfWays; i++){
         if(getWayByIndex(i)->id() == way_id){
             input_way_p = getWayByIndex(i);
             break;
         }
-        if(i==numberOfWays-1){
-            std::cout<< "reached last number of ways";
-        }
-    }
+    }*/
     //use OSMWay* to find all the nodes the way contains
-    if(input_way_p==NULL){return 0;}//failed to find the way
+    /*
+    if(input_way_p== nullptr){return 0;}//failed to find the way
     else{
+        double length=0;
+        
+        
         const std::vector<OSMID> wayMembers = getWayMembers(input_way_p);
         //find latlons of nodes using the OSMIDs from wayMembers
         std::vector<LatLon> latlon_of_nodes;
@@ -820,10 +820,13 @@ double find_way_length(OSMID way_id){
             }
         }
         //use latlons from above to calculate cumulative distance of way
-        double length=0;
+        
         for(int i=0; i < latlon_of_nodes.size()-1 ;i++){
             length += find_distance_between_two_points(std::make_pair(latlon_of_nodes[i], latlon_of_nodes[i+1]));
         }
+        
         return length;
-    }    
+    }
+    */    
+    return 0;
 }
