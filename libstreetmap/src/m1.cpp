@@ -37,7 +37,6 @@
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
 std::vector<LatLon> intersectionTable;
 std::multimap< std::string, StreetIndex> StreetNamesTable;
-std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
 std::vector<std::vector<int>> segmentsOfStreets;
 std::vector<std::vector<int>> intersectionsOfStreets;
 std::vector<std::vector<int>> segmentsOfIntersections;
@@ -51,7 +50,6 @@ typedef std::vector<int>::iterator VectorIt;
 //ARE THESE EVEN NEEDED?
 void makeIntersectionTable();
 void makeStreetNamesTable();
-void makeIntersection_StreetTable();
 void makeSegmentsOfStreets();
 void makeSegmentsOfStreetsMap();
 void makeIntersectionsOfStreets();
@@ -273,26 +271,7 @@ bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
     return false;
 }
 
-/*
 
-// my implementation of find streets in intersection -p
- void makeIntersection_StreetTable(){
-    std::vector<int> streets_attached;
-    for (int interId=0; interId<getNumIntersections(); interId++){
-        for(int i=0; i < getIntersectionStreetSegmentCount(interId); ++i){
-            // add each street connecting to the intersection into streets_attached vector
-            StreetSegmentIndex temp = getIntersectionStreetSegment(interId, i);
-            streets_attached.push_back((getInfoStreetSegment(temp)).streetID);
-        
-        // add vector and intersection id to the map
-        intersection_StreetTable.insert({interId, streets_attached});
-        // clear vector for next for loop
-        streets_attached.clear();
-    
-        }
-    }
-}
-*/
 
 /*============================== MILESTONE 1 ==============================*/
 
@@ -318,7 +297,6 @@ bool load_map(std::string map_path) {
         makeStreetNamesOfIntersections();
         makeAdjacentIntersections();
     }
-    // makeIntersection_StreetTable();
     return load_successful;
 }
 
