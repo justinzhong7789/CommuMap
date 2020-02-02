@@ -38,7 +38,7 @@
 std::vector<LatLon> intersectionTable;
 std::multimap< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
-std::multimap<StreetIndex, StreetSegmentIndex> segmentsOfStreets;
+std::vector<std::vector<int>> segmentsOfStreets;
 std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
 std::vector<std::vector<int>> segmentsOfIntersections;
 std::vector<std::vector<std::string>> streetNamesOfIntersections;
@@ -110,13 +110,36 @@ void makeStreetNamesTable(){
 }
 
 void makeSegmentsOfStreets(){
+    
+    /*
+    //FOR A MULTIMAP:
     int numStreetSeg = getNumStreetSegments();
     int streetID;
     
     for(int i=0;i<numStreetSeg;i++){
         streetID = getInfoStreetSegment(i).streetID;
-        segmentsOfStreets.insert({streetID, i});
+        segmentsOfStreetsMap.insert({streetID, i});
     }
+    */
+    
+    //FOR A VECTOR OF VECTORS
+    std::vector<int> street_segments_of_streets;
+    int numStreets = getNumStreets();
+    int numSegments = getNumStreetSegments();
+    segmentsOfStreets.resize(numStreets);
+    
+    for(int j =0 ; j< numStreets ; ++j){
+        
+        street_segments_of_streets.clear();
+        //going through the segment index attached to the intersection 
+        for(int i=0; i < numSegments; ++i){
+            if(getInfoStreetSegment(i).streetID == j){
+            street_segments_of_streets.push_back(getIntersectionStreetSegment(j, i));
+            }
+        }
+        segmentsOfStreets[j] = street_segments_of_streets;
+    }
+    
 }
 
 
@@ -152,6 +175,7 @@ void makeStreetNamesOfIntersections(){
     }
 }
 
+//NEEDS COMMENTING
 void makeAdjacentIntersections(){
     
     std::vector<int> adjacent_intersections;
@@ -165,7 +189,7 @@ void makeAdjacentIntersections(){
         adjacent_intersections.clear();
         
         twoIntersections.first = j;
-        for (int i = 0; i < getIntersectionStreetSegmentCount(j) ; ++i){
+        for (int i = 0; i < getIntersectionStreetSegmentCount(j) ; ++i){ //can change to .size but won't let me for some reason
 
             //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
             //checks if the 'from' intersection is the intersection_id
@@ -185,11 +209,9 @@ void makeAdjacentIntersections(){
         }
         adjacentIntersections[j] = adjacent_intersections;
     }
-    
-    
-    
-    
 }
+
+
 //Make sure it's implemented in load map after makeSegmentsOfStreets cuz its dependant on it
 /* NOT SURE IF THIS WORKS CUZ NEVER TEST AND NEVER USED
  * 
@@ -205,6 +227,7 @@ void makeAdjacentIntersections(){
  */
 
 void makeIntersectionsOfStreets(){
+    
     std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
     int streetID;
     
@@ -223,6 +246,20 @@ void makeIntersectionsOfStreets(){
         intersectionsOfStreets.insert({streetID, interId});
         }
     }
+   
+    /*
+    std::vector<int> segments_of_street = find_street_segments_of_street(street_id);
+    std::vector<int> intersections_we_want;
+    for(int i=0;i<segments_of_street.size();i++){
+        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).from);
+        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).to);
+    }
+    
+    //intersection contains duplicate elements
+    //remove dupes and return
+    return remove_dups_in_vecs(intersections_we_want);
+
+     */
 }
 
 bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
@@ -472,35 +509,6 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
 //from given intersection (hint: you can't travel the wrong way on a 1-way street)
 //the returned vector should NOT contain duplicate intersections
 std::vector<int> find_adjacent_intersections(int intersection_id){
-    
-    /*
-    std::vector<int> adjacentIntersections;
-    //std::vector<int> intersectionSegments = find_street_segments_of_intersection(intersection_id);
-    std::pair<int,int> twoIntersections;
-    twoIntersections.first = intersection_id;
-    std::vector<int>::iterator checkForFind;
-    
-    
-    for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id) ; ++i){
-        //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
-        //checks if the 'from' intersection is the intersection_id
-        twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).to;
-        if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
-            checkForFind = std::find(adjacentIntersections.begin(), adjacentIntersections.end(), twoIntersections.second);
-                if(checkForFind == adjacentIntersections.end()) //if intersection is not found
-            
-                adjacentIntersections.push_back(twoIntersections.second);
-        }
-            twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).from;
-            if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
-                checkForFind = std::find(adjacentIntersections.begin(), adjacentIntersections.end(), twoIntersections.second);
-                if(checkForFind == adjacentIntersections.end())
-                    adjacentIntersections.push_back(twoIntersections.second);
-            }
-    }
-    return adjacentIntersections;
-
-     */
     return adjacentIntersections[intersection_id];
 }
 
@@ -525,18 +533,7 @@ std::vector<int> find_street_segments_of_street(int street_id){
 
 //tested for a few cases. it works I think -M
 std::vector<int> find_street_segments_of_street(int street_id){
-    std::vector<int> street_segment_ids;
-    int countSegments = segmentsOfStreets.count(street_id);
-    
-    auto pointerToStreetSegments = segmentsOfStreets.equal_range(street_id);
-    StreetsIt it = pointerToStreetSegments.first;
-            
-    for(int i =0; i < countSegments; i++){
-        
-        street_segment_ids.push_back(it->second);
-         ++it;
-    }
-    return street_segment_ids;
+    return segmentsOfStreets[street_id];
 }
 
 //OPTIMIZING THIS FUNCTION -M
