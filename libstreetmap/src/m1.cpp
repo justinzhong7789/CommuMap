@@ -39,6 +39,7 @@ std::vector<LatLon> intersectionTable;
 std::multimap< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
 std::vector<std::vector<int>> segmentsOfStreets;
+std::multimap<int,int> segmentsOfStreetsMap;
 std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
 std::vector<std::vector<int>> segmentsOfIntersections;
 std::vector<std::vector<std::string>> streetNamesOfIntersections;
@@ -53,6 +54,7 @@ void makeIntersectionTable();
 void makeStreetNamesTable();
 void makeIntersection_StreetTable();
 void makeSegmentsOfStreets();
+void makeSegmentsOfStreetsMap();
 void makeIntersectionsOfStreets();
 void makeSegmentsOfIntersections();
 void makeStreetNamesOfIntersections();
@@ -140,6 +142,19 @@ void makeSegmentsOfStreets(){
         segmentsOfStreets[j] = street_segments_of_streets;
     }
     
+}
+
+void makeSegmentsOfStreetsMap(){
+    
+    
+    //FOR A MULTIMAP:
+    int numStreetSeg = getNumStreetSegments();
+    int streetID;
+    
+    for(int i=0;i<numStreetSeg;i++){
+        streetID = getInfoStreetSegment(i).streetID;
+        segmentsOfStreetsMap.insert({streetID, i});
+    }
 }
 
 
@@ -314,6 +329,7 @@ bool load_map(std::string map_path) {
         makeIntersectionTable();
         makeStreetNamesTable();
         makeSegmentsOfStreets();
+        makeSegmentsOfStreetsMap();
         makeIntersectionsOfStreets();
         makeSegmentsOfIntersections();
         makeStreetNamesOfIntersections();
@@ -531,10 +547,24 @@ std::vector<int> find_street_segments_of_street(int street_id){
 }
 */
 
-//tested for a few cases. it works I think -M
 std::vector<int> find_street_segments_of_street(int street_id){
-    return segmentsOfStreets[street_id];
+   
+    //return segmentsOfStreets[street_id];
+    
+    std::vector<int> street_segment_ids;
+    int countSegments = segmentsOfStreetsMap.count(street_id);
+    
+    auto pointerToStreetSegments = segmentsOfStreetsMap.equal_range(street_id);
+    StreetsIt it = pointerToStreetSegments.first;
+            
+    for(int i =0; i < countSegments; i++){
+        
+        street_segment_ids.push_back(it->second);
+         ++it;
+    }
+    return street_segment_ids;
 }
+
 
 //OPTIMIZING THIS FUNCTION -M
 //Returns all intersections along the a given street
