@@ -34,7 +34,7 @@
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
 std::vector<LatLon> intersectionTable;
-std::unordered_map< std::string, StreetIndex> StreetNamesTable;
+std::multimap< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
 std::multimap<StreetIndex, StreetSegmentIndex> segmentsOfStreets;
 std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
@@ -167,7 +167,7 @@ void makeIntersectionsOfStreets(){
         }
     }
 }
-
+/*
 void makeAdjacentIntersections(){
     
     std::pair<int,int> twoIntersections;
@@ -203,7 +203,7 @@ void makeAdjacentIntersections(){
             }
         }
     }   
-}
+}*/
 
 bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
     
@@ -284,7 +284,7 @@ bool load_map(std::string map_path) {
         makeSegmentsOfStreets();
         makeIntersectionsOfStreets();
         makeSegmentsOfIntersections();
-        makeAdjacentIntersections();
+        //makeAdjacentIntersections();
     }
     // makeIntersection_StreetTable();
     return load_successful;
@@ -721,7 +721,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     std::vector<int> street_ids;
     std::string street_name;
     // O(n^2) squad -p  
-    std::unordered_map<std::string, StreetIndex>::iterator it;
+    std::multimap<std::string, StreetIndex>::iterator it;
     it=StreetNamesTable.begin();
 
     for (it=StreetNamesTable.begin();it!=StreetNamesTable.end();it++){
