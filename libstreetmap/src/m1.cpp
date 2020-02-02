@@ -36,9 +36,10 @@
 std::vector<LatLon> intersectionTable;
 std::unordered_map< std::string, StreetIndex> StreetNamesTable;
 std::unordered_map< IntersectionIndex, std::vector<int> > intersection_StreetTable;
-std::multimap<StreetIndex, int> segmentsOfStreets;
+std::multimap<StreetIndex, StreetSegmentIndex> segmentsOfStreets;
 std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreets;
-std::multimap<int, int> segmentsOfIntersections;
+std::multimap<IntersectionIndex, StreetSegmentIndex> segmentsOfIntersections;
+std::multimap<IntersectionIndex, IntersectionIndex> adjacentIntersections;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
 //std::vector<int> intersections_of_street(int street_id);
@@ -56,6 +57,9 @@ double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
 std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA);
 bool element_exists(int element, std::vector<int> vectorA);
+bool directlyConnected(std::pair<int,int> intersection_ids);
+void makeAdjacentIntersections();
+bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID);
 /*==================== GLOBAL FUNCTION IMPLEMENTATION ====================*/
 bool element_exists(int element, std::vector<int> vectorA){
     bool found=false;
@@ -124,23 +128,9 @@ void makeSegmentsOfIntersections(){
     for(int i=0;i<numStreetSeg;i++){
         interFrom = getInfoStreetSegment(i).from;
         interTo = getInfoStreetSegment(i).to;
-        
         segmentsOfIntersections.insert({interTo, i});
         segmentsOfIntersections.insert({interFrom, i});
-    } 
-        /*
-    int numIntersections = getNumIntersections();
-    int segID, countSeg;
-    
-    for(int i=0;i<numIntersections;i++){
-        countSeg = getIntersectionStreetSegmentCount(i);
-        for(int j=0 ; j<countSeg; ++j){
-            segID = getIntersectionStreetSegment(i,j);
-            segmentsOfIntersections.insert({segID, i});
-        }
     }
-    */
-    
 }
 
 //Make sure it's implemented in load map after makeSegmentsOfStreets cuz its dependant on it
@@ -176,6 +166,81 @@ void makeIntersectionsOfStreets(){
         intersectionsOfStreets.insert({streetID, interId});
         }
     }
+}
+
+void makeAdjacentIntersections(){
+    
+    std::pair<int,int> twoIntersections;
+    
+    std::vector<int>::iterator checkForFind;
+    int interTo, interFrom;
+    int countInter = getNumIntersections();
+    
+    for(int j = 0 ; j< countInter; ++j){
+        twoIntersections.first = j;
+        
+        for (int i = 0; i < getIntersectionStreetSegmentCount(j) ; ++i){
+        
+            //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
+            //checks if the 'from' intersection is the intersection_id
+                interTo = getInfoStreetSegment(getIntersectionStreetSegment(j,i)).to;
+                interFrom = getInfoStreetSegment(getIntersectionStreetSegment(j,i)).from;
+
+            twoIntersections.second = interTo;
+            if(twoIntersections.first != twoIntersections.second && directlyConnected(twoIntersections)){
+                //check to see if intersection already exists in map with that key
+                if(!valueExistsInMultiMap(adjacentIntersections, twoIntersections.first, twoIntersections.second)){//if intersection is not found
+                    adjacentIntersections.insert({twoIntersections.first,twoIntersections.second});
+                }
+            }
+            twoIntersections.second = interFrom;
+            if(twoIntersections.first != twoIntersections.second && directlyConnected(twoIntersections)){
+                //check to see if intersection already exists in map with that key before inserting
+
+                if(!valueExistsInMultiMap(adjacentIntersections, twoIntersections.first, twoIntersections.second)){
+                    adjacentIntersections.insert({twoIntersections.first,twoIntersections.second});
+                }
+            }
+        }
+    }   
+}
+
+bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
+    
+    if (map.find(key) != map.end()){
+        auto  range = map.equal_range(key);
+        for(StreetsIt it = range.first ; it != range.second ; ++it){
+            if(it->second == ID){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool directlyConnected(std::pair<int,int> intersection_ids){
+    std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
+    
+    if(intersection_ids.first == intersection_ids.second){return true;}
+    int streetSegmentTo = 0;
+    int streetSegmentFrom = 0;
+    if(intersection_ids.first == intersection_ids.second)return true;
+    
+    for(int i=0 ; i < intersectionSegmentsOne.size() ; ++i){
+        
+        streetSegmentTo = getInfoStreetSegment(intersectionSegmentsOne[i]).to; 
+        streetSegmentFrom = getInfoStreetSegment(intersectionSegmentsOne[i]).from; 
+        if (getInfoStreetSegment(intersectionSegmentsOne[i]).oneWay){
+            if(streetSegmentTo == intersection_ids.second){ //Is not accessible on oneWay streets if segment doesnt go from intersection1 to intersection2.. || streetSegmentFrom == intersection_ids.first
+                return true;
+            }
+        }else{
+            if(streetSegmentTo == intersection_ids.second || streetSegmentFrom == intersection_ids.second){
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /*
@@ -219,6 +284,7 @@ bool load_map(std::string map_path) {
         makeSegmentsOfStreets();
         makeIntersectionsOfStreets();
         makeSegmentsOfIntersections();
+        makeAdjacentIntersections();
     }
     // makeIntersection_StreetTable();
     return load_successful;
@@ -343,7 +409,7 @@ int find_closest_intersection(LatLon my_position){
     return closest;
 }
 
-//I THINK THIS PASSES CREATES TIME ERROR, MAKE SUB FUNCTION -M 
+//Created new version (not sure if faster) -M 
 //Returns the street segments for the given intersection 
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
     /*
@@ -405,18 +471,16 @@ std::vector<std::string> find_street_names_of_intersection(int intersection_id){
 //street segment (hint: check for 1-way streets too)
 //corner case: an intersection is considered to be connected to itself
 bool are_directly_connected(std::pair<int, int> intersection_ids){
-    
+   
     std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
     
-    if(intersection_ids.first == intersection_ids.second){return true;}
-    int streetSegmentTo = 0;
-    int streetSegmentFrom = 0;
     if(intersection_ids.first == intersection_ids.second)return true;
     
     for(int i=0 ; i < intersectionSegmentsOne.size() ; ++i){
         
-        streetSegmentTo = getInfoStreetSegment(intersectionSegmentsOne[i]).to; 
-        streetSegmentFrom = getInfoStreetSegment(intersectionSegmentsOne[i]).from; 
+        int streetSegmentTo = getInfoStreetSegment(intersectionSegmentsOne[i]).to; 
+        int streetSegmentFrom = getInfoStreetSegment(intersectionSegmentsOne[i]).from;
+        
         if (getInfoStreetSegment(intersectionSegmentsOne[i]).oneWay){
             if(streetSegmentTo == intersection_ids.second){ //Is not accessible on oneWay streets if segment doesnt go from intersection1 to intersection2.. || streetSegmentFrom == intersection_ids.first
                 return true;
@@ -428,6 +492,27 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
         }
     }
     return false;
+    
+    
+    //IDEK IF THEY CHANGED ANYTHING
+    /*
+    if(adjacentIntersections.find(intersection_ids.first) == adjacentIntersections.end()){
+        return false;
+    }
+    else{
+        int countAdjInters = adjacentIntersections.count(intersection_ids.first);
+
+        auto pointerToInters = adjacentIntersections.equal_range(intersection_ids.first);
+        StreetsIt it = pointerToInters.first;
+        
+        for(int i =0; i < countAdjInters; i++){
+            auto itSecond = it->second;
+            if(itSecond == intersection_ids.second)
+                return true;
+        }
+        return false;
+    }
+     */ 
 }
 
 
@@ -437,6 +522,7 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
 //the returned vector should NOT contain duplicate intersections
 std::vector<int> find_adjacent_intersections(int intersection_id){
     
+    /*
     std::vector<int> adjacentIntersections;
     //std::vector<int> intersectionSegments = find_street_segments_of_intersection(intersection_id);
     std::pair<int,int> twoIntersections;
@@ -462,6 +548,21 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
             }
     }
     return adjacentIntersections;
+     */
+    
+    std::vector<int> foundAdjIntersections;
+    int countInters = adjacentIntersections.count(intersection_id);
+    
+    auto pointerToInters = adjacentIntersections.equal_range(intersection_id);
+    StreetsIt it = pointerToInters.first;
+            
+    for(int i =0; i < countInters; i++){
+        
+        foundAdjIntersections.push_back(it->second);
+         ++it;
+    }
+    return foundAdjIntersections;
+    
 }
 /* //CAN BE DELETED, CREATED FUNCTION THAT'LL TAKE LESS TIME WITH A GLOBAL MULTIMAP -M
 //Returns all street segments for the given street
