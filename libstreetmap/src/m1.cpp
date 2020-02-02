@@ -549,8 +549,9 @@ std::vector<int> find_street_segments_of_street(int street_id){
 
 std::vector<int> find_street_segments_of_street(int street_id){
    
-    //return segmentsOfStreets[street_id];
-    
+    return segmentsOfStreets[street_id];
+    //std::vector<int> street_segment_ids;
+    /*
     std::vector<int> street_segment_ids;
     int countSegments = segmentsOfStreetsMap.count(street_id);
     
@@ -563,6 +564,9 @@ std::vector<int> find_street_segments_of_street(int street_id){
          ++it;
     }
     return street_segment_ids;
+
+     */
+    //return street_segment_ids;
 }
 
 
@@ -573,7 +577,7 @@ std::vector<int> find_street_segments_of_street(int street_id){
  * might need a more efficient algorithm
  */
 std::vector<int> find_intersections_of_street(int street_id){
-    std::vector<int> segments_of_street = find_street_segments_of_street(street_id);
+    std::vector<int> segments_of_street = segmentsOfStreets[street_id];
     std::vector<int> intersections_we_want;
     for(int i=0;i<segments_of_street.size();i++){
         intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).from);
