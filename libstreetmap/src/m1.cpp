@@ -206,26 +206,6 @@ void makeAdjacentIntersections(){
  */
 
 void makeIntersectionsOfStreets(){
-//    
-//    std::multimap<StreetIndex, IntersectionIndex> intersectionsOfStreetsTest;
-//    int streetID;
-//    
-//    //Loops through all the intersections
-//    for (int interId=0; interId<getNumIntersections(); interId++){
-//        
-//        //Loops through all the segments for that intersection
-//        for(int i=0; i < getIntersectionStreetSegmentCount(interId); ++i){
-//            
-//            // add each street connecting to the intersection into streets_attached vector
-//            StreetSegmentIndex temp = getIntersectionStreetSegment(interId, i);
-//            streetID = getInfoStreetSegment(temp).streetID;
-//        
-//        // add vector and intersection id to the map
-//        intersectionsOfStreetsTest.insert({streetID, interId});
-//        intersectionsOfStreets.insert({streetID, interId});
-//        }
-//    }
-   
     
    std::vector<int> intersections_of_street;
    int interTo, interFrom;
@@ -244,18 +224,6 @@ void makeIntersectionsOfStreets(){
         }
         intersectionsOfStreets[j] = remove_dups_in_vecs(intersections_of_street);
     }
-   
-//   
-//   std::vector<int> segments_of_street = segmentsOfStreets[street_id];
-//    std::vector<int> intersections_we_want;
-//    for(int i=0;i<segments_of_street.size();i++){
-//        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).from);
-//        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).to);
-//    }
-//    
-//    //intersection contains duplicate elements
-//    //remove dupes and return
-//    intersectionsOfStreets[] = emove_dups_in_vecs(intersections_we_want);
 }
 
 bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
@@ -305,16 +273,11 @@ void close_map() {
     closeStreetDatabase();
     //closeOSMDatabase();
     
-    //Makes sure to close the functions
+    //Makes sure to close the structures
     intersectionTable.clear();
     StreetNamesTable.clear();
     segmentsOfStreets.clear();
-    
-    segmentsOfStreets.clear();
-    intersectionsOfStreets.clear();
-    segmentsOfIntersections.clear();
-    streetNamesOfIntersections.clear();
-    adjacentIntersections.clear();
+
 }
 //passes -p
 //Returns the distance between two coordinates in meters
@@ -545,8 +508,8 @@ std::vector<int> find_intersections_of_street(int street_id){
 std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_ids){
     //initialize vector to be returned
     
-    std::vector<int> intersections_first = find_intersections_of_street(street_ids.first);
-    std::vector<int> intersections_second = find_intersections_of_street(street_ids.second);
+    std::vector<int> intersections_first = intersectionsOfStreets[street_ids.first];
+    std::vector<int> intersections_second = intersectionsOfStreets[street_ids.second];
     
     std::vector<int> commonIntersection (intersections_first.size() + intersections_second.size());
     
