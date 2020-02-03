@@ -34,7 +34,8 @@
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
 //std::vector<LatLon> intersectionTable;
-std::multimap<std::string, StreetIndex> capitalizedStreetNamesTable;
+std::vector<double> tableOfDivisors; // -p
+std::multimap<std::string, StreetIndex> capitalizedStreetNamesTable; // -p
 std::vector<std::vector<int>> segmentsOfStreets;
 std::vector<std::vector<int>> intersectionsOfStreets;
 std::vector<std::vector<int>> segmentsOfIntersections;
@@ -47,6 +48,7 @@ typedef std::vector<int>::iterator VectorIt;
 
 //ARE THESE EVEN NEEDED?
 //void makeIntersectionTable();
+void makeTableOfDivisors();
 void makeCapitalizedStreetNamesTable();
 void makeSegmentsOfStreets();
 void makeIntersectionsOfStreets();
@@ -106,6 +108,11 @@ double y_distance_between_2_points(LatLon first, LatLon second){
         intersectionTable.push_back(getIntersectionPosition(id));
     }
 }*/
+void makeTableOfDivisors(){
+    for (StreetSegmentIndex id = 0; id<getNumStreetSegments(); id++){
+        tableOfDivisors.push_back(1/getInfoStreetSegment(id).speedLimit);
+    }
+}
 // creates a table of capitalized street names without spaces in order of streetindex
 void makeCapitalizedStreetNamesTable(){
     std::string capitalizedName;
@@ -340,6 +347,7 @@ bool load_map(std::string map_path) {
         makeSegmentsOfIntersections();
         makeStreetNamesOfIntersections();
         makeAdjacentIntersections();
+        makeTableOfDivisors();
     }
     return load_successful;
 }
@@ -441,43 +449,12 @@ double find_street_segment_length(int street_segment_id){
 // debugging: off by 3.6 so i just multiplied it lol -p
 // need to write function without '/' operator -p
 double find_street_segment_travel_time(int street_segment_id){
-    /*double dividend = find_street_segment_length(street_segment_id);
-    double divisor = getInfoStreetSegment(street_segment_id).speedLimit;
-    
-    double movingNum = 0;
-    int loop_count = 0;
-    double remainder;
-    double remainder_result = 0;
-    double result = 0;
-    
-    // iterate 5 times for accurate result
-    for (loop_count = 0; loop_count < 8; loop_count ++){
-        if (loop_count == 0){
-            while (movingNum < dividend){
-                result++;
-                movingNum += divisor;
-            }
-            remainder = dividend - (result * divisor);
-            movingNum = 0;
-        }
-        else if (remainder != 0) {
-            remainder = remainder * 10;
-            while (movingNum < remainder){
-                remainder_result++;
-                movingNum += divisor;
-            }
-            remainder = remainder - (remainder_result * divisor);
-            remainder_result = remainder_result * pow(10, (-1)*loop_count);
-            result += remainder_result;
-            movingNum = 0;
-            remainder_result = 0;
-        }
-    }
-    return result*3.6;
-        */
+    return find_street_segment_length(street_segment_id) * 3.6 * tableOfDivisors[street_segment_id];
+    /*
     double travel_time;
     travel_time= (find_street_segment_length(street_segment_id))*3.6 / (getInfoStreetSegment(street_segment_id).speedLimit);
-    return travel_time;
+    return travel_time; 
+    return 0; */
 }
 
 //I THINK PRISCILLA SHOULD DO THIS ONE CUZ YOU NEED HER FUNCTIONS FOR THIS -M
@@ -628,7 +605,7 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
 //You can choose what to return if the street prefix passed in is an empty (length 0) 
 //string, but your program must not crash if street_prefix is a length 0 string.
 
-// should be done...idk if it works - priscilla
+// done, passes performance - priscilla
 std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){
     //I removed Justin's code -M...will have to checkout dfc3 to see again
     
@@ -640,9 +617,11 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     }
 
     std::vector<int> street_ids;
-    // O(n^2) squad -p  
+    
     std::multimap<std::string, StreetIndex>::iterator it;
+    // determine first instance of street_prefix found in map
     std::multimap<std::string, StreetIndex>::iterator lower = capitalizedStreetNamesTable.lower_bound(street_prefix);
+    // determine last instance by incrementing first character in ASCII - e.g. search "MAR", upper bound will be "N"
     std::multimap<std::string, StreetIndex>::iterator upper = capitalizedStreetNamesTable.upper_bound(std::string(1, char((int(street_prefix[0])+1))));
 
     for (it=lower; it!=upper; it++){
