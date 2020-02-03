@@ -34,8 +34,8 @@
 //#include "OSMDatabaseAPI.h" //I don't know if we need to add this
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
-std::vector<LatLon> intersectionTable;
-std::vector<std::string> capitalizedStreetNamesTable;
+//std::vector<LatLon> intersectionTable;
+std::multimap<std::string, StreetIndex> capitalizedStreetNamesTable;
 std::vector<std::vector<int>> segmentsOfStreets;
 std::vector<std::vector<int>> intersectionsOfStreets;
 std::vector<std::vector<int>> segmentsOfIntersections;
@@ -47,7 +47,7 @@ typedef std::vector<int>::iterator VectorIt;
 /*==================== GLOBAL FUNCTIONS IMPLEMENTATIONS ====================*/
 
 //ARE THESE EVEN NEEDED?
-void makeIntersectionTable();
+//void makeIntersectionTable();
 void makeCapitalizedStreetNamesTable();
 void makeSegmentsOfStreets();
 void makeSegmentsOfStreetsMap();
@@ -97,11 +97,11 @@ double y_distance_between_2_points(LatLon first, LatLon second){
     return EARTH_RADIUS_METERS*(y2-y1); 
 }
 // allocates vector of intersection ids
-void makeIntersectionTable(){
+/*void makeIntersectionTable(){
     for (IntersectionIndex id=0; id<getNumIntersections(); id++){
         intersectionTable.push_back(getIntersectionPosition(id));
     }
-}
+}*/
 // creates a table of capitalized street names without spaces in order of streetindex
 void makeCapitalizedStreetNamesTable(){
     std::string capitalizedName;
@@ -110,7 +110,7 @@ void makeCapitalizedStreetNamesTable(){
         capitalizedName.erase(remove(capitalizedName.begin(), capitalizedName.end(), ' '), capitalizedName.end());
         std::transform(capitalizedName.begin(), capitalizedName.end(), capitalizedName.begin(), ::toupper);
         
-        capitalizedStreetNamesTable.push_back(capitalizedName);
+        capitalizedStreetNamesTable.insert(std::pair<std::string, StreetIndex>(capitalizedName, id));
     }
 }
 
@@ -260,7 +260,7 @@ bool load_map(std::string map_path) {
     
     //make sure load map succeeds before creating structures that depend on the API
     if (load_successful){
-        makeIntersectionTable();
+        //makeIntersectionTable();
         makeCapitalizedStreetNamesTable();
         makeSegmentsOfStreets();
         //makeSegmentsOfStreetsMap();
@@ -278,7 +278,7 @@ void close_map() {
     //closeOSMDatabase();
     
     //Makes sure to close the structures
-    intersectionTable.clear();
+    //intersectionTable.clear();
     capitalizedStreetNamesTable.clear();
     segmentsOfStreets.clear();
 
@@ -376,7 +376,7 @@ double find_street_segment_travel_time(int street_segment_id){
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 999999;
-    int closest=0;
+    int closest;
     //for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
     for (int i=0; i<getNumIntersections();i++){
         LatLon current = getIntersectionPosition(i);
@@ -606,18 +606,18 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
 
     std::vector<int> street_ids;
     // O(n^2) squad -p  
-    std::vector<std::string>::iterator it;
-    std::vector<std::string>::iterator lower = std::lower_bound(capitalizedStreetNamesTable.begin(),capitalizedStreetNamesTable.end(),street_prefix);
-    std::vector<std::string>::iterator upper = std::upper_bound(capitalizedStreetNamesTable.begin(),capitalizedStreetNamesTable.end(),street_prefix);
+    std::multimap<std::string, StreetIndex>::iterator it;
+    std::multimap<std::string, StreetIndex>::iterator lower = capitalizedStreetNamesTable.lower_bound(street_prefix);
+    std::multimap<std::string, StreetIndex>::iterator upper = capitalizedStreetNamesTable.upper_bound(std::string(1, char((int(street_prefix[0])+1))));
 
     for (it=lower; it!=upper; it++){
     //for (it=capitalizedStreetNamesTable.begin();it!=capitalizedStreetNamesTable.end();it++){
-        for (int i=0; i<(*it).length(); i++){
-            if (street_prefix[i]!=(*it)[i]){
+        for (int i=0; i<((*it).first).length(); i++){
+            if (street_prefix[i]!=((*it).first)[i]){
                 break;
             }
-            else if ((street_prefix[i]==(*it)[i])&&(i == street_prefix.length()-1)){
-                street_ids.push_back(it-capitalizedStreetNamesTable.begin());
+            else if ((street_prefix[i]==((*it).first)[i])&&(i == street_prefix.length()-1)){
+                street_ids.push_back((*it).second);
             }
         } 
     }
