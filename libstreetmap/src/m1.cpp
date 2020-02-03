@@ -609,14 +609,17 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     std::vector<std::string>::iterator it;
 
     for (it=capitalizedStreetNamesTable.begin();it!=capitalizedStreetNamesTable.end();it++){
-        for (int i=0; i<(*it).length(); i++){
+        if ((*it).length()>=street_prefix.length() && ((*it)[street_prefix.length()-1]==street_prefix[street_prefix.length()-1])){
+            street_ids.push_back(it-capitalizedStreetNamesTable.begin());
+        }
+        /*for (int i=0; i<(*it).length(); i++){
             if (street_prefix[i]!=(*it)[i]){
                 break;
             }
             else if ((street_prefix[i]==(*it)[i])&&(i == street_prefix.length()-1)){
                 street_ids.push_back(it-capitalizedStreetNamesTable.begin());
             }
-        } 
+        } */
     }
 
     return street_ids;
