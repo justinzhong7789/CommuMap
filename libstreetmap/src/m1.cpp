@@ -31,7 +31,6 @@
 #include <string>
 #include <iostream>
 #include <set>
-//#include "OSMDatabaseAPI.h" //I don't know if we need to add this
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
 //std::vector<LatLon> intersectionTable;
@@ -706,8 +705,6 @@ double find_way_length(OSMID way_id){
     if(input_way_p== nullptr){return 0;}//failed to find the way
     else{
         double length=0;
-        
-        
         const std::vector<OSMID> wayMembers = getWayMembers(input_way_p);
         //find latlons of nodes using the OSMIDs from wayMembers
         std::vector<LatLon> latlon_of_nodes;
