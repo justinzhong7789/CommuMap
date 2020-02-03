@@ -439,7 +439,42 @@ double find_street_segment_length(int street_segment_id){
 //J
 // convert form kmh -> m/s
 // debugging: off by 3.6 so i just multiplied it lol -p
+// need to write function without '/' operator -p
 double find_street_segment_travel_time(int street_segment_id){
+    /*double dividend = find_street_segment_length(street_segment_id);
+    double divisor = getInfoStreetSegment(street_segment_id).speedLimit;
+    
+    double movingNum = 0;
+    int loop_count = 0;
+    double remainder;
+    double remainder_result = 0;
+    double result = 0;
+    
+    // iterate 5 times for accurate result
+    for (loop_count = 0; loop_count < 8; loop_count ++){
+        if (loop_count == 0){
+            while (movingNum < dividend){
+                result++;
+                movingNum += divisor;
+            }
+            remainder = dividend - (result * divisor);
+            movingNum = 0;
+        }
+        else if (remainder != 0) {
+            remainder = remainder * 10;
+            while (movingNum < remainder){
+                remainder_result++;
+                movingNum += divisor;
+            }
+            remainder = remainder - (remainder_result * divisor);
+            remainder_result = remainder_result * pow(10, (-1)*loop_count);
+            result += remainder_result;
+            movingNum = 0;
+            remainder_result = 0;
+        }
+    }
+    return result*3.6;
+        */
     double travel_time;
     travel_time= (find_street_segment_length(street_segment_id))*3.6 / (getInfoStreetSegment(street_segment_id).speedLimit);
     return travel_time;
