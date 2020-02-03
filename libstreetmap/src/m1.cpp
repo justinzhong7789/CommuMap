@@ -245,14 +245,34 @@ bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
 bool load_map(std::string map_path) {
     bool load_successful = false; //Indicates whether the map has loaded 
                                   //successfully
-
-    // added some functions -p
+    std::string OSMpath = "";
+    bool pathInvalid = false;
+    int mapPathLength = map_path.size();
+    for(int i=0; i< mapPathLength; i++){
+        //collect everything before .street.bin sequence because we want to replace it with .osm.bin
+        // this condition avoids accessing map_path string beyond its largest index(otherwise segfault))
+        if(i+6 < mapPathLength){
+            if(map_path[i]=='.'&&map_path[i+1]=='s'&&map_path[i+2]=='t'&&map_path[i+3]=='r'&&map_path[i+4]=='e'&&map_path[i+5]=='e'&&map_path[i+6]=='t'&&map_path[i+7]=='s'){
+                break;
+            }
+            else{OSMpath += map_path[i];} 
+        }
+        // this means .street suquence is not found in the given map_path
+        // wrong map_math
+        else if(i+6 >= mapPathLength){ pathInvalid = true;}
+    }
     
+    if(!pathInvalid){
+        OSMpath += ".osm.bin";
+        loadOSMDatabaseBIN(OSMpath); 
+    }  
+    
+    // added some functions -p
     //Load StreetsDatabaseBIN and OSMDatabaseBIN
     //change to OR doesn't work if AND -m
     load_successful = ( loadStreetsDatabaseBIN(map_path)); 
-    //loadOSMDatabaseBIN(map_path); 
     
+
     //make sure load map succeeds before creating structures that depend on the API
     if (load_successful){
         makeIntersectionTable();
@@ -270,7 +290,7 @@ bool load_map(std::string map_path) {
 void close_map() {
     //Close StreetsDatabaseBIN and OSMDatabaseBIN
     closeStreetDatabase();
-    //closeOSMDatabase();
+    closeOSMDatabase();
     
     //Makes sure to close the structures
     intersectionTable.clear();
@@ -672,18 +692,15 @@ double find_way_length(OSMID way_id){
     
     //J's edits   
     //find OMSWay* 
-    //const OSMWay* input_way_p;// = nullptr ;    
+    const OSMWay* input_way_p = nullptr ;    
     int numberOfWays = getNumberOfWays();
-    //std::cout<< numberOfWays;
-    /*
     for(int i=0; i < numberOfWays; i++){
         if(getWayByIndex(i)->id() == way_id){
             input_way_p = getWayByIndex(i);
             break;
         }
-    }*/
+    }
     //use OSMWay* to find all the nodes the way contains
-    /*
     if(input_way_p== nullptr){return 0;}//failed to find the way
     else{
         double length=0;
@@ -708,6 +725,5 @@ double find_way_length(OSMID way_id){
         
         return length;
     }
-    */    
     return 0;
 }
