@@ -605,17 +605,15 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     }
 
     std::vector<int> street_ids;
-    std::string street_name;
     // O(n^2) squad -p  
     std::vector<std::string>::iterator it;
 
     for (it=capitalizedStreetNamesTable.begin();it!=capitalizedStreetNamesTable.end();it++){
-        street_name = *it;
-        for (int i=0; i<street_prefix.length(); i++){
-            if (street_prefix[i]!=street_name[i]){
+        for (int i=0; i<(*it).length(); i++){
+            if (street_prefix[i]!=(*it)[i]){
                 break;
             }
-            else if ((street_prefix[i]==street_name[i])&&(i == street_prefix.length()-1)){
+            else if ((street_prefix[i]==(*it)[i])&&(i == street_prefix.length()-1)){
                 street_ids.push_back(it-capitalizedStreetNamesTable.begin());
             }
         } 
