@@ -607,19 +607,19 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     std::vector<int> street_ids;
     // O(n^2) squad -p  
     std::vector<std::string>::iterator it;
+    std::vector<std::string>::iterator lower = std::lower_bound(capitalizedStreetNamesTable.begin(),capitalizedStreetNamesTable.end(),street_prefix);
+    std::vector<std::string>::iterator upper = std::upper_bound(capitalizedStreetNamesTable.begin(),capitalizedStreetNamesTable.end(),street_prefix);
 
-    for (it=capitalizedStreetNamesTable.begin();it!=capitalizedStreetNamesTable.end();it++){
-        if ((*it).length()>=street_prefix.length() && ((*it)[street_prefix.length()-1]==street_prefix[street_prefix.length()-1])){
-            street_ids.push_back(it-capitalizedStreetNamesTable.begin());
-        }
-        /*for (int i=0; i<(*it).length(); i++){
+    for (it=lower; it!=upper; it++){
+    //for (it=capitalizedStreetNamesTable.begin();it!=capitalizedStreetNamesTable.end();it++){
+        for (int i=0; i<(*it).length(); i++){
             if (street_prefix[i]!=(*it)[i]){
                 break;
             }
             else if ((street_prefix[i]==(*it)[i])&&(i == street_prefix.length()-1)){
                 street_ids.push_back(it-capitalizedStreetNamesTable.begin());
             }
-        } */
+        } 
     }
 
     return street_ids;
