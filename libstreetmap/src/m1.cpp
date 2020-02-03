@@ -36,7 +36,7 @@
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
 std::vector<LatLon> intersectionTable;
-std::multimap< std::string, StreetIndex> StreetNamesTable;
+std::vector<std::string> capitalizedStreetNamesTable;
 std::vector<std::vector<int>> segmentsOfStreets;
 std::vector<std::vector<int>> intersectionsOfStreets;
 std::vector<std::vector<int>> segmentsOfIntersections;
@@ -49,7 +49,7 @@ typedef std::vector<int>::iterator VectorIt;
 
 //ARE THESE EVEN NEEDED?
 void makeIntersectionTable();
-void makeStreetNamesTable();
+void makeCapitalizedStreetNamesTable();
 void makeSegmentsOfStreets();
 void makeSegmentsOfStreetsMap();
 void makeIntersectionsOfStreets();
@@ -103,10 +103,15 @@ void makeIntersectionTable(){
         intersectionTable.push_back(getIntersectionPosition(id));
     }
 }
-
-void makeStreetNamesTable(){
+// creates a table of capitalized street names without spaces in order of streetindex
+void makeCapitalizedStreetNamesTable(){
+    std::string capitalizedName;
     for (StreetIndex id=0; id<getNumStreets();id++){
-        StreetNamesTable.insert({getStreetName(id), id});
+        capitalizedName = getStreetName(id);
+        capitalizedName.erase(remove(capitalizedName.begin(), capitalizedName.end(), ' '), capitalizedName.end());
+        std::transform(capitalizedName.begin(), capitalizedName.end(), capitalizedName.begin(), ::toupper);
+        
+        capitalizedStreetNamesTable.push_back(capitalizedName);
     }
 }
 
@@ -257,7 +262,7 @@ bool load_map(std::string map_path) {
     //make sure load map succeeds before creating structures that depend on the API
     if (load_successful){
         makeIntersectionTable();
-        makeStreetNamesTable();
+        makeCapitalizedStreetNamesTable();
         makeSegmentsOfStreets();
         //makeSegmentsOfStreetsMap();
         makeIntersectionsOfStreets();
@@ -275,7 +280,7 @@ void close_map() {
     
     //Makes sure to close the structures
     intersectionTable.clear();
-    StreetNamesTable.clear();
+    capitalizedStreetNamesTable.clear();
     segmentsOfStreets.clear();
 
 }
@@ -603,20 +608,16 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
     std::vector<int> street_ids;
     std::string street_name;
     // O(n^2) squad -p  
-    std::multimap<std::string, StreetIndex>::iterator it;
-    it=StreetNamesTable.begin();
+    std::vector<std::string>::iterator it;
 
-    for (it=StreetNamesTable.begin();it!=StreetNamesTable.end();it++){
-        street_name = it->first;
-        street_name.erase(remove(street_name.begin(), street_name.end(), ' '), street_name.end());
-        std::transform(street_name.begin(), street_name.end(), street_name.begin(), ::toupper); // all to capital
-
+    for (it=capitalizedStreetNamesTable.begin();it!=capitalizedStreetNamesTable.end();it++){
+        street_name = *it;
         for (int i=0; i<street_prefix.length(); i++){
             if (street_prefix[i]!=street_name[i]){
                 break;
             }
             else if ((street_prefix[i]==street_name[i])&&(i == street_prefix.length()-1)){
-                street_ids.push_back(it->second);
+                street_ids.push_back(it-capitalizedStreetNamesTable.begin());
             }
         } 
     }
