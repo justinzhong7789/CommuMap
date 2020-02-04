@@ -50,11 +50,16 @@ typedef std::vector<int>::iterator VectorIt;
 //void makeIntersectionTable();
 void makeTableOfDivisors();
 void makeCapitalizedStreetNamesTable();
+
 void makeSegmentsOfStreets();
 void makeIntersectionsOfStreets();
+
+//Used a lot
+void makeAdjacentIntersections();
 void makeSegmentsOfIntersections();
 //void makeStreetNamesOfIntersections();
-void makeAdjacentIntersections();
+
+
 double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
 std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA);
