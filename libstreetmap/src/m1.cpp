@@ -113,8 +113,9 @@ double y_distance_between_2_points(LatLon first, LatLon second){
     }
 }*/
 void makeTableOfDivisors(){
+    tableOfDivisors.resize(getNumStreetSegments());
     for (StreetSegmentIndex id = 0; id<getNumStreetSegments(); id++){
-        tableOfDivisors.push_back(std::make_pair<double, double>((find_street_segment_length(id)),(1/getInfoStreetSegment(id).speedLimit)));
+        tableOfDivisors[id]=(std::make_pair<double, double>((find_street_segment_length(id)),(1/getInfoStreetSegment(id).speedLimit)));
     }
 }
 // creates a table of capitalized street names without spaces in order of streetindex
@@ -413,14 +414,13 @@ double find_street_segment_length(int street_segment_id){
 // need to write function without '/' operator -p
 double find_street_segment_travel_time(int street_segment_id){
     //return find_street_segment_length(street_segment_id) * 3.6 * tableOfDivisors[street_segment_id];
-
     return tableOfDivisors[street_segment_id].first * 3.6 * tableOfDivisors[street_segment_id].second;
+}
     /*
     double travel_time;
     travel_time= (find_street_segment_length(street_segment_id))*3.6 / (getInfoStreetSegment(street_segment_id).speedLimit);
     return travel_time; 
     return 0; */
-}
 
 //I THINK PRISCILLA SHOULD DO THIS ONE CUZ YOU NEED HER FUNCTIONS FOR THIS -M
 //Returns the nearest intersection to the given position
