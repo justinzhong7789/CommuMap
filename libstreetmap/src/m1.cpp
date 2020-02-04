@@ -56,7 +56,7 @@ void makeIntersectionsOfStreets();
 
 //Used a lot
 //void makeAdjacentIntersections();
-//void makeSegmentsOfIntersections();
+void makeSegmentsOfIntersections();
 //void makeStreetNamesOfIntersections();
 void makeOSMWayTable();
 void makeOSMNodeTable();
@@ -137,43 +137,23 @@ void makeSegmentsOfStreets(){
     }
     
 }
-//
-////M --Used too often. Should keep
-//void makeSegmentsOfIntersections(){  
-//    std::vector<int> street_segments_of_intersection;
-//    segmentsOfIntersections.resize(getNumIntersections());
-//    for(int j =0 ; j< getNumIntersections() ; ++j){
-//        
-//        street_segments_of_intersection.clear();
-//        int num_intersections = getIntersectionStreetSegmentCount(j);
-//        
-//        //going through the segment index attached to the intersection 
-//        for(int i=0; i < num_intersections; ++i){
-//            street_segments_of_intersection.push_back(getIntersectionStreetSegment(j, i));
-//        }
-//        segmentsOfIntersections[j] = street_segments_of_intersection;
-//    }
-//}
 
-//M
-//KEEP IN MIND THAT WHEN your helper functions are deleted, the funtion will no longer run at 0(1)
-//so if that function is called in other functions, then it'll take even loger...
-////choose wisely when choosing which helper function to delete.
-//void makeStreetNamesOfIntersections(){
-//    std::vector<std::string> street_names_of_intersection;
-//    streetNamesOfIntersections.resize(getNumIntersections());
-//    
-//    for(int j =0 ; j< getNumIntersections() ; ++j){
-//        street_names_of_intersection.clear();
-//        
-//        //going through the segment index attached to the intersection 
-//        for(int i=0; i < segmentsOfIntersections[j].size() ; ++i){
-//            int streetID = getInfoStreetSegment(segmentsOfIntersections[j][i]).streetID;
-//            street_names_of_intersection.push_back(getStreetName(streetID));
-//        }
-//        streetNamesOfIntersections[j] = street_names_of_intersection;
-//    }
-//}
+//M --Used too often. Should keep
+void makeSegmentsOfIntersections(){  
+    std::vector<int> street_segments_of_intersection;
+    segmentsOfIntersections.resize(getNumIntersections());
+    for(int j =0 ; j< getNumIntersections() ; ++j){
+        
+        street_segments_of_intersection.clear();
+        int num_intersections = getIntersectionStreetSegmentCount(j);
+        
+        //going through the segment index attached to the intersection 
+        for(int i=0; i < num_intersections; ++i){
+            street_segments_of_intersection.push_back(getIntersectionStreetSegment(j, i));
+        }
+        segmentsOfIntersections[j] = street_segments_of_intersection;
+    }
+}
 
 //M
 //void makeAdjacentIntersections(){
@@ -229,25 +209,7 @@ void makeSegmentsOfStreets(){
 //}
 
 void makeIntersectionsOfStreets(){
-//    
-//   std::vector<int> intersections_of_street;
-//   int interTo, interFrom;
-//   intersectionsOfStreets.resize(getNumStreets());
-//    
-//    for(int j =0 ; j< getNumStreets() ; ++j){
-//        intersections_of_street.clear();
-//        
-//        //going through the segment index attached to the intersection 
-//        for(int i=0; i < segmentsOfStreets[j].size() ; ++i){
-//            interTo = getInfoStreetSegment(segmentsOfStreets[j][i]).to;
-//            interFrom = getInfoStreetSegment(segmentsOfStreets[j][i]).from;
-//            
-//            intersections_of_street.push_back(interTo);
-//            intersections_of_street.push_back(interFrom);
-//        }
-//        intersectionsOfStreets[j] = remove_dups_in_vecs(intersections_of_street);
-//    }
-//}
+
 
     intersectionsOfStreets.resize(getNumStreets());
     for(int j=0; j<getNumStreets() ;++j){
@@ -259,21 +221,6 @@ void makeIntersectionsOfStreets(){
     }
     
 }
-
-//Can delete, I don't think we need this anymore cuz we're not using any maps
-/*
-bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
-    
-    if (map.find(key) != map.end()){
-        auto  range = map.equal_range(key);
-        for(StreetsIt it = range.first ; it != range.second ; ++it){
-            if(it->second == ID){
-                return true;
-            }
-        }
-    }
-    return false;
-}*/
 
 void makeOSMWayTable(){
     for (int i=0; i<getNumberOfWays(); i++){
@@ -326,7 +273,7 @@ bool load_map(std::string map_path) {
         makeCapitalizedStreetNamesTable();
         makeSegmentsOfStreets();
         makeIntersectionsOfStreets();
-        //makeSegmentsOfIntersections();
+        makeSegmentsOfIntersections();
        // makeStreetNamesOfIntersections();
         //makeAdjacentIntersections();
         makeTableOfDivisors();
@@ -348,7 +295,7 @@ void close_map() {
     intersectionsOfStreets.clear();
     OSMWayTable.clear();
     OSMNodeTable.clear();
-   // segmentsOfIntersections.clear();
+   segmentsOfIntersections.clear();
     //streetNamesOfIntersections.clear();
    // adjacentIntersections.clear();
 }
@@ -446,15 +393,15 @@ int find_closest_intersection(LatLon my_position){
 //Returns the street segments for the given intersection 
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
     
-    std::vector<int>street_segments_of_intersection;
-    int num_intersections = getIntersectionStreetSegmentCount(intersection_id);
-        
-        //going through the segment index attached to the intersection 
-        for(int i=0; i < num_intersections; ++i){
-            street_segments_of_intersection.push_back(getIntersectionStreetSegment(intersection_id, i));
-        }
-    return street_segments_of_intersection;
-    //return segmentsOfIntersections[intersection_id];
+//    std::vector<int>street_segments_of_intersection;
+//    int num_intersections = getIntersectionStreetSegmentCount(intersection_id);
+//        
+//        //going through the segment index attached to the intersection 
+//        for(int i=0; i < num_intersections; ++i){
+//            street_segments_of_intersection.push_back(getIntersectionStreetSegment(intersection_id, i));
+//        }
+//    return street_segments_of_intersection;
+    return segmentsOfIntersections[intersection_id];
 }
 
 //CHECK IF U CAN USE ONE OF THE GLOBAL FUNCTIONS... MAP<STREETNAME, ID>
