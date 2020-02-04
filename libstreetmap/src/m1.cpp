@@ -566,14 +566,20 @@ std::vector<int> find_intersections_of_street(int street_id){
     
     std::vector<int> intersections_of_street;
     int j = street_id;
+  
     for(int i=0; i < segmentsOfStreets[j].size() ; ++i){
             int interTo = getInfoStreetSegment(segmentsOfStreets[j][i]).to;
             int interFrom = getInfoStreetSegment(segmentsOfStreets[j][i]).from;
             
+            auto checkForFindFrom = std::find(intersections_of_street.begin(), intersections_of_street.end(), interFrom);
+            auto checkForFindTo = std::find(intersections_of_street.begin(), intersections_of_street.end(), interTo);
+                if(checkForFindTo == intersections_of_street.end())
+            
             intersections_of_street.push_back(interTo);
+            if(checkForFindFrom == intersections_of_street.end())
             intersections_of_street.push_back(interFrom);
     }
-    
+    intersections_of_street.clear();
     return intersections_of_street;
 }
 
