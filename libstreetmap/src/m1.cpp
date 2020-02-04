@@ -56,7 +56,7 @@ void makeIntersectionsOfStreets();
 
 //Used a lot
 //void makeAdjacentIntersections();
-void makeSegmentsOfIntersections();
+//void makeSegmentsOfIntersections();
 //void makeStreetNamesOfIntersections();
 
 
@@ -141,23 +141,23 @@ void makeSegmentsOfStreets(){
     }
     
 }
-
-//M --Used too often. Should keep
-void makeSegmentsOfIntersections(){  
-    std::vector<int> street_segments_of_intersection;
-    segmentsOfIntersections.resize(getNumIntersections());
-    for(int j =0 ; j< getNumIntersections() ; ++j){
-        
-        street_segments_of_intersection.clear();
-        int num_intersections = getIntersectionStreetSegmentCount(j);
-        
-        //going through the segment index attached to the intersection 
-        for(int i=0; i < num_intersections; ++i){
-            street_segments_of_intersection.push_back(getIntersectionStreetSegment(j, i));
-        }
-        segmentsOfIntersections[j] = street_segments_of_intersection;
-    }
-}
+//
+////M --Used too often. Should keep
+//void makeSegmentsOfIntersections(){  
+//    std::vector<int> street_segments_of_intersection;
+//    segmentsOfIntersections.resize(getNumIntersections());
+//    for(int j =0 ; j< getNumIntersections() ; ++j){
+//        
+//        street_segments_of_intersection.clear();
+//        int num_intersections = getIntersectionStreetSegmentCount(j);
+//        
+//        //going through the segment index attached to the intersection 
+//        for(int i=0; i < num_intersections; ++i){
+//            street_segments_of_intersection.push_back(getIntersectionStreetSegment(j, i));
+//        }
+//        segmentsOfIntersections[j] = street_segments_of_intersection;
+//    }
+//}
 
 //M
 //KEEP IN MIND THAT WHEN your helper functions are deleted, the funtion will no longer run at 0(1)
@@ -259,7 +259,7 @@ void makeIntersectionsOfStreets(){
         intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).from);
         intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).to);
         }
-        remove_dups_in_vecs(intersectionsOfStreets[j]);
+        intersectionsOfStreets[j] = remove_dups_in_vecs(intersectionsOfStreets[j]);
     }
     
 }
@@ -319,7 +319,7 @@ bool load_map(std::string map_path) {
         makeCapitalizedStreetNamesTable();
         makeSegmentsOfStreets();
         makeIntersectionsOfStreets();
-        makeSegmentsOfIntersections();
+        //makeSegmentsOfIntersections();
        // makeStreetNamesOfIntersections();
         //makeAdjacentIntersections();
         makeTableOfDivisors();
@@ -337,7 +337,7 @@ void close_map() {
     capitalizedStreetNamesTable.clear();
     segmentsOfStreets.clear();
     intersectionsOfStreets.clear();
-    segmentsOfIntersections.clear();
+   // segmentsOfIntersections.clear();
     //streetNamesOfIntersections.clear();
    // adjacentIntersections.clear();
 }
@@ -458,7 +458,16 @@ int find_closest_intersection(LatLon my_position){
 //Created new version (not sure if faster) -M 
 //Returns the street segments for the given intersection 
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
-    return segmentsOfIntersections[intersection_id];
+    
+    std::vector<int>street_segments_of_intersection;
+    int num_intersections = getIntersectionStreetSegmentCount(intersection_id);
+        
+        //going through the segment index attached to the intersection 
+        for(int i=0; i < num_intersections; ++i){
+            street_segments_of_intersection.push_back(getIntersectionStreetSegment(intersection_id, i));
+        }
+    return street_segments_of_intersection;
+    //return segmentsOfIntersections[intersection_id];
 }
 
 //CHECK IF U CAN USE ONE OF THE GLOBAL FUNCTIONS... MAP<STREETNAME, ID>
@@ -469,8 +478,8 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
 std::vector<std::string> find_street_names_of_intersection(int intersection_id){
     
     std::vector<std::string> street_names_of_intersection;
-    for (int i = 0; i < segmentsOfIntersections[intersection_id].size(); ++i) {
-        int streetID = getInfoStreetSegment(segmentsOfIntersections[intersection_id][i]).streetID;
+    for (int i = 0; i < find_street_segments_of_intersection(intersection_id).size(); ++i) {
+        int streetID = getInfoStreetSegment(find_street_segments_of_intersection(intersection_id)[i]).streetID;
         street_names_of_intersection.push_back(getStreetName(streetID));
     }
     
@@ -484,7 +493,7 @@ std::vector<std::string> find_street_names_of_intersection(int intersection_id){
 bool are_directly_connected(std::pair<int, int> intersection_ids){
    
     //edited so that it access the segOfInter instead of going to the O(1) function
-    std::vector<int> intersectionSegmentsOne = segmentsOfIntersections[intersection_ids.first];
+    std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
     
     if(intersection_ids.first == intersection_ids.second)return true;
     
