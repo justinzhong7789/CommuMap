@@ -222,24 +222,7 @@ void makeIntersectionsOfStreets(){
     
 }
 
-<<<<<<< HEAD
-=======
-//Can delete, I don't think we need this anymore cuz we're not using any maps
-/*
-bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
-    
-    if (map.find(key) != map.end()){
-        auto  range = map.equal_range(key);
-        for(StreetsIt it = range.first ; it != range.second ; ++it){
-            if(it->second == ID){
-                return true;
-            }
-        }
-    }
-    return false;
-}*/
 // collects OSMIDs as the key and their corresponding OSMWay* as the value
->>>>>>> 34ecc42e2b6032195c6a6018e2099227f934d536
 void makeOSMWayTable(){
     for (int i=0; i<getNumberOfWays(); i++){
         OSMWayTable.insert(std::pair<OSMID, const OSMWay*>(getWayByIndex(i)->id(), getWayByIndex(i)));
