@@ -34,7 +34,7 @@
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
 //std::vector<LatLon> intersectionTable;
-std::vector<double> tableOfDivisors; // -p
+std::vector<std::pair<double, double>> tableOfDivisors; // -p
 std::multimap<std::string, StreetIndex> capitalizedStreetNamesTable; // -p
 std::vector<std::vector<int>> segmentsOfStreets;
 std::vector<std::vector<int>> intersectionsOfStreets;
@@ -110,7 +110,7 @@ double y_distance_between_2_points(LatLon first, LatLon second){
 }*/
 void makeTableOfDivisors(){
     for (StreetSegmentIndex id = 0; id<getNumStreetSegments(); id++){
-        tableOfDivisors.push_back(1/getInfoStreetSegment(id).speedLimit);
+        tableOfDivisors.push_back(std::make_pair<double, double>((find_street_segment_length(id)),(1/getInfoStreetSegment(id).speedLimit)));
     }
 }
 // creates a table of capitalized street names without spaces in order of streetindex
@@ -437,7 +437,6 @@ double find_street_segment_length(int street_segment_id){
             length += find_distance_between_two_points(curved_segment);
         }
     }
-    // should be done, needs debugging -p
     return length;
      
 }
@@ -449,7 +448,9 @@ double find_street_segment_length(int street_segment_id){
 // debugging: off by 3.6 so i just multiplied it lol -p
 // need to write function without '/' operator -p
 double find_street_segment_travel_time(int street_segment_id){
-    return find_street_segment_length(street_segment_id) * 3.6 * tableOfDivisors[street_segment_id];
+    //return find_street_segment_length(street_segment_id) * 3.6 * tableOfDivisors[street_segment_id];
+
+    return tableOfDivisors[street_segment_id].first * 3.6 * tableOfDivisors[street_segment_id].second;
     /*
     double travel_time;
     travel_time= (find_street_segment_length(street_segment_id))*3.6 / (getInfoStreetSegment(street_segment_id).speedLimit);
