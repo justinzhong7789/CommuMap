@@ -62,7 +62,7 @@ void makeOSMNodeTable();
 
 double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
-std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA);
+void remove_dups_in_vecs(std::vector<int> &vectorA);
 bool element_exists(int element, std::vector<int> vectorA);
 // bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID);
 
@@ -71,16 +71,28 @@ bool element_exists(int element, std::vector<int> vectorA);
 /* I don't know if these two functions would be faster than using std::find(first interator, second iterator) 
  * And then inputing the value if NOT found.. cuz I use it alot in the functions I made -m
  */
-std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA){
-    std::vector<int> sorted_vec;
-    for(int i=0;i<vectorA.size();i++){
+//void remove_dups_in_vecs(std::vector<int> vectorA){
+//    std::vector<int> sorted_vec;
+//    for(int i=0;i<vectorA.size();i++){
+//        //if element is not already in the vector, insert it
+//        if(!element_exists(vectorA[i], sorted_vec)){
+//            sorted_vec.push_back(vectorA[i]);
+//        }
+//    }
+//    return sorted_vec;
+//}
+
+void remove_dups_in_vecs(std::vector<int> &vectorA){
+    
+    auto end = vectorA.end();
+    for(auto it=vectorA.begin();it<end;++it){
         //if element is not already in the vector, insert it
-        if(!element_exists(vectorA[i], sorted_vec)){
-            sorted_vec.push_back(vectorA[i]);
-        }
+        end = std::remove(it+1,end, *it);
     }
-    return sorted_vec;
+    vectorA.erase(end, vectorA.end());
+  
 }
+
 bool element_exists(int element, std::vector<int> vectorA){
     bool found=false;
     for (int i=0; i<vectorA.size();i++){
@@ -219,7 +231,7 @@ void makeIntersectionsOfStreets(){
         intersections_of_streets.push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).to);
         intersections_of_streets.push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).from);
         }
-        intersectionsOfStreets[j]= remove_dups_in_vecs(intersections_of_streets);
+        intersectionsOfStreets[j]= intersections_of_streets;
     }
     
 }
@@ -258,7 +270,7 @@ bool load_map(std::string map_path) {
         //makeIntersectionTable();
         makeCapitalizedStreetNamesTable();
         makeSegmentsOfStreets();
-       // makeIntersectionsOfStreets(); //THE ONE CAUSING THE MESS
+        makeIntersectionsOfStreets(); //THE ONE CAUSING THE MESS
         makeSegmentsOfIntersections();
        // makeStreetNamesOfIntersections();
         //makeAdjacentIntersections();
@@ -276,7 +288,7 @@ void close_map() {
     
     capitalizedStreetNamesTable.clear();
     segmentsOfStreets.clear();
-   // intersectionsOfStreets.clear();
+   intersectionsOfStreets.clear();
     OSMWayTable.clear();
     OSMNodeTable.clear();
     segmentsOfIntersections.clear();
@@ -502,6 +514,8 @@ std::vector<int> find_intersections_of_street(int street_id){
 //    //intersection contains duplicate elements
 //    //remove dupes and return
 //    return remove_dups_in_vecs(intersections_we_want);
+    
+    remove_dups_in_vecs(intersectionsOfStreets[street_id]);
     
     return intersectionsOfStreets[street_id];
 }
