@@ -29,7 +29,6 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-#include <iostream>
 #include <set>
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
@@ -66,6 +65,7 @@ double y_distance_between_2_points(LatLon first, LatLon second);
 std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA);
 bool element_exists(int element, std::vector<int> vectorA);
 // bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID);
+
 /*==================== GLOBAL FUNCTION IMPLEMENTATION ====================*/
 
 /* I don't know if these two functions would be faster than using std::find(first interator, second iterator) 
@@ -222,12 +222,30 @@ void makeIntersectionsOfStreets(){
     
 }
 
+<<<<<<< HEAD
+=======
+//Can delete, I don't think we need this anymore cuz we're not using any maps
+/*
+bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
+    
+    if (map.find(key) != map.end()){
+        auto  range = map.equal_range(key);
+        for(StreetsIt it = range.first ; it != range.second ; ++it){
+            if(it->second == ID){
+                return true;
+            }
+        }
+    }
+    return false;
+}*/
+// collects OSMIDs as the key and their corresponding OSMWay* as the value
+>>>>>>> 34ecc42e2b6032195c6a6018e2099227f934d536
 void makeOSMWayTable(){
     for (int i=0; i<getNumberOfWays(); i++){
         OSMWayTable.insert(std::pair<OSMID, const OSMWay*>(getWayByIndex(i)->id(), getWayByIndex(i)));
     }
 }
-    
+// collects OSMIDs as the key and their corresponding OSMNode* as the value 
 void makeOSMNodeTable(){
     for (int i=0; i<getNumberOfNodes(); i++){
         OSMNodeTable.insert(std::pair<OSMID, const OSMNode*>(getNodeByIndex(i)->id(), getNodeByIndex(i)));
@@ -302,17 +320,11 @@ void close_map() {
 //passes -p
 //Returns the distance between two coordinates in meters
 double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
-    // see page 14 of milestone 1; (x,y)=(lon*cos(latavg), lat) -p
-    // note lat() and lon() are degrees, cosine uses RADIANS -p
-    double latavg = ((points.first.lat() + points.second.lat()) * DEGREE_TO_RADIAN)/2;
-    // note to self: latitude is up/down, longitude is left/right -p
-    double x1 = points.first.lon() * DEGREE_TO_RADIAN * cos(latavg);
-    double y1 = points.first.lat() * DEGREE_TO_RADIAN;
-    // note to self: radians * radius = arc length -p
-    double x2 = points.second.lon() * DEGREE_TO_RADIAN * cos(latavg);
-    double y2 = points.second.lat() * DEGREE_TO_RADIAN;
+    // using pythagoras theorem 
+    double x_diff = x_distance_between_2_points(points.first, points.second);
+    double y_diff = y_distance_between_2_points(points.first, points.second);
     
-    return EARTH_RADIUS_METERS * sqrt(pow((x2-x1),2) + pow((y2-y1),2));
+    return sqrt(pow(x_diff,2)+pow(y_diff,2));
 }
 
 //anyway to make a helper function for this?? -M
@@ -372,18 +384,16 @@ double find_street_segment_travel_time(int street_segment_id){
 //finished, fixed but may violate performance
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
-    double min_distance = 999999;
-    int closest = 0;
-    //for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
+    double min_distance = 999999; // initialize "large" minimum distance as reference
+    int closest;
+
     for (int i=0; i<getNumIntersections();i++){
         LatLon current = getIntersectionPosition(i);
         std::pair<LatLon, LatLon> temp (my_position, current);
-        //std::pair<LatLon, LatLon> temp (my_position, *it);
         double distance = find_distance_between_two_points(temp);
         if (distance < min_distance){
             min_distance = distance;
             closest = i;
-            //closest = (it - intersectionTable.begin());
         }
     }
     return closest;
@@ -535,10 +545,9 @@ std::vector<int> find_intersections_of_street(int street_id){
 //Return all intersection ids for two intersecting streets
 //This function will typically return one intersection id.
 std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_ids){
-    //initialize vector to be returned
-    
-    //would it make a difference if we didn't copy it? speed wise? -M
+    // all intersections of the first street
     std::vector<int> intersections_first = find_intersections_of_street(street_ids.first);
+    // all intersections of the second street
     std::vector<int> intersections_second = find_intersections_of_street(street_ids.second);
     
     //sizes the commonIntersection to make sure to fit all intersections between streets
@@ -548,7 +557,7 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     //Makes sure it's sorted..only way to go through the set_intersection
     std::sort(intersections_first.begin(), intersections_first.end());
     std::sort(intersections_second.begin(), intersections_second.end());
-    
+    // find intersections that are common to both streets
     it = std::set_intersection(intersections_first.begin(), intersections_first.end(),intersections_second.begin(), intersections_second.end(),
             commonIntersection.begin());
     
@@ -646,62 +655,26 @@ double find_feature_area(int feature_id){
 //To implement this function you will have to  access the OSMDatabaseAPI.h 
 //functions.
 double find_way_length(OSMID way_id){
-    // map for osmid streets and index
-    // map for nodes and index
-    
     //J's edits   
-    //find OMSWay* 
-    //const OSMWay* input_way_p = nullptr ;    
-    /*int numberOfWays = getNumberOfWays();
-    for(int i=0; i < numberOfWays; i++){
-        if(getWayByIndex(i)->id() == way_id){
-            input_way_p = getWayByIndex(i);
-            break;
-        }
-    }*/
+    // improved justin's code by replacing for loops with std::map.find() -p)
     if (OSMWayTable.find(way_id)==OSMWayTable.end()){
         // id does not exist;
         return 0; //failed to find way
     }
+    double length=0; // initialize length
+    // find OSMWay node
     const OSMWay* input_way_p = OSMWayTable.find(way_id)->second;
-    double length=0;
     const std::vector<OSMID> wayMembers = getWayMembers(input_way_p); // osmids of nodes that form the way
-    std::vector<LatLon> latlon_of_nodes;
-    
+    std::vector<LatLon> latlon_of_nodes; // initialize vector of LatLons of the nodes
+    // get coords for each node
     for (int i=0; i<wayMembers.size();i++){
         if (OSMNodeTable.find(wayMembers[i]) != OSMNodeTable.end()){
             latlon_of_nodes.push_back(getNodeCoords((OSMNodeTable.find(wayMembers[i]))->second));
         }
     }
-    
+    // calculate length between each node and sum
     for (int i=0; i<latlon_of_nodes.size()-1;i++){
         length += find_distance_between_two_points(std::make_pair(latlon_of_nodes[i], latlon_of_nodes[i+1]));
     }
     return length;
-
-    
-    //use OSMWay* to find all the nodes the way contains
-    /*if(input_way_p== nullptr){return 0;}//failed to find the way
-    else{
-        double length=0;
-        const std::vector<OSMID> wayMembers = getWayMembers(input_way_p);
-        //find latlons of nodes using the OSMIDs from wayMembers
-        std::vector<LatLon> latlon_of_nodes;
-        for(int i=0;i<wayMembers.size();i++){
-            for(int j=0; j<getNumberOfNodes();j++){
-                if(getNodeByIndex(j)->id()==wayMembers[i]){
-                    latlon_of_nodes.push_back(getNodeCoords(getNodeByIndex(j)));
-                    break;
-                }
-            }
-        }
-        //use latlons from above to calculate cumulative distance of way
-        
-        for(int i=0; i < latlon_of_nodes.size()-1 ;i++){
-            length += find_distance_between_two_points(std::make_pair(latlon_of_nodes[i], latlon_of_nodes[i+1]));
-        }
-        
-        return length;
-    }*/
 }
-#include "OSMDatabaseAPI.h"
