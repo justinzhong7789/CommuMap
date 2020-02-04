@@ -40,7 +40,7 @@ std::vector<std::vector<int>> segmentsOfStreets;
 std::vector<std::vector<int>> intersectionsOfStreets;
 std::vector<std::vector<int>> segmentsOfIntersections;
 std::vector<std::vector<std::string>> streetNamesOfIntersections;
-std::vector<std::vector<int>> adjacentIntersections;
+//std::vector<std::vector<int>> adjacentIntersections;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
 
@@ -55,7 +55,7 @@ void makeSegmentsOfStreets();
 void makeIntersectionsOfStreets();
 
 //Used a lot
-void makeAdjacentIntersections();
+//void makeAdjacentIntersections();
 void makeSegmentsOfIntersections();
 //void makeStreetNamesOfIntersections();
 
@@ -179,57 +179,57 @@ void makeSegmentsOfIntersections(){
 //}
 
 //M
-void makeAdjacentIntersections(){
-    
-    std::vector<int> adjacent_intersections;
-    adjacent_intersections.clear(); //shouldn't be needed but just to be safe
-    //pair necessary for helper function input
-    std::pair<int,int> twoIntersections;
-    std::vector<int>::iterator checkForFind;//to create the ability to use the [] operator
-    adjacentIntersections.resize(getNumIntersections());
-    
-    //Loop through all the intersections so that they can be assigned
-    //variables j and i can be changed to be more descriptive
-    for(int j =0 ; j< getNumIntersections() ; ++j){
-        
-        
-        //assign the intersection that the segment should be going FROM as the first pair
-        twoIntersections.first = j;
-        
-        //loop through all the segments connected to that intersection
-        for (int i = 0; i < getIntersectionStreetSegmentCount(j) ; ++i){ //can change to .size but won't let me for some reason
-            
-            
-            //assign second pair to the TO intersection (Done first because typically, the segment should run FROM the first pair TO the second pair)
-            twoIntersections.second = getInfoStreetSegment(segmentsOfIntersections[j][i]).to;
-            
-            //checks if directly connected but not connected to itself
-            if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
-            
-                //checks to see if intersection is already in that vector before inserting
-                checkForFind = std::find(adjacent_intersections.begin(), adjacent_intersections.end(), twoIntersections.second);
-                if(checkForFind == adjacent_intersections.end()) //if intersection is not found
-
-                    adjacent_intersections.push_back(twoIntersections.second);
-            }
-            //Not sure why if this is necessary... I think is typically just in case for two-way streets
-            
-            //assign second pair to the FROM intersection
-            twoIntersections.second = getInfoStreetSegment(segmentsOfIntersections[j][i]).from;
-            
-            //same code as above. Could be fixed for better style
-            if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
-                checkForFind = std::find(adjacent_intersections.begin(), adjacent_intersections.end(), twoIntersections.second);
-                if(checkForFind == adjacent_intersections.end())
-                    adjacent_intersections.push_back(twoIntersections.second);
-            }
-        }
-        
-        //inserts the vector into the global vector of vectors with an index of the first Intersection
-        adjacentIntersections[j] = adjacent_intersections;
-        adjacent_intersections.clear();
-    } 
-}
+//void makeAdjacentIntersections(){
+//    
+//    std::vector<int> adjacent_intersections;
+//    adjacent_intersections.clear(); //shouldn't be needed but just to be safe
+//    //pair necessary for helper function input
+//    std::pair<int,int> twoIntersections;
+//    std::vector<int>::iterator checkForFind;//to create the ability to use the [] operator
+//    adjacentIntersections.resize(getNumIntersections());
+//    
+//    //Loop through all the intersections so that they can be assigned
+//    //variables j and i can be changed to be more descriptive
+//    for(int j =0 ; j< getNumIntersections() ; ++j){
+//        
+//        
+//        //assign the intersection that the segment should be going FROM as the first pair
+//        twoIntersections.first = j;
+//        
+//        //loop through all the segments connected to that intersection
+//        for (int i = 0; i < getIntersectionStreetSegmentCount(j) ; ++i){ //can change to .size but won't let me for some reason
+//            
+//            
+//            //assign second pair to the TO intersection (Done first because typically, the segment should run FROM the first pair TO the second pair)
+//            twoIntersections.second = getInfoStreetSegment(segmentsOfIntersections[j][i]).to;
+//            
+//            //checks if directly connected but not connected to itself
+//            if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
+//            
+//                //checks to see if intersection is already in that vector before inserting
+//                checkForFind = std::find(adjacent_intersections.begin(), adjacent_intersections.end(), twoIntersections.second);
+//                if(checkForFind == adjacent_intersections.end()) //if intersection is not found
+//
+//                    adjacent_intersections.push_back(twoIntersections.second);
+//            }
+//            //Not sure why if this is necessary... I think is typically just in case for two-way streets
+//            
+//            //assign second pair to the FROM intersection
+//            twoIntersections.second = getInfoStreetSegment(segmentsOfIntersections[j][i]).from;
+//            
+//            //same code as above. Could be fixed for better style
+//            if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
+//                checkForFind = std::find(adjacent_intersections.begin(), adjacent_intersections.end(), twoIntersections.second);
+//                if(checkForFind == adjacent_intersections.end())
+//                    adjacent_intersections.push_back(twoIntersections.second);
+//            }
+//        }
+//        
+//        //inserts the vector into the global vector of vectors with an index of the first Intersection
+//        adjacentIntersections[j] = adjacent_intersections;
+//        adjacent_intersections.clear();
+//    } 
+//}
 
 void makeIntersectionsOfStreets(){
     
@@ -310,7 +310,7 @@ bool load_map(std::string map_path) {
         makeIntersectionsOfStreets();
         makeSegmentsOfIntersections();
        // makeStreetNamesOfIntersections();
-        makeAdjacentIntersections();
+        //makeAdjacentIntersections();
         makeTableOfDivisors();
     }
     return load_successful;
@@ -328,7 +328,7 @@ void close_map() {
     intersectionsOfStreets.clear();
     segmentsOfIntersections.clear();
     //streetNamesOfIntersections.clear();
-    adjacentIntersections.clear();
+   // adjacentIntersections.clear();
 }
 //passes -p
 //Returns the distance between two coordinates in meters
@@ -524,7 +524,43 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
 //from given intersection (hint: you can't travel the wrong way on a 1-way street)
 //the returned vector should NOT contain duplicate intersections
 std::vector<int> find_adjacent_intersections(int intersection_id){
-    return adjacentIntersections[intersection_id];
+    
+    
+    std::vector<int> adjacent_intersections;
+    int j = intersection_id;
+    std::pair<int,int> twoIntersections;
+    std::vector<int>::iterator checkForFind;//to create the ability to use the [] operator
+    
+    
+    for (int i = 0; i < getIntersectionStreetSegmentCount(j) ; ++i){ //can change to .size but won't let me for some reason
+
+
+        //assign second pair to the TO intersection (Done first because typically, the segment should run FROM the first pair TO the second pair)
+        twoIntersections.second = getInfoStreetSegment(segmentsOfIntersections[j][i]).to;
+
+        //checks if directly connected but not connected to itself
+        if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
+
+            //checks to see if intersection is already in that vector before inserting
+            checkForFind = std::find(adjacent_intersections.begin(), adjacent_intersections.end(), twoIntersections.second);
+            if(checkForFind == adjacent_intersections.end()) //if intersection is not found
+
+                adjacent_intersections.push_back(twoIntersections.second);
+        }
+        //Not sure why if this is necessary... I think is typically just in case for two-way streets
+
+        //assign second pair to the FROM intersection
+        twoIntersections.second = getInfoStreetSegment(segmentsOfIntersections[j][i]).from;
+
+        //same code as above. Could be fixed for better style
+        if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
+            checkForFind = std::find(adjacent_intersections.begin(), adjacent_intersections.end(), twoIntersections.second);
+            if(checkForFind == adjacent_intersections.end())
+                adjacent_intersections.push_back(twoIntersections.second);
+        }
+    }
+    return adjacent_intersections;
+    //return adjacentIntersections[intersection_id];
 }
 
 //tested for a few cases. it works I think -M
