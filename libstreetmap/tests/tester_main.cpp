@@ -28,6 +28,7 @@
 int main(int /*argc*/, char** /*argv*/) {
     //Run the unit tests
     int num_failures = UnitTest::RunAllTests();
-
+    
+    //return 0;
     return num_failures;
 }

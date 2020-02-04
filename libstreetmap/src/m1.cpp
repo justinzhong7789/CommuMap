@@ -233,26 +233,36 @@ void makeSegmentsOfIntersections(){
 //}
 
 void makeIntersectionsOfStreets(){
-    
-   std::vector<int> intersections_of_street;
-   int interTo, interFrom;
-   intersectionsOfStreets.resize(getNumStreets());
-    
-    for(int j =0 ; j< getNumStreets() ; ++j){
-        intersections_of_street.clear();
-        
-        //going through the segment index attached to the intersection 
-        for(int i=0; i < segmentsOfStreets[j].size() ; ++i){
-            interTo = getInfoStreetSegment(segmentsOfStreets[j][i]).to;
-            interFrom = getInfoStreetSegment(segmentsOfStreets[j][i]).from;
-            
-            intersections_of_street.push_back(interTo);
-            intersections_of_street.push_back(interFrom);
-        }
-        intersectionsOfStreets[j] = remove_dups_in_vecs(intersections_of_street);
-    }
-}
+//    
+//   std::vector<int> intersections_of_street;
+//   int interTo, interFrom;
+//   intersectionsOfStreets.resize(getNumStreets());
+//    
+//    for(int j =0 ; j< getNumStreets() ; ++j){
+//        intersections_of_street.clear();
+//        
+//        //going through the segment index attached to the intersection 
+//        for(int i=0; i < segmentsOfStreets[j].size() ; ++i){
+//            interTo = getInfoStreetSegment(segmentsOfStreets[j][i]).to;
+//            interFrom = getInfoStreetSegment(segmentsOfStreets[j][i]).from;
+//            
+//            intersections_of_street.push_back(interTo);
+//            intersections_of_street.push_back(interFrom);
+//        }
+//        intersectionsOfStreets[j] = remove_dups_in_vecs(intersections_of_street);
+//    }
+//}
 
+    intersectionsOfStreets.resize(getNumStreets());
+    for(int j=0; j<getNumStreets() ;++j){
+        for(int i=0;i<segmentsOfStreets[j].size();i++){
+        intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).from);
+        intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).to);
+        }
+        remove_dups_in_vecs(intersectionsOfStreets[j]);
+    }
+    
+}
 
 //Can delete, I don't think we need this anymore cuz we're not using any maps
 bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
@@ -526,40 +536,31 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
 std::vector<int> find_adjacent_intersections(int intersection_id){
     
     
-    std::vector<int> adjacent_intersections;
-    int j = intersection_id;
+    std::vector<int> adjacentIntersections;
+    //std::vector<int> intersectionSegments = find_street_segments_of_intersection(intersection_id);
     std::pair<int,int> twoIntersections;
-    std::vector<int>::iterator checkForFind;//to create the ability to use the [] operator
+    twoIntersections.first = intersection_id;
+    std::vector<int>::iterator checkForFind;
     
     
-    for (int i = 0; i < getIntersectionStreetSegmentCount(j) ; ++i){ //can change to .size but won't let me for some reason
-
-
-        //assign second pair to the TO intersection (Done first because typically, the segment should run FROM the first pair TO the second pair)
-        twoIntersections.second = getInfoStreetSegment(segmentsOfIntersections[j][i]).to;
-
-        //checks if directly connected but not connected to itself
+    for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id) ; ++i){
+        //checks if two intersections found by both side of the segments are directly connected and therefore would be adjacent (used are_directly_connected function)
+        //checks if the 'from' intersection is the intersection_id
+        twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).to;
         if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
-
-            //checks to see if intersection is already in that vector before inserting
-            checkForFind = std::find(adjacent_intersections.begin(), adjacent_intersections.end(), twoIntersections.second);
-            if(checkForFind == adjacent_intersections.end()) //if intersection is not found
-
-                adjacent_intersections.push_back(twoIntersections.second);
+            checkForFind = std::find(adjacentIntersections.begin(), adjacentIntersections.end(), twoIntersections.second);
+                if(checkForFind == adjacentIntersections.end()) //if intersection is not found
+            
+                adjacentIntersections.push_back(twoIntersections.second);
         }
-        //Not sure why if this is necessary... I think is typically just in case for two-way streets
-
-        //assign second pair to the FROM intersection
-        twoIntersections.second = getInfoStreetSegment(segmentsOfIntersections[j][i]).from;
-
-        //same code as above. Could be fixed for better style
-        if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
-            checkForFind = std::find(adjacent_intersections.begin(), adjacent_intersections.end(), twoIntersections.second);
-            if(checkForFind == adjacent_intersections.end())
-                adjacent_intersections.push_back(twoIntersections.second);
-        }
+            twoIntersections.second = getInfoStreetSegment(getIntersectionStreetSegment(intersection_id,i)).from;
+            if(twoIntersections.first != twoIntersections.second && are_directly_connected(twoIntersections)){
+                checkForFind = std::find(adjacentIntersections.begin(), adjacentIntersections.end(), twoIntersections.second);
+                if(checkForFind == adjacentIntersections.end())
+                    adjacentIntersections.push_back(twoIntersections.second);
+            }
     }
-    return adjacent_intersections;
+    return adjacentIntersections;
     //return adjacentIntersections[intersection_id];
 }
 
@@ -572,6 +573,18 @@ std::vector<int> find_street_segments_of_street(int street_id){
 //Returns all intersections along the a given street
 //j
 std::vector<int> find_intersections_of_street(int street_id){
+    
+//   std::vector<int> segments_of_street = find_street_segments_of_street(street_id);
+//    std::vector<int> intersections_we_want;
+//    for(int i=0;i<segments_of_street.size();i++){
+//        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).from);
+//        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).to);
+//    }
+//    
+//    //intersection contains duplicate elements
+//    //remove dupes and return
+//    return remove_dups_in_vecs(intersections_we_want);
+    
     return intersectionsOfStreets[street_id];
 }
 
@@ -582,8 +595,8 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     //initialize vector to be returned
     
     //would it make a difference if we didn't copy it? speed wise? -M
-    std::vector<int> intersections_first = intersectionsOfStreets[street_ids.first];
-    std::vector<int> intersections_second = intersectionsOfStreets[street_ids.second];
+    std::vector<int> intersections_first = find_intersections_of_street(street_ids.first);
+    std::vector<int> intersections_second = find_intersections_of_street(street_ids.second);
     
     //sizes the commonIntersection to make sure to fit all intersections between streets
     std::vector<int> commonIntersection (intersections_first.size() + intersections_second.size());
