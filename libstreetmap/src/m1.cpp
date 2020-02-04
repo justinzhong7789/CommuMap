@@ -40,6 +40,8 @@ std::vector<std::vector<int>> intersectionsOfStreets;
 std::vector<std::vector<int>> segmentsOfIntersections;
 std::vector<std::vector<std::string>> streetNamesOfIntersections;
 //std::vector<std::vector<int>> adjacentIntersections;
+std::unordered_map<OSMID, const OSMWay*> OSMWayTable;
+std::unordered_map<OSMID, const OSMNode*> OSMNodeTable;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
 
@@ -56,7 +58,8 @@ void makeIntersectionsOfStreets();
 //void makeAdjacentIntersections();
 //void makeSegmentsOfIntersections();
 //void makeStreetNamesOfIntersections();
-
+void makeOSMWayTable();
+void makeOSMNodeTable();
 
 double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
@@ -104,14 +107,14 @@ double y_distance_between_2_points(LatLon first, LatLon second){
     double y2= second.lat()*DEGREE_TO_RADIAN;
     return EARTH_RADIUS_METERS*(y2-y1); 
 }
-
+// needed for travel_time, we multiply by 1/speedlimit instead of dividing by speedlimit -p
 void makeTableOfDivisors(){
     tableOfDivisors.resize(getNumStreetSegments());
     for (StreetSegmentIndex id = 0; id<getNumStreetSegments(); id++){
         tableOfDivisors[id]=(std::make_pair<double, double>((find_street_segment_length(id)),(1/getInfoStreetSegment(id).speedLimit)));
     }
 }
-// creates a table of capitalized street names without spaces in order of streetindex
+// creates a table of capitalized street names without spaces in order of streetindex -p
 void makeCapitalizedStreetNamesTable(){
     std::string capitalizedName;
     for (StreetIndex id=0; id<getNumStreets();id++){
@@ -272,7 +275,17 @@ bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
     return false;
 }*/
 
-
+void makeOSMWayTable(){
+    for (int i=0; i<getNumberOfWays(); i++){
+        OSMWayTable.insert(std::pair<OSMID, const OSMWay*>(getWayByIndex(i)->id(), getWayByIndex(i)));
+    }
+}
+    
+void makeOSMNodeTable(){
+    for (int i=0; i<getNumberOfNodes(); i++){
+        OSMNodeTable.insert(std::pair<OSMID, const OSMNode*>(getNodeByIndex(i)->id(), getNodeByIndex(i)));
+    }
+}
 
 /*============================== MILESTONE 1 ==============================*/
 
@@ -317,6 +330,8 @@ bool load_map(std::string map_path) {
        // makeStreetNamesOfIntersections();
         //makeAdjacentIntersections();
         makeTableOfDivisors();
+        makeOSMWayTable();
+        makeOSMNodeTable();
     }
     return load_successful;
 }
@@ -331,6 +346,8 @@ void close_map() {
     capitalizedStreetNamesTable.clear();
     segmentsOfStreets.clear();
     intersectionsOfStreets.clear();
+    OSMWayTable.clear();
+    OSMNodeTable.clear();
    // segmentsOfIntersections.clear();
     //streetNamesOfIntersections.clear();
    // adjacentIntersections.clear();
@@ -641,7 +658,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
 double find_feature_area(int feature_id){
-   /*
+   
     if((getFeaturePoint(0, feature_id).lat()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lat()) &&
       ((getFeaturePoint(0, feature_id).lon()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lon()))){ // == is not defined in LatLon class
         double area=0;
@@ -672,7 +689,7 @@ double find_feature_area(int feature_id){
         }
         return abs(area/2);
         
-    }else{return 0;}*/
+    }else{return 0;}
     
     return 0;
 }    
@@ -682,19 +699,42 @@ double find_feature_area(int feature_id){
 //To implement this function you will have to  access the OSMDatabaseAPI.h 
 //functions.
 double find_way_length(OSMID way_id){
-    /*
+    // map for osmid streets and index
+    // map for nodes and index
+    
     //J's edits   
     //find OMSWay* 
-    const OSMWay* input_way_p = nullptr ;    
-    int numberOfWays = getNumberOfWays();
+    //const OSMWay* input_way_p = nullptr ;    
+    /*int numberOfWays = getNumberOfWays();
     for(int i=0; i < numberOfWays; i++){
         if(getWayByIndex(i)->id() == way_id){
             input_way_p = getWayByIndex(i);
             break;
         }
+    }*/
+    if (OSMWayTable.find(way_id)==OSMWayTable.end()){
+        // id does not exist;
+        return 0; //failed to find way
     }
+    const OSMWay* input_way_p = OSMWayTable.find(way_id)->second;
+    double length=0;
+    const std::vector<OSMID> wayMembers = getWayMembers(input_way_p); // osmids of nodes that form the way
+    std::vector<LatLon> latlon_of_nodes;
+    
+    for (int i=0; i<wayMembers.size();i++){
+        if (OSMNodeTable.find(wayMembers[i]) != OSMNodeTable.end()){
+            latlon_of_nodes.push_back(getNodeCoords((OSMNodeTable.find(wayMembers[i]))->second));
+        }
+    }
+    
+    for (int i=0; i<latlon_of_nodes.size()-1;i++){
+        length += find_distance_between_two_points(std::make_pair(latlon_of_nodes[i], latlon_of_nodes[i+1]));
+    }
+    return length;
+
+    
     //use OSMWay* to find all the nodes the way contains
-    if(input_way_p== nullptr){return 0;}//failed to find the way
+    /*if(input_way_p== nullptr){return 0;}//failed to find the way
     else{
         double length=0;
         const std::vector<OSMID> wayMembers = getWayMembers(input_way_p);
@@ -716,5 +756,5 @@ double find_way_length(OSMID way_id){
         
         return length;
     }*/
-    return 0;
 }
+#include "OSMDatabaseAPI.h"
