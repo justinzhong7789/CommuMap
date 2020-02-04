@@ -185,23 +185,30 @@ bool load_map(std::string map_path) {
     //make sure load map succeeds before creating structures that depend on the API
     if (load_Map_successful){
 
+        //Functions used in street tests
         makeCapitalizedStreetNamesTable();
         makeSegmentsOfStreets();
-        makeIntersectionsOfStreets(); //THE ONE CAUSING THE MESS
+        makeIntersectionsOfStreets(); 
+        
+        //Functions used in intersections tests
         makeSegmentsOfIntersections();
-
+        
+        //Functions used in distance-time tests
         makeTableOfDivisors();
         makeOSMWayTable();
         makeOSMNodeTable();
+        
     }
     return load_Map_successful && load_OSM_successful;
 }
 
 void close_map() {
+    
     //Close StreetsDatabaseBIN and OSMDatabaseBIN
     closeStreetDatabase();
     closeOSMDatabase();
     
+    //close data structures
     capitalizedStreetNamesTable.clear();
     segmentsOfStreets.clear();
     intersectionsOfStreets.clear();
@@ -210,19 +217,17 @@ void close_map() {
     segmentsOfIntersections.clear();
     tableOfDivisors.clear(); 
 }
-//passes -p
+
 //Returns the distance between two coordinates in meters
 double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
-    // using pythagoras theorem 
+    
+    // using pythagoras theorem -more explanations? 
     double x_diff = x_distance_between_2_points(points.first, points.second);
     double y_diff = y_distance_between_2_points(points.first, points.second);
     
     return sqrt(pow(x_diff,2)+pow(y_diff,2));
 }
 
-//anyway to make a helper function for this?? -M
-//MADE BY PRISCILLA -M /// status: done, needs debugging -p
-//I WAS DEBUGGING. THE INPUT TO FIND_DISTANCE_BETWEEN_TWO_POINTS IS A PAIR SO I MADE IT A PAIR -M
 //Returns the length of the given street segment in meters
 double find_street_segment_length(int street_segment_id){
     // pull info from API library
@@ -236,7 +241,7 @@ double find_street_segment_length(int street_segment_id){
         std::pair<LatLon,LatLon> straight_segment (getIntersectionPosition(street.from), getIntersectionPosition(street.to));    
         length += find_distance_between_two_points(straight_segment);        
     } 
-    // If street has curves, use some thicc maths to fix
+    // If street has curves
     else {
         for (int i=0; i<=street.curvePointCount; i++){
             // note: if street has 1 corner, add two segments, if 2 corners, add three segments, etc -p
@@ -262,10 +267,6 @@ double find_street_segment_length(int street_segment_id){
 
 //Returns the travel time to drive a street segment in seconds 
 //(time = distance/speed_limit)
-//J
-// convert form kmh -> m/s
-// debugging: off by 3.6 so i just multiplied it lol -p
-// need to write function without '/' operator -p
 double find_street_segment_travel_time(int street_segment_id){
     //return find_street_segment_length(street_segment_id) * 3.6 * tableOfDivisors[street_segment_id];
     return tableOfDivisors[street_segment_id].first * 3.6 * tableOfDivisors[street_segment_id].second;
