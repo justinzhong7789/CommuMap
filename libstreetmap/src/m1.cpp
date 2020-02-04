@@ -658,10 +658,8 @@ double find_feature_area(int feature_id){
         
         //initialize the first and last elements of x and y vector to 0 
         //this makes the polygon start at the origin and end at the origin
-        x[0]=0;     
-        x[featurePointCount-1]=0;
-        y[0]=0;     
-        y[featurePointCount-1]=0;
+        x[0]=0;         x[featurePointCount-1]=0;
+        y[0]=0;         y[featurePointCount-1]=0;
         
         // fill in the vector with x-y coordinates with respect to the origin in meters
         for(int i=1; i< featurePointCount-1 ;i++){
@@ -672,7 +670,9 @@ double find_feature_area(int feature_id){
         
         //apply shoelace formula
         for(int i=0; i <getFeaturePointCount(feature_id) ; i++ ){
-            area += (x[i]*y[i+1])-(y[i]*x[i+1]);
+            if(i+1< getFeaturePointCount(feature_id)){
+                area += (x[i]*y[i+1])-(y[i]*x[i+1]);
+            }
         }
         return abs(area/2);
         
