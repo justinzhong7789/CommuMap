@@ -249,8 +249,8 @@ void makeIntersectionsOfStreets(){
     intersectionsOfStreets.resize(getNumStreets());
     for(int j=0; j<getNumStreets() ;++j){
         for(int i=0;i<segmentsOfStreets[j].size();i++){
-        intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).from);
         intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).to);
+        intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).from);
         }
         intersectionsOfStreets[j] = remove_dups_in_vecs(intersectionsOfStreets[j]);
     }
@@ -641,7 +641,7 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
 //Assume a non self-intersecting polygon (i.e. no holes)
 //Return 0 if this feature is not a closed polygon.
 double find_feature_area(int feature_id){
-    
+   /*
     if((getFeaturePoint(0, feature_id).lat()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lat()) &&
       ((getFeaturePoint(0, feature_id).lon()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lon()))){ // == is not defined in LatLon class
         double area=0;
@@ -672,7 +672,7 @@ double find_feature_area(int feature_id){
         }
         return abs(area/2);
         
-    }else{return 0;}
+    }else{return 0;}*/
     
     return 0;
 }    
@@ -682,7 +682,7 @@ double find_feature_area(int feature_id){
 //To implement this function you will have to  access the OSMDatabaseAPI.h 
 //functions.
 double find_way_length(OSMID way_id){
-    
+    /*
     //J's edits   
     //find OMSWay* 
     const OSMWay* input_way_p = nullptr ;    
@@ -715,6 +715,6 @@ double find_way_length(OSMID way_id){
         }
         
         return length;
-    }
+    }*/
     return 0;
 }
