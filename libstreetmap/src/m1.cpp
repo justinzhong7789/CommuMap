@@ -65,6 +65,7 @@ double y_distance_between_2_points(LatLon first, LatLon second);
 std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA);
 bool element_exists(int element, std::vector<int> vectorA);
 // bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID);
+
 /*==================== GLOBAL FUNCTION IMPLEMENTATION ====================*/
 
 /* I don't know if these two functions would be faster than using std::find(first interator, second iterator) 
@@ -354,17 +355,11 @@ void close_map() {
 //passes -p
 //Returns the distance between two coordinates in meters
 double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
-    // see page 14 of milestone 1; (x,y)=(lon*cos(latavg), lat) -p
-    // note lat() and lon() are degrees, cosine uses RADIANS -p
-    double latavg = ((points.first.lat() + points.second.lat()) * DEGREE_TO_RADIAN)/2;
-    // note to self: latitude is up/down, longitude is left/right -p
-    double x1 = points.first.lon() * DEGREE_TO_RADIAN * cos(latavg);
-    double y1 = points.first.lat() * DEGREE_TO_RADIAN;
-    // note to self: radians * radius = arc length -p
-    double x2 = points.second.lon() * DEGREE_TO_RADIAN * cos(latavg);
-    double y2 = points.second.lat() * DEGREE_TO_RADIAN;
+    // using pythagoras theorem 
+    double x_diff = x_distance_between_2_points(points.first, points.second);
+    double y_diff = y_distance_between_2_points(points.first, points.second);
     
-    return EARTH_RADIUS_METERS * sqrt(pow((x2-x1),2) + pow((y2-y1),2));
+    return sqrt(pow(x_diff,2)+pow(y_diff,2));
 }
 
 //anyway to make a helper function for this?? -M
@@ -424,15 +419,9 @@ double find_street_segment_travel_time(int street_segment_id){
 //finished, fixed but may violate performance
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
-<<<<<<< HEAD
     double min_distance = 999999; // initialize "large" minimum distance as reference
     int closest;
 
-=======
-    double min_distance = 999999;
-    int closest = 0;
-    //for (std::vector<LatLon>::iterator it = intersectionTable.begin(); it != intersectionTable.end(); it++){
->>>>>>> 6272dd47bbfce6eab39db179e1da7919de197c19
     for (int i=0; i<getNumIntersections();i++){
         LatLon current = getIntersectionPosition(i);
         std::pair<LatLon, LatLon> temp (my_position, current);
@@ -724,4 +713,3 @@ double find_way_length(OSMID way_id){
     }
     return length;
 }
-#include "OSMDatabaseAPI.h"
