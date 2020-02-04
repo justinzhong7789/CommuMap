@@ -52,7 +52,7 @@ void makeTableOfDivisors();
 void makeCapitalizedStreetNamesTable();
 
 void makeSegmentsOfStreets();
-//void makeIntersectionsOfStreets();
+void makeIntersectionsOfStreets();
 
 //Used a lot
 //void makeAdjacentIntersections();
@@ -231,7 +231,7 @@ void makeSegmentsOfIntersections(){
 //    } 
 //}
 
-//void makeIntersectionsOfStreets(){
+void makeIntersectionsOfStreets(){
 //    
 //   std::vector<int> intersections_of_street;
 //   int interTo, interFrom;
@@ -252,6 +252,16 @@ void makeSegmentsOfIntersections(){
 //    }
 //}
 
+    intersectionsOfStreets.resize(getNumStreets());
+    for(int j=0; j<getNumStreets() ;++j){
+        for(int i=0;i<segmentsOfStreets[j].size();i++){
+        intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).from);
+        intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).to);
+        }
+        remove_dups_in_vecs(intersectionsOfStreets[j]);
+    }
+    
+}
 
 //Can delete, I don't think we need this anymore cuz we're not using any maps
 bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
@@ -307,7 +317,7 @@ bool load_map(std::string map_path) {
         //makeIntersectionTable();
         makeCapitalizedStreetNamesTable();
         makeSegmentsOfStreets();
-        //makeIntersectionsOfStreets();
+        makeIntersectionsOfStreets();
         makeSegmentsOfIntersections();
        // makeStreetNamesOfIntersections();
         //makeAdjacentIntersections();
@@ -325,7 +335,7 @@ void close_map() {
     //intersectionTable.clear();
     capitalizedStreetNamesTable.clear();
     segmentsOfStreets.clear();
-    //intersectionsOfStreets.clear();
+    intersectionsOfStreets.clear();
     segmentsOfIntersections.clear();
     //streetNamesOfIntersections.clear();
    // adjacentIntersections.clear();
@@ -564,23 +574,18 @@ std::vector<int> find_street_segments_of_street(int street_id){
 //j
 std::vector<int> find_intersections_of_street(int street_id){
     
-    std::vector<int> intersections_of_street;
-    int j = street_id;
-  
-    for(int i=0; i < segmentsOfStreets[j].size() ; ++i){
-            int interTo = getInfoStreetSegment(segmentsOfStreets[j][i]).to;
-            int interFrom = getInfoStreetSegment(segmentsOfStreets[j][i]).from;
-            
-            auto checkForFindFrom = std::find(intersections_of_street.begin(), intersections_of_street.end(), interFrom);
-            auto checkForFindTo = std::find(intersections_of_street.begin(), intersections_of_street.end(), interTo);
-                if(checkForFindTo == intersections_of_street.end())
-            
-            intersections_of_street.push_back(interTo);
-            if(checkForFindFrom == intersections_of_street.end())
-            intersections_of_street.push_back(interFrom);
-    }
-    intersections_of_street.clear();
-    return intersections_of_street;
+//   std::vector<int> segments_of_street = find_street_segments_of_street(street_id);
+//    std::vector<int> intersections_we_want;
+//    for(int i=0;i<segments_of_street.size();i++){
+//        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).from);
+//        intersections_we_want.push_back(getInfoStreetSegment(segments_of_street[i]).to);
+//    }
+//    
+//    //intersection contains duplicate elements
+//    //remove dupes and return
+//    return remove_dups_in_vecs(intersections_we_want);
+    
+    return intersectionsOfStreets[street_id];
 }
 
 //TRYING TO OPTOMIZE TIME -M
