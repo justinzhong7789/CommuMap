@@ -18,9 +18,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <unittest++/UnitTest++.h>
 
+//#ifndef EXAMPLE_TEST_CPP
+//#define EXAMPLE_TEST_CPP
+#include <unittest++/UnitTest++.h>
+//#include "m1_load_maps_public.cpp"
+//
+//#endif
 TEST(ExampleTest) {
     //This test will always pass
     CHECK(true);
 }
+
+//TEST(load_moscow) {
+//        {
+//            UNITTEST_TIME_CONSTRAINT(10000);
+//            CHECK(load_map(map_dir + "moscow_russia.streets.bin"));
+//        }
+//        close_map();
+//    }
