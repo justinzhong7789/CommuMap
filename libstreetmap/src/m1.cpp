@@ -33,7 +33,6 @@
 #include <set>
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
-//std::vector<LatLon> intersectionTable;
 std::vector<std::pair<double, double>> tableOfDivisors; // -p
 std::multimap<std::string, StreetIndex> capitalizedStreetNamesTable; // -p
 std::vector<std::vector<int>> segmentsOfStreets;
@@ -47,7 +46,6 @@ typedef std::vector<int>::iterator VectorIt;
 /*==================== GLOBAL FUNCTIONS IMPLEMENTATIONS ====================*/
 
 //ARE THESE EVEN NEEDED?
-//void makeIntersectionTable();
 void makeTableOfDivisors();
 void makeCapitalizedStreetNamesTable();
 
@@ -64,7 +62,7 @@ double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
 std::vector<int> remove_dups_in_vecs(std::vector<int> vectorA);
 bool element_exists(int element, std::vector<int> vectorA);
-bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID);
+// bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID);
 /*==================== GLOBAL FUNCTION IMPLEMENTATION ====================*/
 
 /* I don't know if these two functions would be faster than using std::find(first interator, second iterator) 
@@ -106,12 +104,7 @@ double y_distance_between_2_points(LatLon first, LatLon second){
     double y2= second.lat()*DEGREE_TO_RADIAN;
     return EARTH_RADIUS_METERS*(y2-y1); 
 }
-// allocates vector of intersection ids
-/*void makeIntersectionTable(){
-    for (IntersectionIndex id=0; id<getNumIntersections(); id++){
-        intersectionTable.push_back(getIntersectionPosition(id));
-    }
-}*/
+
 void makeTableOfDivisors(){
     tableOfDivisors.resize(getNumStreetSegments());
     for (StreetSegmentIndex id = 0; id<getNumStreetSegments(); id++){
@@ -265,6 +258,7 @@ void makeIntersectionsOfStreets(){
 }
 
 //Can delete, I don't think we need this anymore cuz we're not using any maps
+/*
 bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
     
     if (map.find(key) != map.end()){
@@ -276,7 +270,7 @@ bool valueExistsInMultiMap(std::multimap<int,int> map, int key, int ID){
         }
     }
     return false;
-}
+}*/
 
 
 
@@ -362,25 +356,6 @@ double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
 //I WAS DEBUGGING. THE INPUT TO FIND_DISTANCE_BETWEEN_TWO_POINTS IS A PAIR SO I MADE IT A PAIR -M
 //Returns the length of the given street segment in meters
 double find_street_segment_length(int street_segment_id){
- /*
-    InfoStreetSegment segInfo = getInfoStreetSegment(street_segment_id);
-    double length = 0;
-    if(segInfo.curvePointCount==0){
-        LatLon from_position = getIntersectionPosition(segInfo.from);
-        LatLon to_position = getIntersectionPosition(segInfo.to);
-        std::pair<LatLon, LatLon> from_to_to = std::make_pair(from_position, to_position);
-        length = find_distance_between_two_points(from_to_to);
-    }
-    else{
-        length += find_distance_between_two_points(std::make_pair(getIntersectionPosition(segInfo.from), getStreetSegmentCurvePoint(1,street_segment_id)));
-        for(int i=1; i<segInfo.curvePointCount;i++){
-            length+= find_distance_between_two_points( std::make_pair(getStreetSegmentCurvePoint(i,street_segment_id), getStreetSegmentCurvePoint(i+1, street_segment_id)));
-        }
-        length += find_distance_between_two_points(std::make_pair(getStreetSegmentCurvePoint(segInfo.curvePointCount, street_segment_id), getIntersectionPosition(segInfo.to)));
- 
-    }
-    return length;
-    */
     // pull info from API library
     InfoStreetSegment street = getInfoStreetSegment(street_segment_id);
     // initialize total length to 0
@@ -426,11 +401,6 @@ double find_street_segment_travel_time(int street_segment_id){
     //return find_street_segment_length(street_segment_id) * 3.6 * tableOfDivisors[street_segment_id];
     return tableOfDivisors[street_segment_id].first * 3.6 * tableOfDivisors[street_segment_id].second;
 }
-    /*
-    double travel_time;
-    travel_time= (find_street_segment_length(street_segment_id))*3.6 / (getInfoStreetSegment(street_segment_id).speedLimit);
-    return travel_time; 
-    return 0; */
 
 //I THINK PRISCILLA SHOULD DO THIS ONE CUZ YOU NEED HER FUNCTIONS FOR THIS -M
 //Returns the nearest intersection to the given position
