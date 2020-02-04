@@ -155,6 +155,7 @@ void makeSegmentsOfIntersections(){
     }
 }
 
+
 //M
 //void makeAdjacentIntersections(){
 //    
@@ -210,14 +211,15 @@ void makeSegmentsOfIntersections(){
 
 void makeIntersectionsOfStreets(){
 
-
+    std::vector<int> intersections_of_streets;
     intersectionsOfStreets.resize(getNumStreets());
     for(int j=0; j<getNumStreets() ;++j){
+        intersections_of_streets.clear();
         for(int i=0;i<segmentsOfStreets[j].size();i++){
-        intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).to);
-        intersectionsOfStreets[j].push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).from);
+        intersections_of_streets.push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).to);
+        intersections_of_streets.push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).from);
         }
-        intersectionsOfStreets[j] = remove_dups_in_vecs(intersectionsOfStreets[j]);
+        intersectionsOfStreets[j]= remove_dups_in_vecs(intersections_of_streets);
     }
     
 }
@@ -238,42 +240,25 @@ void makeOSMNodeTable(){
 /*============================== MILESTONE 1 ==============================*/
 
 bool load_map(std::string map_path) {
-    bool load_successful = false; //Indicates whether the map has loaded 
-                                  //successfully
-    std::string OSMpath = "";
-    bool pathInvalid = false;
-    int mapPathLength = map_path.size();
-    for(int i=0; i< mapPathLength; i++){
-        //collect everything before .street.bin sequence because we want to replace it with .osm.bin
-        // this condition avoids accessing map_path string beyond its largest index(otherwise segfault))
-        if(i+6 < mapPathLength){
-            if(map_path[i]=='.'&&map_path[i+1]=='s'&&map_path[i+2]=='t'&&map_path[i+3]=='r'&&map_path[i+4]=='e'&&map_path[i+5]=='e'&&map_path[i+6]=='t'&&map_path[i+7]=='s'){
-                break;
-            }
-            else{OSMpath += map_path[i];} 
-        }
-        // this means .street suquence is not found in the given map_path
-        // wrong map_math
-        else if(i+6 >= mapPathLength){ pathInvalid = true;}
+    bool load_Map_successful = false; //Indicates whether the map has loaded 
+    bool load_OSM_successful = false;                              //successfully
+    
+    std::string OSMpath = map_path;
+    std::string streetsBin = ".streets.bin";
+    if(OSMpath.find(streetsBin) != std::string::npos){
+        OSMpath.replace(OSMpath.find(streetsBin), streetsBin.length() , ".osm.bin");
+        load_OSM_successful = loadOSMDatabaseBIN(OSMpath);
     }
-    
-    if(!pathInvalid){
-        OSMpath += ".osm.bin";
-        loadOSMDatabaseBIN(OSMpath); 
-    }  
-    
-    // added some functions -p
-    //Load StreetsDatabaseBIN and OSMDatabaseBIN
-    //change to OR doesn't work if AND -m
-    load_successful = ( loadStreetsDatabaseBIN(map_path)); 
+
+    load_Map_successful = loadStreetsDatabaseBIN(map_path); 
     
 
     //make sure load map succeeds before creating structures that depend on the API
-    if (load_successful){
+    if (load_Map_successful){
         //makeIntersectionTable();
         makeCapitalizedStreetNamesTable();
         makeSegmentsOfStreets();
-        makeIntersectionsOfStreets();
+       // makeIntersectionsOfStreets(); //THE ONE CAUSING THE MESS
         makeSegmentsOfIntersections();
        // makeStreetNamesOfIntersections();
         //makeAdjacentIntersections();
@@ -281,7 +266,7 @@ bool load_map(std::string map_path) {
         makeOSMWayTable();
         makeOSMNodeTable();
     }
-    return load_successful;
+    return load_Map_successful && load_OSM_successful;
 }
 
 void close_map() {
@@ -289,16 +274,13 @@ void close_map() {
     closeStreetDatabase();
     closeOSMDatabase();
     
-    //Makes sure to close the structures
-    //intersectionTable.clear();
     capitalizedStreetNamesTable.clear();
     segmentsOfStreets.clear();
-    intersectionsOfStreets.clear();
+   // intersectionsOfStreets.clear();
     OSMWayTable.clear();
     OSMNodeTable.clear();
-   segmentsOfIntersections.clear();
-    //streetNamesOfIntersections.clear();
-   // adjacentIntersections.clear();
+    segmentsOfIntersections.clear();
+    tableOfDivisors.clear(); 
 }
 //passes -p
 //Returns the distance between two coordinates in meters
