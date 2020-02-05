@@ -361,6 +361,8 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
 // Uses segmentsOfIntersection global variable
 std::vector<std::string> find_street_names_of_intersection(int intersection_id){
     
+    // Checks to see if intersection id exists
+    if(intersection_id > getNumIntersections() && intersection_id < 0) return {0};
     std::vector<std::string> street_names_of_intersection;
     
     // Loops through all the segments attached to the intersection
@@ -375,27 +377,34 @@ std::vector<std::string> find_street_names_of_intersection(int intersection_id){
     return street_names_of_intersection;
 }
 
-//Returns true if you can get from intersection_ids.first to intersection_ids.second using a single 
-//street segment (hint: check for 1-way streets too)
-//corner case: an intersection is considered to be connected to itself
+// Returns true if you can get from intersection_ids.first to intersection_ids.second using a single 
+// street segment (hint: check for 1-way streets too)
+// corner case: an intersection is considered to be connected to itself
+// Uses segmentsOfInterseciton global variable
 bool are_directly_connected(std::pair<int, int> intersection_ids){
    
-    //edited so that it access the segOfInter instead of going to the O(1) function
-    std::vector<int> intersectionSegmentsOne = find_street_segments_of_intersection(intersection_ids.first);
+    // Creates local vector of street segments of the first pair intersection for clarity
+    std::vector<int> intersectionSegmentsOne = segmentsOfIntersections(intersection_ids.first];
     
+    // Return true if the intersections are the same intersection
+    // Does not check if a segment exists that loops to the same intersection
     if(intersection_ids.first == intersection_ids.second)return true;
     
+    // Loops through all segments of the first pair intersection
     for(int i=0 ; i < intersectionSegmentsOne.size() ; ++i){
         
+        // Gets all the intersections attached to the segment
         int streetSegmentTo = getInfoStreetSegment(intersectionSegmentsOne[i]).to; 
         int streetSegmentFrom = getInfoStreetSegment(intersectionSegmentsOne[i]).from;
         
-        //Is not accessible on oneWay streets if segment doesnt go from intersection1 to intersection2..
+        // If segment is only one way, then it will only return true if the segment runs from the first intersection to the second intersection 
         if (getInfoStreetSegment(intersectionSegmentsOne[i]).oneWay){
             if(streetSegmentTo == intersection_ids.second){
                 return true;
             }
         }else{
+            
+            // If not one Way, then segment can run either TO or FROM the first pair intersection
             if(streetSegmentTo == intersection_ids.second || streetSegmentFrom == intersection_ids.second){
                 return true;
             }
@@ -406,7 +415,6 @@ bool are_directly_connected(std::pair<int, int> intersection_ids){
 }
 
 
-//FINISHED-M
 //Returns all intersections reachable by traveling down one street segment 
 //from given intersection (hint: you can't travel the wrong way on a 1-way street)
 //the returned vector should NOT contain duplicate intersections
@@ -414,7 +422,6 @@ std::vector<int> find_adjacent_intersections(int intersection_id){
     
     
     std::vector<int> adjacentIntersections;
-    //std::vector<int> intersectionSegments = find_street_segments_of_intersection(intersection_id);
     std::pair<int,int> twoIntersections;
     twoIntersections.first = intersection_id;
     std::vector<int>::iterator checkForFind;
