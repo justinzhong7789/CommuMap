@@ -153,11 +153,11 @@ void makeIntersectionsOfStreets(){
         intersections_of_streets.clear();
         
         //Loop through all the streets attached to the intersection
-        for(int i=0;i<segmentsOfStreets[j].size();i++){
+        for(int inter =0;inter<segmentsOfStreets[street].size();inter++){
             
             // Find the intersections attached to the segment
-            int interTo = getInfoStreetSegment(segmentsOfStreets[j][i]).to;
-            int interFrom = getInfoStreetSegment(segmentsOfStreets[j][i]).from;
+            int interTo = getInfoStreetSegment(segmentsOfStreets[street][inter]).to;
+            int interFrom = getInfoStreetSegment(segmentsOfStreets[street][inter]).from;
             
             // Inserts intersections in local vector
             intersections_of_streets.push_back(interTo);
@@ -165,7 +165,7 @@ void makeIntersectionsOfStreets(){
         }
         
         // Copies local vector into vector of streets, local vector is cleared afterwards
-        intersectionsOfStreets[j]= intersections_of_streets;
+        intersectionsOfStreets[street]= intersections_of_streets;
     }
     
 }
@@ -384,7 +384,7 @@ std::vector<std::string> find_street_names_of_intersection(int intersection_id){
 bool are_directly_connected(std::pair<int, int> intersection_ids){
    
     // Creates local vector of street segments of the first pair intersection for clarity
-    std::vector<int> intersectionSegmentsOne = segmentsOfIntersections(intersection_ids.first];
+    std::vector<int> intersectionSegmentsOne = segmentsOfIntersections[intersection_ids.first];
     
     // Return true if the intersections are the same intersection
     // Does not check if a segment exists that loops to the same intersection
