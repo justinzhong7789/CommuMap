@@ -316,10 +316,11 @@ double find_street_segment_length(int street_segment_id){
 
 //Returns the travel time to drive a street segment in seconds 
 double find_street_segment_travel_time(int street_segment_id){
-    //return find_street_segment_length(street_segment_id) * 3.6 * tableOfDivisors[street_segment_id];
-    return tableOfDivisors[street_segment_id].first * 3.6 * tableOfDivisors[street_segment_id].second;
+    double street_segment_length = tableOfDivisors[street_segment_id].first;
+    double speed_limit = tableOfDivisors[street_segment_id].second;
+    // Multiply 3.6 to account for km/h -> m/s conversion
+    return street_segment_length * 3.6 * speed_limit;
 }
-
 
 //Returns the nearest intersection to the given position
 int find_closest_intersection(LatLon my_position){
@@ -350,9 +351,6 @@ std::vector<int> find_street_segments_of_intersection(int intersection_id){
     return segmentsOfIntersections[intersection_id];
 }
 
-//CHECK IF U CAN USE ONE OF THE GLOBAL FUNCTIONS... MAP<STREETNAME, ID>
-//I THINK THIS ALSO PASSES -M
-//DEPENDENT ON find_street_segments_of_intersection WORKING -M
 //Returns the street names at the given intersection (includes duplicate street 
 //names in returned vector)
 std::vector<std::string> find_street_names_of_intersection(int intersection_id){
@@ -366,7 +364,6 @@ std::vector<std::string> find_street_names_of_intersection(int intersection_id){
     return street_names_of_intersection;
 }
 
-//FINISHED -M
 //Returns true if you can get from intersection_ids.first to intersection_ids.second using a single 
 //street segment (hint: check for 1-way streets too)
 //corner case: an intersection is considered to be connected to itself
@@ -461,26 +458,21 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
     std::vector<int> commonIntersection (intersections_first.size() + intersections_second.size());
     
     VectorIt it;
-    //Makes sure it's sorted..only way to go through the set_intersection
+    // Sort and find intersections that are common to both streets
     std::sort(intersections_first.begin(), intersections_first.end());
     std::sort(intersections_second.begin(), intersections_second.end());
-    // find intersections that are common to both streets
-    it = std::set_intersection(intersections_first.begin(), intersections_first.end(),intersections_second.begin(), intersections_second.end(),
-            commonIntersection.begin());
+
+    it = std::set_intersection(intersections_first.begin(), intersections_first.end(),intersections_second.begin(), 
+            intersections_second.end(), commonIntersection.begin());
     
-    //resize to delete un initialized variables
+    //resize to delete uninitialized variables
     commonIntersection.resize(it-commonIntersection.begin());
     
     return commonIntersection;
 }
 
-//Returns all street ids corresponding to street names that start with the given prefix
-//The function should be case-insensitive to the street prefix. You should ignore spaces.
-//For example, both "bloor " and "BloOrst" are prefixes to "Bloor Street East".
-//If no street names match the given prefix, this routine returns an empty (length 0) 
-//vector.
-//You can choose what to return if the street prefix passed in is an empty (length 0) 
-//string, but your program must not crash if street_prefix is a length 0 string.
+// Returns all street ids corresponding to street names that start with the given prefix
+// This function will return an empty vector if the input is blank or does not exit
 std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){  
     // Remove all white spaces and turn all characters upper case
     street_prefix.erase(remove(street_prefix.begin(), street_prefix.end(), ' '), street_prefix.end());
@@ -517,12 +509,10 @@ std::vector<int> find_street_ids_from_partial_street_name(std::string street_pre
 }
    
 //Returns the area of the given closed feature in square meters
-//Assume a non self-intersecting polygon (i.e. no holes)
-//Return 0 if this feature is not a closed polygon.
 double find_feature_area(int feature_id){
-   
+    // Check if this feature is a closed polygon
     if((getFeaturePoint(0, feature_id).lat()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lat()) &&
-      ((getFeaturePoint(0, feature_id).lon()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lon()))){ // == is not defined in LatLon class
+      ((getFeaturePoint(0, feature_id).lon()==getFeaturePoint(getFeaturePointCount(feature_id)-1, feature_id).lon()))){
         double area=0;
         int featurePointCount=getFeaturePointCount(feature_id);
         std::vector<double> x;
@@ -531,54 +521,53 @@ double find_feature_area(int feature_id){
         y.resize(featurePointCount);
         LatLon origin = getFeaturePoint(0, feature_id);
         
-        //initialize the first and last elements of x and y vector to 0 
-        //this makes the polygon start at the origin and end at the origin
+        // Initialize the first and last elements of x and y vector to 0 
+        // This makes the polygon start at the origin and end at the origin
         x[0]=0;         x[featurePointCount-1]=0;
         y[0]=0;         y[featurePointCount-1]=0;
         
-        // fill in the vector with x-y coordinates with respect to the origin in meters
+        // Fill in the vector with x-y coordinates with respect to the origin in meters
         for(int i=1; i< featurePointCount-1 ;i++){
             LatLon point = getFeaturePoint(i, feature_id);
             x[i] = x_distance_between_2_points(origin, point);
             y[i] = y_distance_between_2_points(origin, point);
         }
         
-        //apply shoelace formula
+        // Apply shoelace formula
         for(int i=0; i <getFeaturePointCount(feature_id) ; i++ ){
             if(i+1< getFeaturePointCount(feature_id)){
                 area += (x[i]*y[i+1])-(y[i]*x[i+1]);
             }
         }
-        return abs(area/2);
-        
-    }else{return 0;}
-    
+        // Return magnitude of area
+        return abs(area/2);    
+    }
+    // If feature is not closed, return 0
     return 0;
 }    
 
     
 //Returns the length of the OSMWay that has the given OSMID, in meters.
-//To implement this function you will have to  access the OSMDatabaseAPI.h 
-//functions.
 double find_way_length(OSMID way_id){
-    //J's edits   
-    // improved justin's code by replacing for loops with std::map.find() -p)
+    // Check if ID exists, if not, return 0
     if (OSMWayTable.find(way_id)==OSMWayTable.end()){
-        // id does not exist;
-        return 0; //failed to find way
+        return 0; 
     }
-    double length=0; // initialize length
-    // find OSMWay node
+    // Initialize length
+    double length=0; 
+    // Find OSMIDs of the nodes that form the way
     const OSMWay* input_way_p = OSMWayTable.find(way_id)->second;
-    const std::vector<OSMID> wayMembers = getWayMembers(input_way_p); // osmids of nodes that form the way
-    std::vector<LatLon> latlon_of_nodes; // initialize vector of LatLons of the nodes
-    // get coords for each node
+    const std::vector<OSMID> wayMembers = getWayMembers(input_way_p);
+    // initialize vector of LatLons of the nodes
+    std::vector<LatLon> latlon_of_nodes; 
+    
+    // Get coordinates of each node
     for (int i=0; i<wayMembers.size();i++){
         if (OSMNodeTable.find(wayMembers[i]) != OSMNodeTable.end()){
             latlon_of_nodes.push_back(getNodeCoords((OSMNodeTable.find(wayMembers[i]))->second));
         }
     }
-    // calculate length between each node and sum
+    // Calculate length between each node, then sum
     for (int i=0; i<latlon_of_nodes.size()-1;i++){
         length += find_distance_between_two_points(std::make_pair(latlon_of_nodes[i], latlon_of_nodes[i+1]));
     }
