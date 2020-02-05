@@ -266,25 +266,28 @@ double find_street_segment_length(int street_segment_id){
 }
 
 //Returns the travel time to drive a street segment in seconds 
-//(time = distance/speed_limit)
 double find_street_segment_travel_time(int street_segment_id){
     //return find_street_segment_length(street_segment_id) * 3.6 * tableOfDivisors[street_segment_id];
     return tableOfDivisors[street_segment_id].first * 3.6 * tableOfDivisors[street_segment_id].second;
 }
 
-//I THINK PRISCILLA SHOULD DO THIS ONE CUZ YOU NEED HER FUNCTIONS FOR THIS -M
+
 //Returns the nearest intersection to the given position
-
-//finished, fixed but may violate performance
 int find_closest_intersection(LatLon my_position){
-    // distance calculated from each intersection in the city -p
-    double min_distance = 999999; // initialize "large" minimum distance as reference
-    int closest=0;
+    // Initialize IntersectionID to be returned
+    IntersectionIndex closest = 0;    
+    LatLon current = getIntersectionPosition(0);
+    std::pair<LatLon, LatLon> current_points (my_position, current);
+    // Initialize minimum distance as the distance between my_position and IntersectionIndex 0
+    double min_distance = find_distance_between_two_points(current_points); // initialize "large" minimum distance as reference
 
-    for (int i=0; i<getNumIntersections();i++){
-        LatLon current = getIntersectionPosition(i);
-        std::pair<LatLon, LatLon> temp (my_position, current);
-        double distance = find_distance_between_two_points(temp);
+    // Traverse through all IntersectionIDs and compare the distances
+    for (int i=1; i<getNumIntersections();i++){
+        current = getIntersectionPosition(i);
+        current_points = std::make_pair(my_position, current);
+        // Calculate the distance between my_position and each IntersectionIndex
+        double distance = find_distance_between_two_points(current_points);
+        // Replace min_distance and closest whenever a smaller distance is calculated
         if (distance < min_distance){
             min_distance = distance;
             closest = i;
@@ -293,10 +296,8 @@ int find_closest_intersection(LatLon my_position){
     return closest;
 }
 
-//Created new version (not sure if faster) -M 
 //Returns the street segments for the given intersection 
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
-
     return segmentsOfIntersections[intersection_id];
 }
 
