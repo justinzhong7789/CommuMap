@@ -65,38 +65,42 @@ void remove_dups_in_vecs(std::vector<int> &vectorA);
 
 /*==================== GLOBAL FUNCTION IMPLEMENTATION ====================*/
 
-
-void remove_dups_in_vecs(std::vector<int> &vectorA){
-    
+// Template for removing duplicate entries in a vector
+void remove_dups_in_vecs(std::vector<int> &vectorA){    
     auto end = vectorA.end();
     for(auto it=vectorA.begin();it<end;++it){
         //if element is not already in the vector, insert it
         end = std::remove(it+1,end, *it);
     }
     vectorA.erase(end, vectorA.end());
-  
 }
 
+// Find the distance in the x component of two points using the formula provided in M1 Instructions
 double x_distance_between_2_points(LatLon first, LatLon second){
-    double LatAvg = (first.lat()+second.lat())*DEGREE_TO_RADIAN/2;
-    double x1= first.lon()*DEGREE_TO_RADIAN* cos(LatAvg);
-    double x2=second.lon()*DEGREE_TO_RADIAN* cos(LatAvg);
-    return EARTH_RADIUS_METERS*(x2-x1);
+    double LatAvg = (first.lat()+second.lat()) * DEGREE_TO_RADIAN / 2;
+    double x1= first.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
+    double x2=second.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
+    return EARTH_RADIUS_METERS * (x2-x1);
 }
 
-double y_distance_between_2_points(LatLon first, LatLon second){
-    double y1= first.lat()*DEGREE_TO_RADIAN;   
-    double y2= second.lat()*DEGREE_TO_RADIAN;
-    return EARTH_RADIUS_METERS*(y2-y1); 
+// Find the distance in the y component of two points using the formula provided in M1 Instructions
+double y_distance_between_2_points(LatLon first, LatLon second){  
+    double y1= first.lat() * DEGREE_TO_RADIAN;   
+    double y2= second.lat() * DEGREE_TO_RADIAN;
+    return EARTH_RADIUS_METERS * (y2-y1); 
 }
-// needed for travel_time, we multiply by 1/speedlimit instead of dividing by speedlimit -p
+
+// Creates global variable tableOfDivisors used to optimize function find_street_segment_travel_time
+// Info: Vector is organized by StreetSegmentIndex. First element is the street segment length, second element is its speed limit.
 void makeTableOfDivisors(){
     tableOfDivisors.resize(getNumStreetSegments());
     for (StreetSegmentIndex id = 0; id<getNumStreetSegments(); id++){
         tableOfDivisors[id]=(std::make_pair<double, double>((find_street_segment_length(id)),(1/getInfoStreetSegment(id).speedLimit)));
     }
 }
-// creates a table of capitalized street names without spaces in order of streetindex -p
+
+// Creates global variable capitalizedStreetNamesTable used to optimize function find_street_partial_name
+// Info: Multimap is organized by StreetIndex string name. Key is the street name, with spaces removed and in all capital letters. Value is the corresponding StreetIndex.
 void makeCapitalizedStreetNamesTable(){
     std::string capitalizedName;
     for (StreetIndex id=0; id<getNumStreets();id++){
@@ -153,13 +157,16 @@ void makeIntersectionsOfStreets(){
     
 }
 
-// collects OSMIDs as the key and their corresponding OSMWay* as the value
+// Creates global variable OSMWayTable used to optimize function find_way_length
+// Info: This unordered_map collects OSMIDs as the key and their corresponding OSMWay* as the value
 void makeOSMWayTable(){
     for (int i=0; i<getNumberOfWays(); i++){
         OSMWayTable.insert(std::pair<OSMID, const OSMWay*>(getWayByIndex(i)->id(), getWayByIndex(i)));
     }
 }
-// collects OSMIDs as the key and their corresponding OSMNode* as the value 
+
+// Creates global variable OSMWayTable used to optimize function find_way_length
+// Info: This unordered_map collects OSMIDs as the key and their corresponding OSMNode* as the value 
 void makeOSMNodeTable(){
     for (int i=0; i<getNumberOfNodes(); i++){
         OSMNodeTable.insert(std::pair<OSMID, const OSMNode*>(getNodeByIndex(i)->id(), getNodeByIndex(i)));
@@ -204,11 +211,11 @@ bool load_map(std::string map_path) {
 
 void close_map() {
     
-    //Close StreetsDatabaseBIN and OSMDatabaseBIN
+    // Close StreetsDatabaseBIN and OSMDatabaseBIN
     closeStreetDatabase();
     closeOSMDatabase();
     
-    //close data structures
+    // Close data structures
     capitalizedStreetNamesTable.clear();
     segmentsOfStreets.clear();
     intersectionsOfStreets.clear();
@@ -218,7 +225,7 @@ void close_map() {
     tableOfDivisors.clear(); 
 }
 
-//Returns the distance between two coordinates in meters
+// Returns the distance between two coordinates in meters
 double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     
     // using pythagoras theorem -more explanations? 
@@ -228,11 +235,11 @@ double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     return sqrt(pow(x_diff,2)+pow(y_diff,2));
 }
 
-//Returns the length of the given street segment in meters
+// Returns the length of the given street segment in meters
 double find_street_segment_length(int street_segment_id){
-    // pull info from API library
+    // Pull info from API library
     InfoStreetSegment street = getInfoStreetSegment(street_segment_id);
-    // initialize total length to 0
+    // Initialize total length to 0
     double length = 0;
 
     // If street has no curves, e.g. street is completely straight
@@ -244,25 +251,26 @@ double find_street_segment_length(int street_segment_id){
     // If street has curves
     else {
         for (int i=0; i<=street.curvePointCount; i++){
-            // note: if street has 1 corner, add two segments, if 2 corners, add three segments, etc -p
-            // assume all curve points are corners? -p
             std::pair<LatLon,LatLon> curved_segment;
-            if (i==0){ // calculate distance from beginning of street to first curve
+            // Calculate distance from beginning of street segment to first curve point     
+            if (i==0){ 
                 curved_segment.first = getIntersectionPosition(street.from); 
                 curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);
             }
-            else if (i==street.curvePointCount){ // calculate distance from last curve to end of street
+            // Calculate distance from last curve point to end of street segment
+            else if (i==street.curvePointCount){
                 curved_segment.first = getStreetSegmentCurvePoint(i-1, street_segment_id);
                 curved_segment.second = getIntersectionPosition(street.to);
-            } else { // calculate distance between each curve (or realistically, each corner)
+            // Calculate distance between each curve point   
+            } else { 
                 curved_segment.first = getStreetSegmentCurvePoint(i-1, street_segment_id);
                 curved_segment.second = getStreetSegmentCurvePoint(i, street_segment_id);       
             }
+            // Add the distance to total length
             length += find_distance_between_two_points(curved_segment);
         }
     }
     return length;
-     
 }
 
 //Returns the travel time to drive a street segment in seconds 
@@ -296,7 +304,7 @@ int find_closest_intersection(LatLon my_position){
     return closest;
 }
 
-//Returns the street segments for the given intersection 
+// Returns the street segments for the given intersection 
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
     return segmentsOfIntersections[intersection_id];
 }
@@ -432,32 +440,31 @@ std::vector<int> find_intersections_of_two_streets(std::pair<int, int> street_id
 //vector.
 //You can choose what to return if the street prefix passed in is an empty (length 0) 
 //string, but your program must not crash if street_prefix is a length 0 string.
-
-// done, passes performance - priscilla
-std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){
-    //I removed Justin's code -M...will have to checkout dfc3 to see again
-    
-    //remove all white spaces
+std::vector<int> find_street_ids_from_partial_street_name(std::string street_prefix){  
+    // Remove all white spaces and turn all characters upper case
     street_prefix.erase(remove(street_prefix.begin(), street_prefix.end(), ' '), street_prefix.end());
-    std::transform(street_prefix.begin(), street_prefix.end(), street_prefix.begin(), ::toupper); // change all to capital
-    if (street_prefix==""){ // return null if blank
-        return {NULL};
-    }
-
-    std::vector<int> street_ids;
+    std::transform(street_prefix.begin(), street_prefix.end(), street_prefix.begin(), ::toupper);
+    
+    // Return empty vector if input is blank
+    if (street_prefix==""){
+        return {};
+    }    
+    // Initialize empty return vector
+    std::vector<int> street_ids = {};
     
     std::multimap<std::string, StreetIndex>::iterator it;
-    // determine first instance of street_prefix found in map
+    // Determine first instance of street_prefix found in map
     std::multimap<std::string, StreetIndex>::iterator lower = capitalizedStreetNamesTable.lower_bound(street_prefix);
-    // determine last instance by incrementing first character in ASCII - e.g. search "MAR", upper bound will be "N"
+    // Determine last instance by incrementing first character in ASCII - e.g. search "MAR", upper bound will be "N"
     std::multimap<std::string, StreetIndex>::iterator upper = capitalizedStreetNamesTable.upper_bound(std::string(1, char((int(street_prefix[0])+1))));
 
     for (it=lower; it!=upper; it++){
-    //for (it=capitalizedStreetNamesTable.begin();it!=capitalizedStreetNamesTable.end();it++){
         for (int i=0; i<((*it).first).length(); i++){
+            // If characters are found different, stop searching
             if (street_prefix[i]!=((*it).first)[i]){
                 break;
             }
+            // If all characters of street_prefix match, add the StreetIndex to the return vector
             else if ((street_prefix[i]==((*it).first)[i])&&(i == street_prefix.length()-1)){
                 street_ids.push_back((*it).second);
             }
