@@ -269,7 +269,7 @@ void close_map() {
 // Returns the distance between two coordinates in meters
 double find_distance_between_two_points(std::pair<LatLon, LatLon> points){
     
-    // using pythagoras theorem -more explanations? 
+    // Use Pythagoras theorem to calculate the distance
     double x_diff = x_distance_between_2_points(points.first, points.second);
     double y_diff = y_distance_between_2_points(points.first, points.second);
     
@@ -347,20 +347,31 @@ int find_closest_intersection(LatLon my_position){
 }
 
 // Returns the street segments for the given intersection 
+// Uses segmentsOfIntersections to access elements
 std::vector<int> find_street_segments_of_intersection(int intersection_id){
+    
+    // Checks to see if intersection id exists
+    if(intersection_id > getNumIntersections() && intersection_id < 0) return {0};
+    // Accesses the index with the corresponding intersection ID to return the vector of segments
     return segmentsOfIntersections[intersection_id];
 }
 
-//Returns the street names at the given intersection (includes duplicate street 
-//names in returned vector)
+
+// Returns the street names at the given intersection (includes duplicate street names in returned vector)
+// Uses segmentsOfIntersection global variable
 std::vector<std::string> find_street_names_of_intersection(int intersection_id){
     
     std::vector<std::string> street_names_of_intersection;
-    for (int i = 0; i < find_street_segments_of_intersection(intersection_id).size(); ++i) {
-        int streetID = getInfoStreetSegment(find_street_segments_of_intersection(intersection_id)[i]).streetID;
+    
+    // Loops through all the segments attached to the intersection
+    for (int segment = 0; segment < segmentsOfIntersections[intersection_id].size(); ++segment) {
+        
+        // Gets the streetID attached to the segment
+        int streetID = getInfoStreetSegment(segmentsOfIntersections[intersection_id][segment]).streetID;
+        
+        // Insert the name into the vector to be returned
         street_names_of_intersection.push_back(getStreetName(streetID));
     }
-    
     return street_names_of_intersection;
 }
 
