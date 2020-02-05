@@ -543,16 +543,10 @@ std::vector<int> find_street_segments_of_street(int street_id){
 
 // Returns all intersections along the a given street
 // Uses intersectionsOfStreets global variables
-std::vector<int> find_intersections_of_street(int street_id){
-    
-    // Creates local vector to be returned, intialized by global variable
-    //std::vector<int> intersections_of_street = intersectionsOfStreets[street_id];
-    
+std::vector<int> find_intersections_of_street(int street_id){    
     // Removes any duplicates in desired vector
-    //remove_dups_in_vecs(intersections_of_street);
     remove_dups_in_vecs(intersectionsOfStreets[street_id]);
     return intersectionsOfStreets[street_id];
-    //return intersections_of_street;
 }
 
 //Return all intersection ids for two intersecting streets
