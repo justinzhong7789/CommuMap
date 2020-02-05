@@ -44,8 +44,7 @@ std::unordered_map<OSMID, const OSMNode*> OSMNodeTable;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
 
-/*==================== GLOBAL FUNCTIONS IMPLEMENTATIONS ====================*/
-
+/*======================== FUNCTIONS DECLARATIONS ========================*/
 
 void makeTableOfDivisors();
 void makeCapitalizedStreetNamesTable();
@@ -65,14 +64,20 @@ void remove_dups_in_vecs(std::vector<int> &vectorA);
 
 /*==================== GLOBAL FUNCTION IMPLEMENTATION ====================*/
 
-
+// Removes duplicate values in a given vector
 void remove_dups_in_vecs(std::vector<int> &vectorA){
     
     auto end = vectorA.end();
+    
+    // Loops through the whole vector
     for(auto it=vectorA.begin();it<end;++it){
-        //if element is not already in the vector, insert it
+        
+        //Removes value (*it) if duplicate is found and returns the new end() pointer 
+        //Pointer 'end' changes as values are removed for less loops
         end = std::remove(it+1,end, *it);
     }
+    
+    // Erases any empty indexes in the vector
     vectorA.erase(end, vectorA.end());
   
 }
@@ -108,49 +113,84 @@ void makeCapitalizedStreetNamesTable(){
     }
 }
 
-//can't delete this one... it's implemented in a way where u cant -M
+// Creates the global variable, segmentsOfStreets
+// Info: First element is the street IDs and Second element is a vector of street segment IDs
 void makeSegmentsOfStreets(){    
 
     int street_ID;
+    
+    // Resizing global variable to allow for inserting through indexes
     segmentsOfStreets.resize(getNumStreets());
+    
+    // Loops through all the street segments
     for(int j =0 ; j< getNumStreetSegments() ; ++j){
+        
         street_ID = getInfoStreetSegment(j).streetID;
+        
+        // Inserts the segment ID into the index of the street ID 
         segmentsOfStreets[street_ID].push_back(j);
     }
     
 }
 
-//M --Used too often. Should keep
-void makeSegmentsOfIntersections(){  
-    std::vector<int> street_segments_of_intersection;
-    segmentsOfIntersections.resize(getNumIntersections());
-    for(int j =0 ; j< getNumIntersections() ; ++j){
-        
-        street_segments_of_intersection.clear();
-        int num_intersections = getIntersectionStreetSegmentCount(j);
-        
-        //going through the segment index attached to the intersection 
-        for(int i=0; i < num_intersections; ++i){
-            street_segments_of_intersection.push_back(getIntersectionStreetSegment(j, i));
-        }
-        segmentsOfIntersections[j] = street_segments_of_intersection;
-    }
-}
-
-
+// Creates the global variable, segmentsOfIntersections. This function uses segmentsOfStreets in its implementation and does not check for duplicates
+// Info: First element is the intersection IDs and Second element is a vector of street IDs
 void makeIntersectionsOfStreets(){
 
     std::vector<int> intersections_of_streets;
+    
+    // Resizing global variable to allow for inserting through indexes
     intersectionsOfStreets.resize(getNumStreets());
-    for(int j=0; j<getNumStreets() ;++j){
+    
+    // Loop through all the streets
+    for(int street = 0; street <getNumStreets() ;++ street){
+        
+        // Clear local vector to ensure no inserting errors
         intersections_of_streets.clear();
+        
+        //Loop through all the streets attached to the intersection
         for(int i=0;i<segmentsOfStreets[j].size();i++){
-        intersections_of_streets.push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).to);
-        intersections_of_streets.push_back(getInfoStreetSegment(segmentsOfStreets[j][i]).from);
+            
+            // Find the intersections attached to the segment
+            int interTo = getInfoStreetSegment(segmentsOfStreets[j][i]).to;
+            int interFrom = getInfoStreetSegment(segmentsOfStreets[j][i]).from;
+            
+            // Inserts intersections in local vector
+            intersections_of_streets.push_back(interTo);
+            intersections_of_streets.push_back(interFrom);
         }
+        
+        // Copies local vector into vector of streets, local vector is cleared afterwards
         intersectionsOfStreets[j]= intersections_of_streets;
     }
     
+}
+
+// Creates the global variable, segmentsOfIntersections
+// Info: First element is the intersection IDs and Second element is a vector of street segment IDs
+void makeSegmentsOfIntersections(){  
+    
+    // Created a vector that will be put in into each index in the global variable
+    std::vector<int> street_segments_of_intersection;
+    // Resizing global variable to allow for inserting through indexes
+    segmentsOfIntersections.resize(getNumIntersections());
+    
+    //Loop through all the intersections
+    for(int intersection = 0 ; intersection < getNumIntersections() ; ++intersection ){
+        
+        // Clear local vector to ensure no inserting errors
+        street_segments_of_intersection.clear();
+        int num_segments = getIntersectionStreetSegmentCount(intersection);
+        
+        // Loops through all the segments attached to the intersection 
+        for(int segment = 0; segment < num_segments ; ++segment){
+            
+            //Gets the segmentID of the segment attached to that intersection by index
+            street_segments_of_intersection.push_back(getIntersectionStreetSegment(intersection, segment));
+        }
+        // Inserts vector of segments to the intersection index into the global variable
+        segmentsOfIntersections[intersection] = street_segments_of_intersection;
+    }
 }
 
 // collects OSMIDs as the key and their corresponding OSMWay* as the value
