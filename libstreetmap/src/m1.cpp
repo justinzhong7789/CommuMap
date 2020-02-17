@@ -368,7 +368,7 @@ double find_street_segment_travel_time(int street_segment_id){
 int find_closest_intersection(LatLon my_position){
     // distance calculated from each intersection in the city -p
     double min_distance = 999999; // initialize "large" minimum distance as reference
-    int closest;
+    int closest = 0;
 
     for (int i=0; i<getNumIntersections();i++){
         LatLon current = getIntersectionPosition(i);
