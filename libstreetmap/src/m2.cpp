@@ -21,6 +21,7 @@
 
 #include <string>
 #include <vector>
+
 double max_lat;
 double min_lat;
 double max_lon;
@@ -29,6 +30,8 @@ double min_lon;
 void map_bounds();
 void draw_streets();
 void draw_main_canvas(ezgl::renderer *g);
+float y_from_lat(float lat);
+float x_from_lon(float lon);
 
 struct intersectionData {
     LatLon position;
@@ -58,7 +61,7 @@ void draw_map(){
    
     map_bounds();
     draw_streets();
-    ezgl::rectangle initial_world({min_lon,min_lat}, {max_lon,max_lat});
+    ezgl::rectangle initial_world({x_from_lon(min_lon),y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world);
     
@@ -68,10 +71,15 @@ void draw_map(){
 
 void draw_main_canvas(ezgl::renderer *g){
     
-    g->draw_rectangle({min_lon, min_lat}, {max_lon,max_lat});
+    float xLon = 0;
+    float yLon = 0;
+    g->draw_rectangle({x_from_lon(min_lon), y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
     for (size_t i=0; i<intersections.size(); i++){
-        float x = intersections[i].position.lon();
-        float y = intersections[i].position.lat();
+        xLon = intersections[i].position.lon();
+        yLon = intersections[i].position.lat();
+        
+        float x = x_from_lon(intersections[i].position.lon());
+        float y = y_from_lat(intersections[i].position.lat());
         
         float width = 0.001;
         float height = width;
@@ -81,8 +89,8 @@ void draw_main_canvas(ezgl::renderer *g){
     for (size_t i=0; i<streetSegments.size(); i++){
 //    for (size_t i=0; i<1; i++){
         for (size_t j=1; j<streetSegments[i].node.size(); j++){
-            std::pair <float, float> start = {streetSegments[i].node[j-1].lon(), streetSegments[i].node[j-1].lat()};
-            std::pair <float, float> end = {streetSegments[i].node[j].lon(), streetSegments[i].node[j].lat()};
+            std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
+            std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
             g->set_color(ezgl::BLACK);
             g->set_line_dash(ezgl::line_dash::none);
             g->draw_line({start.first, start.second}, {end.first, end.second});
@@ -119,8 +127,7 @@ void draw_streets(){
         // If no curve points, find LatLon of end of intersection
         if (info.curvePointCount == 0){
             streetSegments[id].node[1] = getIntersectionPosition(info.to);
-            // Connect the begin and end to form a street
-            
+            // Connect the begin and end to form a street 
         }
         // Find all LatLons of each curve point
         else {
@@ -133,4 +140,16 @@ void draw_streets(){
             }
         }
     }
+}
+
+float x_from_lon(float lon){
+    double div1 = max_lat;
+    double div2 = min_lat;
+    double latAvg = (div1 + div2)/2;
+    double newLon = lon*cos(latAvg * 3.1415926535 /180);
+    return newLon;
+}
+
+float y_from_lat(float lat){
+    return lat;
 }
