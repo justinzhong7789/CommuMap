@@ -4,11 +4,23 @@
  * and open the template in the editor.
  */
 
+<<<<<<< HEAD
 #include "m1.h"
+=======
+/* 
+ * File:   m2.cpp
+ * Author: cuevasm2
+ * 
+ * Created on February 18, 2020, 7:20 PM
+ */
+
+
+>>>>>>> created m2.cpp
 #include "m2.h"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
 
+<<<<<<< HEAD
 void draw_main_canvas(ezgl::renderer *g);
 /*
 struct intersectionData {
@@ -40,4 +52,16 @@ void draw_map(){
 
 void draw_main_canvas(ezgl::renderer *g){
     g->draw_rectangle({0,0}, {1000,1000});
+=======
+void draw_map () {
+  ezgl::application::settings settings; 
+  settings.main_ui_resource = "libstreetmap/resources/main.ui"; 
+  settings.window_identifier = "MainWindow"; 
+  settings.canvas_identifier = "MainCanvas";
+
+  ezgl::application application(settings); 
+
+
+  application.run(nullptr, nullptr,nullptr, nullptr);
+>>>>>>> created m2.cpp
 }
