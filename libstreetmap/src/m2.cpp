@@ -21,8 +21,13 @@
 
 #include <string>
 #include <vector>
+//mapBounds values
+double max_lat;
+double min_lat;
+double max_lon;
+double min_lon;
 
-
+void map_bounds();
 void draw_main_canvas(ezgl::renderer *g);
 
 struct intersectionData {
@@ -42,15 +47,17 @@ void draw_map(){
     
     // Create EZGL application
     ezgl::application application(settings);
-    ezgl::rectangle initial_world({0,0}, {1000,1000});
+    ezgl::rectangle initial_world({min_lon,min_lat}, {max_lon,max_lat});
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world);
     
+    //Not sure what this is for -M
+    //I made a copy of finding map bounds in a different function below -M
     
-    intersections.resize(getNumIntersections());
-    for (int id=0; id<getNumIntersections(); id++){
-        intersections[id].position = getIntersectionPosition(id);
-        intersections[id].name = getIntersectionName(id);
-    }
+//    intersections.resize(getNumIntersections());
+//    for (int id=0; id<getNumIntersections(); id++){
+//        intersections[id].position = getIntersectionPosition(id);
+//        intersections[id].name = getIntersectionName(id);
+//    }
 
     application.run(nullptr, nullptr, nullptr, nullptr);
 }
@@ -58,7 +65,7 @@ void draw_map(){
 void draw_main_canvas(ezgl::renderer *g){
     g->draw_rectangle({0,0}, {1000,1000});
     
-    for (size_t i=0; i>intersections.size(); i++){
+    for (size_t i=0; i<intersections.size(); i++){
         float x = intersections[i].position.lon();
         float y = intersections[i].position.lat();
         
@@ -67,4 +74,35 @@ void draw_main_canvas(ezgl::renderer *g){
         
         g->fill_rectangle({x,y}, {x+width, y+height});
     }
+}
+
+void map_bounds(){
+    
+    max_lat = getIntersectionPosition(getNumIntersections()).lat();
+    min_lat = getIntersectionPosition(0).lat();
+    max_lon = getIntersectionPosition(getNumIntersections()).lon();;
+    min_lon = getIntersectionPosition(0).lon();
+    
+    intersections.resize(getNumIntersections());
+    
+    for (int id=0 ; id < getNumIntersections() ; id++){
+        intersections[id].position = getIntersectionPosition(id);
+        intersections[id].name = getIntersectionName(id);
+         
+        if(max_lat < intersections[id].position.lat()){
+            max_lat = intersections[id].position.lat();
+        }
+        if(max_lon < intersections[id].position.lon()){
+            max_lon = intersections[id].position.lon();
+        }
+        
+        if(min_lat > intersections[id].position.lat()){
+            min_lat = intersections[id].position.lat();
+        }
+        if(min_lon > intersections[id].position.lon()){
+            min_lon = intersections[id].position.lon();
+        }
+        
+    }
+    
 }
