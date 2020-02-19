@@ -48,33 +48,31 @@ void draw_map(){
     // Create EZGL application
     ezgl::application application(settings);
      intersections.resize(getNumIntersections());   
-    max_lat = -999999;
-    min_lat = 9999999;
-    max_lon = -9999999;
-    min_lon = 9999999;     
-     for (int id=0; id<getNumIntersections(); id++){
-        intersections[id].position = getIntersectionPosition(id);
-        intersections[id].name = getIntersectionName(id);
-        
-        max_lat = std::max(max_lat, intersections[id].position.lat());
-        min_lat = std::min(min_lat, intersections[id].position.lat());
-        max_lon = std::max(max_lon, intersections[id].position.lon());
-        min_lon = std::min(min_lon, intersections[id].position.lon());
-    }   
-    //map_bounds();
+   
+    map_bounds();
     ezgl::rectangle initial_world({min_lon,min_lat}, {max_lon,max_lat});
-//    ezgl::rectangle initial_world({0,0},{1000,1000});
+
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world);
     
-    //Not sure what this is for -M
-    //I made a copy of finding map bounds in a different function below -M
-    
-
 
     application.run(nullptr, nullptr, nullptr, nullptr);
 }
 
 void draw_main_canvas(ezgl::renderer *g){
+    
+    g->draw_rectangle({min_lon, min_lat}, {max_lon,max_lat});
+    for (size_t i=0; i<intersections.size(); i++){
+        float x = intersections[i].position.lon();
+        float y = intersections[i].position.lat();
+        
+        float width = 0.001;
+        float height = width;
+        
+        g->fill_rectangle({x,y}, {x+width, y+height});
+    }
+}
+
+void map_bounds(){
     
     intersections.resize(getNumIntersections());
     max_lat = -999999;
@@ -90,45 +88,5 @@ void draw_main_canvas(ezgl::renderer *g){
         max_lon = std::max(max_lon, intersections[id].position.lon());
         min_lon = std::min(min_lon, intersections[id].position.lon());
     }
-    g->draw_rectangle({min_lon, min_lat}, {max_lon,max_lat});
-    for (size_t i=0; i<intersections.size(); i++){
-        float x = intersections[i].position.lon();
-        float y = intersections[i].position.lat();
-        
-        float width = 0.001;
-        float height = width;
-        
-        g->fill_rectangle({x,y}, {x+width, y+height});
-    }
+    
 }
-
-/* void map_bounds(){
-    
-    max_lat = getIntersectionPosition(getNumIntersections()).lat();
-    min_lat = getIntersectionPosition(0).lat();
-    max_lon = getIntersectionPosition(getNumIntersections()).lon();;
-    min_lon = getIntersectionPosition(0).lon();
-    
-    intersections.resize(getNumIntersections());
-    
-    for (int id=0 ; id < getNumIntersections() ; id++){
-        intersections[id].position = getIntersectionPosition(id);
-        intersections[id].name = getIntersectionName(id);
-         
-        if(max_lat < intersections[id].position.lat()){
-            max_lat = intersections[id].position.lat();
-        }
-        if(max_lon < intersections[id].position.lon()){
-            max_lon = intersections[id].position.lon();
-        }
-        
-        if(min_lat > intersections[id].position.lat()){
-            min_lat = intersections[id].position.lat();
-        }
-        if(min_lon > intersections[id].position.lon()){
-            min_lon = intersections[id].position.lon();
-        }
-        
-    }
-    
-}*/
