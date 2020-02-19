@@ -96,19 +96,27 @@ void draw_main_canvas(ezgl::renderer *g){
             g->draw_line({start.first, start.second}, {end.first, end.second});
         }
     }
-point2d *min = new point2d(min_lon, min_lat);
-point2d *max = new point2d(max_lon, max_lat);
-rectangle *full_map = new rectangle(*min, *max);
-rectangle current_map = g->get_visible_world();
+    point2d *min = new point2d(min_lon, min_lat);
+    point2d *max = new point2d(max_lon, max_lat);
+    rectangle *full_map = new rectangle(*min, *max);
+    rectangle current_map = g->get_visible_world();
 
-double zoom_level = ((full_map->m_second.x)-(full_map->m_first.x))/((current_map.m_second.x)-(current_map.m_first.x));
-if( zoom_level > 0.9){
-    cout << "what " << endl;
-    g->set_color(RED);
-    g->draw_line({0,0}, {100, 200});
-}
-else { cout << "no"<< endl;
-}
+//         g->set_color(0,30,140,255);
+//        g->set_line_width(20);
+//        g->draw_line({x_from_lon(min_lon),y_from_lat(min_lat)}, {x_from_lon(max_lon), y_from_lat(max_lat)});
+    
+    double zoom_level = ((full_map->m_second.x)-(full_map->m_first.x))/((current_map.m_second.x)-(current_map.m_first.x));
+    if( zoom_level > 0.9){
+        cout << "what " << endl;
+        
+        g->set_color(0,0,140,255);
+        g->set_line_width(10);
+        g->draw_line({x_from_lon(min_lon),y_from_lat(min_lat) }, {x_from_lon(max_lon) , y_from_lat(max_lat) });
+        
+    }
+    else { cout << "no"<< endl;
+    }
+    
 }
 
 void map_bounds(){
