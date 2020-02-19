@@ -70,13 +70,9 @@ void draw_map(){
 }
 
 void draw_main_canvas(ezgl::renderer *g){
-    
-    float xLon = 0;
-    float yLon = 0;
+
     g->draw_rectangle({x_from_lon(min_lon), y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
     for (size_t i=0; i<intersections.size(); i++){
-        xLon = intersections[i].position.lon();
-        yLon = intersections[i].position.lat();
         
         float x = x_from_lon(intersections[i].position.lon());
         float y = y_from_lat(intersections[i].position.lat());
