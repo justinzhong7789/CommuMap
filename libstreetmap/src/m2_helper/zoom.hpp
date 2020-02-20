@@ -26,14 +26,7 @@ struct intersectionData {
     std::string name;
 };
 
-struct streetSegmentsData {
-    // node takes the start, end, and curve points (if applicable) of the street segment
-    std::vector<LatLon> node;
-    std::string name;
-};
-
 std::vector <intersectionData> intersections;
-std::vector <streetSegmentsData> streetSegments;
 
 void zoom(ezgl::renderer *g);
 
