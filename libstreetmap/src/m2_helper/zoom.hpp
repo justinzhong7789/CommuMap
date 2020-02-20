@@ -2,7 +2,8 @@
 
 #include "m1.h"
 #include "m2.h"
-#include "global_structures.hpp"
+#include "global_variables.hpp"
+#include "m2_global_variables.hpp"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
 #include "StreetsDatabaseAPI.h"
@@ -31,7 +32,7 @@ std::vector <intersectionData> intersections;
 
 void zoom(ezgl::renderer *g);
 void drawMajorStreets(ezgl::renderer *g);
-void draw_streets(ezgl::renderer *g);
+void drawAllStreets(ezgl::renderer *g);
 
 void zoom(ezgl::renderer *g){
     
@@ -42,14 +43,13 @@ void zoom(ezgl::renderer *g){
 
     
     double zoom_level = ((full_map->m_second.x)-(full_map->m_first.x))/((current_map.m_second.x)-(current_map.m_first.x));
-    if( zoom_level > 0.9 && zoom_level < 2){
-        cout << "PRINTING MAJOR STREETS" << endl;
-       // drawMajorStreets(g);
-         draw_streets(g);
+    if( zoom_level < 3.5 ){
+        cout << "Streets MAJOR" << endl;
+        drawMajorStreets(g);
     }
-    else if (zoom_level > 2.3){ 
-        cout << "no"<< endl;
-//        draw_streets(g);
+    else if (zoom_level > 3.5){ 
+        cout << "MINOR Steets" << endl;
+        drawAllStreets(g);
     }
     
 }
@@ -70,31 +70,8 @@ void drawMajorStreets(ezgl::renderer *g){
     }
 }
 
-void draw_streets(ezgl::renderer *g){
-//    streetSegments.resize(getNumStreetSegments());
-//    for (StreetSegmentIndex id=0; id<streetSegments.size(); id++){
-//        InfoStreetSegment info = getInfoStreetSegment(id);
-//        streetSegments[id].node.resize(info.curvePointCount + 2);
-//        // Find LatLon of beginning of intersection
-//        streetSegments[id].node[0] = getIntersectionPosition(info.from);
-//        // If no curve points, find LatLon of end of intersection
-//        if (info.curvePointCount == 0){
-//            streetSegments[id].node[1] = getIntersectionPosition(info.to);
-//            // Connect the begin and end to form a street 
-//        }
-//        // Find all LatLons of each curve point
-//        else {
-//            for (int i=1; i<=info.curvePointCount+1; i++){
-//                if (i>info.curvePointCount){
-//                    streetSegments[id].node[i] = getIntersectionPosition(info.to);
-//                } else {
-//                streetSegments[id].node[i] = getStreetSegmentCurvePoint(i-1, id);
-//                }
-//            }
-//        }
-//    }
-    
-        for (size_t i=0; i<streetSegments.size(); i++){
+void drawAllStreets(renderer *g){
+       for (size_t i=0; i<streetSegments.size(); i++){
         for (size_t j=1; j<streetSegments[i].node.size(); j++){
             std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
             std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};

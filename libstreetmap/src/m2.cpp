@@ -6,16 +6,11 @@
 
 #include "m1.h"
 #include <string>
-/* 
- * File:   m2.cpp
- * Author: cuevasm2
- * 
- * Created on February 18, 2020, 7:20 PM
- */
 #include <iostream>
 #include "m2.h"
 #include "m2_helper/zoom.hpp"
-#include "m2_helper/global_structures.hpp"
+#include "m2_helper/m2_global_variables.hpp"
+#include "m2_helper/global_variables.hpp"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
 #include "m1.h"
@@ -37,28 +32,11 @@
 using namespace std;
 using namespace ezgl; 
 
-//void draw_streets();
 void draw_main_canvas(ezgl::renderer *g);
-float y_from_lat(float lat);
-float x_from_lon(float lon);
 
 void makeFeaturesVector();
 void drawFeatures(ezgl::renderer *g);
 
-struct intersectionData {
-    LatLon position;
-    std::string name;
-};
-
-struct streetSegmentsData {
-    // node takes the start, end, and curve points (if applicable) of the street segment
-    std::vector<LatLon> node;
-    std::string name;
-};
-
-
-std::vector <intersectionData> intersections;
-std::vector <streetSegmentsData> streetSegments;
 
 void draw_map(){
     ezgl::application::settings settings;
@@ -73,7 +51,7 @@ void draw_map(){
     intersections.resize(getNumIntersections());   
    
     map_bounds();
-//    draw_streets();
+    makeStreetsVector();
     makeSegments_OfStreets();    
     makeStreetSizeTable();
 
@@ -87,10 +65,6 @@ void draw_map(){
 
 void draw_main_canvas(ezgl::renderer *g){
     
-    double xLon = 0;
-    double yLon = 0;
-    
-
     g->draw_rectangle({x_from_lon(min_lon), y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
     for (size_t i=0; i<intersections.size(); i++){
         
@@ -102,17 +76,18 @@ void draw_main_canvas(ezgl::renderer *g){
         
         g->fill_rectangle({x,y}, {x+width, y+height});
     }
-    for (size_t i=0; i<streetSegments.size(); i++){
-        for (size_t j=1; j<streetSegments[i].node.size(); j++){
-            std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
-            std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
-            g->set_color(ezgl::BLACK);
-            g->set_line_dash(ezgl::line_dash::none);
-            g->draw_line({start.first, start.second}, {end.first, end.second});
-        }
-    }
+
+//    
+//    for (size_t i=0; i<streetSegments.size(); i++){
+//        for (size_t j=1; j<streetSegments[i].node.size(); j++){
+//            std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
+//            std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
+//            g->set_color(ezgl::BLACK);
+//            g->set_line_dash(ezgl::line_dash::none);
+//            g->draw_line({start.first, start.second}, {end.first, end.second});
+//        }
+//    }
     drawFeatures(g);
-}
 
     //draw the diagonal line across the 
     zoom(g);
@@ -144,17 +119,7 @@ void draw_streets(){
     }
 }
 */
-float x_from_lon(float lon){
-    double div1 = max_lat;
-    double div2 = min_lat;
-    double latAvg = (div1 + div2)/2;
-    double newLon = lon*cos(latAvg * 3.1415926535 /180);
-    return newLon;
-}
 
-float y_from_lat(float lat){
-    return lat;
-}
 void drawFeatures(ezgl::renderer *g){
     int numFeatures=getNumFeatures();
     //584158 features in toronto map

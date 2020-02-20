@@ -14,6 +14,7 @@ using namespace ezgl;
 
 void makeStreetSizeTable();
 void makeSegments_OfStreets();
+void makeStreetsVector();
 
 std::vector<LatLon> add_nodes(StreetSegmentIndex id);
 
@@ -130,4 +131,29 @@ std::vector<LatLon> add_nodes(StreetSegmentIndex id){
         }
     }
     return node_list;
+}
+
+void makeStreetsVector(){
+        streetSegments.resize(getNumStreetSegments());
+    for (StreetSegmentIndex id=0; id<streetSegments.size(); id++){
+        InfoStreetSegment info = getInfoStreetSegment(id);
+        streetSegments[id].node.resize(info.curvePointCount + 2);
+        // Find LatLon of beginning of intersection
+        streetSegments[id].node[0] = getIntersectionPosition(info.from);
+        // If no curve points, find LatLon of end of intersection
+        if (info.curvePointCount == 0){
+            streetSegments[id].node[1] = getIntersectionPosition(info.to);
+            // Connect the begin and end to form a street 
+        }
+        // Find all LatLons of each curve point
+        else {
+            for (int i=1; i<=info.curvePointCount+1; i++){
+                if (i>info.curvePointCount){
+                    streetSegments[id].node[i] = getIntersectionPosition(info.to);
+                } else {
+                streetSegments[id].node[i] = getStreetSegmentCurvePoint(i-1, id);
+                }
+            }
+        }
+    }
 }
