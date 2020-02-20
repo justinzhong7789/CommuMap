@@ -27,7 +27,7 @@
 using namespace std;
 using namespace ezgl; 
 
-void draw_streets();
+//void draw_streets();
 void draw_main_canvas(ezgl::renderer *g);
 
 void draw_map(){
@@ -79,20 +79,7 @@ void draw_main_canvas(ezgl::renderer *g){
         }
     }
      */ 
-    for (int i=0; i<bigStreetsTable.size(); i++){
-        // Iterate through every street segment in the street
-       for (int j=0; j<bigStreetsTable[i].segments.size(); j++){
-            // Iterate through every node in the street segment
-            for (int k=1; k<bigStreetsTable[i].segments[j].node.size(); k++){
-                std::pair <float, float> start = {x_from_lon(bigStreetsTable[i].segments[j].node[k-1].lon()), y_from_lat((bigStreetsTable[i].segments)[j].node[k-1].lat())};
-                std::pair <float, float> end = {x_from_lon(bigStreetsTable[i].segments[j].node[k].lon()), y_from_lat(bigStreetsTable[i].segments[j].node[k].lat())};
-                g->set_color(ezgl::BLACK);
-                g->set_line_dash(ezgl::line_dash::none);
-                g->draw_line({start.first, start.second}, {end.first, end.second});
-            }
-        }
-    }
-    
+
     //draw the diagonal line across the 
     zoom(g);
 }

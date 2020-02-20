@@ -15,7 +15,6 @@ using namespace ezgl;
 void makeStreetSizeTable();
 void makeSegments_OfStreets();
 
-
 std::vector<LatLon> add_nodes(StreetSegmentIndex id);
 
 
