@@ -5,22 +5,21 @@
  */
 
 #include "m1.h"
-
-/* 
- * File:   m2.cpp
- * Author: cuevasm2
- * 
- * Created on February 18, 2020, 7:20 PM
- */
-
 #include "m2.h"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
+#include "m1.h"
 #include "StreetsDatabaseAPI.h"
 #include "OSMDatabaseAPI.h"
-
-#include <string>
+#include <map>
+#include <list>
+#include <unordered_map>
+#include <math.h>
+#include <cctype>
 #include <vector>
+#include <algorithm>
+#include <string>
+#include <set>
 #include <iostream>
 
 using namespace std;
@@ -37,6 +36,11 @@ void draw_main_canvas(ezgl::renderer *g);
 float y_from_lat(float lat);
 float x_from_lon(float lon);
 
+void makeStreetSizeTable();
+void makeSegments_OfStreets();
+
+std::vector<LatLon> add_nodes(StreetSegmentIndex id);
+
 struct intersectionData {
     LatLon position;
     std::string name;
@@ -45,11 +49,120 @@ struct intersectionData {
 struct streetSegmentsData {
     // node takes the start, end, and curve points (if applicable) of the street segment
     std::vector<LatLon> node;
+};
+
+struct streetData {
+    std::vector<streetSegmentsData> segments;
     std::string name;
+    double length;
+    //std::vector<std::vector<LatLon>> node;
 };
 
 std::vector <intersectionData> intersections;
 std::vector <streetSegmentsData> streetSegments;
+
+// Define big streets as streets with length 1+ km
+std::vector <streetData> bigStreetsTable;
+std::vector<std::vector<int>> segments_OfStreets;
+
+ void makeSegments_OfStreets(){    
+
+    int street_ID;
+    
+    // Resizing global variable to allow for inserting through indexes
+    segments_OfStreets.resize(getNumStreets());
+    
+    // Loops through all the street segments
+    for(int j =0 ; j< getNumStreetSegments() ; ++j){
+        
+        street_ID = getInfoStreetSegment(j).streetID;
+        
+        // Inserts the segment ID into the index of the street ID 
+        segments_OfStreets[street_ID].push_back(j);
+    }
+    
+}
+// add all street names length together
+void makeStreetSizeTable(){
+    streetData street_data;
+    streetSegmentsData street_segment_data;
+
+    for (StreetIndex i=0; i<getNumStreets(); i++){
+        double street_length = 0;
+        street_data.segments.clear();
+        for (int j=0; j<segments_OfStreets[i].size(); j++){
+            StreetSegmentIndex id = segments_OfStreets[i][j];
+            street_length += find_street_segment_length(id);
+            street_segment_data.node = add_nodes(id);
+            street_data.segments.push_back(street_segment_data);
+        }
+        street_data.name = getStreetName(i);
+        street_data.length = street_length;
+        
+        if (street_length > 10000){           
+            bigStreetsTable.push_back(street_data);
+        }
+    }
+}
+/*
+void makeStreetsSizeTable(){
+    streetData street_data;
+    InfoStreetSegment info;
+    for (StreetIndex i=0; i<getNumStreets(); i++){
+        double street_length = 0;
+        (street_data.node).clear();
+        for (StreetSegmentIndex j=0; j<segmentsOfStreets[i].size(); j++){
+            street_length += find_street_segment_length(j);
+            info = getInfoStreetSegment(j);
+            (street_data.node).push_back(add_nodes(j));
+        }
+        street_data.name = getStreetName(i);
+        street_data.length = street_length;
+        
+        if (street_length > 1000){
+            
+            bigStreetsTable.push_back(street_data);
+        }
+    }
+}*/
+/*    
+void makeBigStreetsTable(){
+    streetSegmentsData temp;
+    InfoStreetSegment info;
+    for (StreetSegmentIndex id = 0; id<getNumStreetSegments(); id++){
+         
+        // If street length is greater than 1000m, add to the table
+        //if (tableOfDivisors[id].first > 1000){
+        // if (find_street_segment_length(id) > 500){
+            info = getInfoStreetSegment(id);
+            
+            temp.node = add_nodes(id);
+            temp.streetName = getStreetName(info.streetID);
+            bigStreetsTable.push_back(temp);
+        }
+    }
+} */
+std::vector<LatLon> add_nodes(StreetSegmentIndex id){
+    InfoStreetSegment info = getInfoStreetSegment(id);
+    std::vector<LatLon> node_list;
+    node_list.resize(info.curvePointCount+2);
+    // Find LatLon of beginning of intersection
+    node_list[0] = getIntersectionPosition(info.from);
+    // If no curve points, find end of intersection
+    if (info.curvePointCount == 0){
+            node_list[1] = getIntersectionPosition(info.to);
+    }
+    else {
+        for (int i=1; i<=info.curvePointCount+1; i++){
+            if (i>info.curvePointCount){
+                node_list[i] = getIntersectionPosition(info.to);
+            } else {
+                node_list[i] = getStreetSegmentCurvePoint(i-1, id);
+            }
+        }
+    }
+    return node_list;
+}
 
 void draw_map(){
     ezgl::application::settings settings;
@@ -61,10 +174,13 @@ void draw_map(){
     
     // Create EZGL application
     ezgl::application application(settings);
-     intersections.resize(getNumIntersections());   
+    intersections.resize(getNumIntersections());   
    
     map_bounds();
-    draw_streets();
+//    draw_streets();
+    makeSegments_OfStreets();    
+    makeStreetSizeTable();
+
     ezgl::rectangle initial_world({x_from_lon(min_lon),y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world);
@@ -86,8 +202,8 @@ void draw_main_canvas(ezgl::renderer *g){
         
         g->fill_rectangle({x,y}, {x+width, y+height});
     }
+    /*
     for (size_t i=0; i<streetSegments.size(); i++){
-//    for (size_t i=0; i<1; i++){
         for (size_t j=1; j<streetSegments[i].node.size(); j++){
             std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
             std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
@@ -96,6 +212,22 @@ void draw_main_canvas(ezgl::renderer *g){
             g->draw_line({start.first, start.second}, {end.first, end.second});
         }
     }
+     */ 
+    for (int i=0; i<bigStreetsTable.size(); i++){
+        // Iterate through every street segment in the street
+       for (int j=0; j<bigStreetsTable[i].segments.size(); j++){
+            // Iterate through every node in the street segment
+            for (int k=1; k<bigStreetsTable[i].segments[j].node.size(); k++){
+                std::pair <float, float> start = {x_from_lon(bigStreetsTable[i].segments[j].node[k-1].lon()), y_from_lat((bigStreetsTable[i].segments)[j].node[k-1].lat())};
+                std::pair <float, float> end = {x_from_lon(bigStreetsTable[i].segments[j].node[k].lon()), y_from_lat(bigStreetsTable[i].segments[j].node[k].lat())};
+                g->set_color(ezgl::BLACK);
+                g->set_line_dash(ezgl::line_dash::none);
+                g->draw_line({start.first, start.second}, {end.first, end.second});
+            }
+        }
+    }
+    
+    
     point2d *min = new point2d(min_lon, min_lat);
     point2d *max = new point2d(max_lon, max_lat);
     rectangle *full_map = new rectangle(*min, *max);
@@ -112,9 +244,6 @@ void draw_main_canvas(ezgl::renderer *g){
         g->set_color(0,0,140,255);
         g->set_line_width(10);
         g->draw_line({x_from_lon(min_lon),y_from_lat(min_lat) }, {x_from_lon(max_lon) , y_from_lat(max_lat) });
-        
-    }
-    else { cout << "no"<< endl;
     }
     
 }
@@ -137,7 +266,7 @@ void map_bounds(){
     }
     
 }
-
+/*
 void draw_streets(){
     streetSegments.resize(getNumStreetSegments());
     for (StreetSegmentIndex id=0; id<streetSegments.size(); id++){
@@ -161,7 +290,7 @@ void draw_streets(){
             }
         }
     }
-}
+}*/
 
 float x_from_lon(float lon){
     double div1 = max_lat;
