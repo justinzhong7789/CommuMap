@@ -138,6 +138,7 @@ void drawFeatures(ezgl::renderer *g){
         else if(getFeatureType(i) == Golfcourse){g->set_color(ezgl::TURQUOISE);}
         else if(getFeatureType(i) == Stream){g->set_color(ezgl::BLUE);}
         //this condition checks for closed feature
+        // closed features are polygons
         if(getFeaturePoint(0,i).lat() == getFeaturePoint(getFeaturePointCount(i)-1,i).lat() &&
            getFeaturePoint(0,i).lon() == getFeaturePoint(getFeaturePointCount(i)-1,i).lon() )  {
             
@@ -155,6 +156,7 @@ void drawFeatures(ezgl::renderer *g){
             }
         }
         else{//open feature
+            //open features are lines
             for(int k=0;k+1<getFeaturePointCount(i);k++){
                 double start_x = x_from_lon(getFeaturePoint(k,i).lon());
                 double start_y = y_from_lat(getFeaturePoint(k,i).lat());
