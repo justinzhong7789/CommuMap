@@ -8,6 +8,9 @@
 #include <string>
 #include <iostream>
 #include "m2.h"
+
+//HEADER FILES
+#include "m2_helper/mouse_motion.hpp"
 #include "m2_helper/zoom.hpp"
 #include "m2_helper/m2_global_variables.hpp"
 #include "m2_helper/global_variables.hpp"
@@ -58,9 +61,8 @@ void draw_map(){
     ezgl::rectangle initial_world({x_from_lon(min_lon),y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world);
-    
 
-    application.run(nullptr, nullptr, nullptr, nullptr);
+    application.run(nullptr, act_on_mouse_click, nullptr, nullptr);
 }
 
 void draw_main_canvas(ezgl::renderer *g){
