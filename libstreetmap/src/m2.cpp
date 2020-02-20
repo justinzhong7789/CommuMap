@@ -14,21 +14,30 @@
  */
 #include <iostream>
 #include "m2.h"
+#include "m2_helper/zoom.hpp"
+#include "m2_helper/global_structures.hpp"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
+#include "m1.h"
 #include "StreetsDatabaseAPI.h"
 #include "OSMDatabaseAPI.h"
 #include "point.hpp"
 #include <string>
+#include <map>
+#include <list>
+#include <unordered_map>
+#include <math.h>
+#include <cctype>
 #include <vector>
+#include <algorithm>
+#include <string>
+#include <set>
+#include <iostream>
 
-double max_lat;
-double min_lat;
-double max_lon;
-double min_lon;
+using namespace std;
+using namespace ezgl; 
 
-void map_bounds();
-void draw_streets();
+//void draw_streets();
 void draw_main_canvas(ezgl::renderer *g);
 float y_from_lat(float lat);
 float x_from_lon(float lon);
@@ -46,18 +55,10 @@ struct streetSegmentsData {
     std::vector<LatLon> node;
     std::string name;
 };
-/*
-struct featureData{
-    std::string featureName;
-    FeatureType featureType;
-    std::vector<LatLon> pointsPosition;
-    int pointsNum;
-};
-*/
+
 
 std::vector <intersectionData> intersections;
 std::vector <streetSegmentsData> streetSegments;
-//std::vector <featureData> features;
 
 void draw_map(){
     ezgl::application::settings settings;
@@ -69,10 +70,13 @@ void draw_map(){
     
     // Create EZGL application
     ezgl::application application(settings);
-     intersections.resize(getNumIntersections());   
+    intersections.resize(getNumIntersections());   
    
     map_bounds();
-    draw_streets();
+//    draw_streets();
+    makeSegments_OfStreets();    
+    makeStreetSizeTable();
+
     ezgl::rectangle initial_world({x_from_lon(min_lon),y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world);
@@ -86,10 +90,9 @@ void draw_main_canvas(ezgl::renderer *g){
     double xLon = 0;
     double yLon = 0;
     
+
     g->draw_rectangle({x_from_lon(min_lon), y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
     for (size_t i=0; i<intersections.size(); i++){
-        xLon = intersections[i].position.lon();
-        yLon = intersections[i].position.lat();
         
         float x = x_from_lon(intersections[i].position.lon());
         float y = y_from_lat(intersections[i].position.lat());
@@ -100,7 +103,6 @@ void draw_main_canvas(ezgl::renderer *g){
         g->fill_rectangle({x,y}, {x+width, y+height});
     }
     for (size_t i=0; i<streetSegments.size(); i++){
-//    for (size_t i=0; i<1; i++){
         for (size_t j=1; j<streetSegments[i].node.size(); j++){
             std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
             std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
@@ -112,25 +114,11 @@ void draw_main_canvas(ezgl::renderer *g){
     drawFeatures(g);
 }
 
-void map_bounds(){
-    
-    intersections.resize(getNumIntersections());
-    max_lat = -999999;
-    min_lat = 9999999;
-    max_lon = -9999999;
-    min_lon = 9999999;
-    for (int id=0; id<getNumIntersections(); id++){
-        intersections[id].position = getIntersectionPosition(id);
-        intersections[id].name = getIntersectionName(id);
-        
-        max_lat = std::max(max_lat, intersections[id].position.lat());
-        min_lat = std::min(min_lat, intersections[id].position.lat());
-        max_lon = std::max(max_lon, intersections[id].position.lon());
-        min_lon = std::min(min_lon, intersections[id].position.lon());
-    }
-    
+    //draw the diagonal line across the 
+    zoom(g);
 }
 
+/*
 void draw_streets(){
     streetSegments.resize(getNumStreetSegments());
     for (StreetSegmentIndex id=0; id<streetSegments.size(); id++){
@@ -155,7 +143,7 @@ void draw_streets(){
         }
     }
 }
-
+*/
 float x_from_lon(float lon){
     double div1 = max_lat;
     double div2 = min_lat;
@@ -201,7 +189,6 @@ void drawFeatures(ezgl::renderer *g){
                 g->fill_poly(points);
             }
         }
-        /* 
         else{//open feature
             for(int k=0;k+1<getFeaturePointCount(i);k++){
                 double start_x = x_from_lon(getFeaturePoint(k,i).lon());
@@ -213,50 +200,6 @@ void drawFeatures(ezgl::renderer *g){
                 g->set_line_dash(ezgl::line_dash::none);
                 g->draw_line(start_point,end_point);
             }
-        }*/
+        }
     }
 }
-    
-    /*
-    for(FeatureIndex i=0; i<numFeatures;i++){
-        std::vector<ezgl::point2d> points;
-        
-        if(getFeatureType(i) == Unknown){g->set_color(ezgl::BLACK);}
-        else if(getFeatureType(i) == Park){g->set_color(ezgl::SADDLE_BROWN);}
-        else if(getFeatureType(i)== Beach){g->set_color(ezgl::BISQUE);}
-        else if(getFeatureType(i)== Lake){g->set_color(ezgl::BLUE);}
-        else if(getFeatureType(i)== River){g->set_color(ezgl::BLUE);}
-        else if(getFeatureType(i) == Island){g->set_color(ezgl::KHAKI);}
-        else if(getFeatureType(i) == Building){g->set_color(ezgl::GREY_55);}
-        else if(getFeatureType(i) == Greenspace){g->set_color(ezgl::GREEN);}
-        else if(getFeatureType(i) == Golfcourse){g->set_color(ezgl::TURQUOISE);}
-        else if(getFeatureType(i) == Stream){g->set_color(ezgl::BLUE);}
-        
-        for(int j=0;j< getFeaturePointCount(i);j++){
-            double x_coords = x_from_lon(getFeaturePoint(j,i).lon());
-            double y_coords = y_from_lat(getFeaturePoint(j,i).lat());
-            ezgl::point2d pointIn2D(x_coords, y_coords);
-            points.push_back(pointIn2D);
-        }
-        
-        g->fill_poly(points);
-    
-    }
-     */
-
-/*
- * this function is not really necessary but im keeping it in case there is future use
-void makeFeaturesVector(){
-    int featureNum = getNumFeatures();
-    featureData data;
-    for(FeatureIndex id = 0; id < featureNum; id++){
-        data.featureName = getFeatureName(id);
-        data.featureType = getFeatureType(id); 
-        data.pointsNum = getFeaturePointCount(id);
-        for(int i=0; i< getFeaturePointCount(id); i++){
-            data.pointsPosition.push_back(getFeaturePoint(i,id));
-        }
-        features.push_back(data);
-    }    
-}
- */
