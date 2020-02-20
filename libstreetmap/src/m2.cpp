@@ -5,20 +5,20 @@
  */
 
 #include "m1.h"
-
+#include <string>
 /* 
  * File:   m2.cpp
  * Author: cuevasm2
  * 
  * Created on February 18, 2020, 7:20 PM
  */
-
+#include <iostream>
 #include "m2.h"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
 #include "StreetsDatabaseAPI.h"
 #include "OSMDatabaseAPI.h"
-
+#include "point.hpp"
 #include <string>
 #include <vector>
 
@@ -33,6 +33,9 @@ void draw_main_canvas(ezgl::renderer *g);
 float y_from_lat(float lat);
 float x_from_lon(float lon);
 
+void makeFeaturesVector();
+void drawFeatures(ezgl::renderer *g);
+
 struct intersectionData {
     LatLon position;
     std::string name;
@@ -43,9 +46,18 @@ struct streetSegmentsData {
     std::vector<LatLon> node;
     std::string name;
 };
+/*
+struct featureData{
+    std::string featureName;
+    FeatureType featureType;
+    std::vector<LatLon> pointsPosition;
+    int pointsNum;
+};
+*/
 
 std::vector <intersectionData> intersections;
 std::vector <streetSegmentsData> streetSegments;
+//std::vector <featureData> features;
 
 void draw_map(){
     ezgl::application::settings settings;
@@ -71,8 +83,9 @@ void draw_map(){
 
 void draw_main_canvas(ezgl::renderer *g){
     
-    float xLon = 0;
-    float yLon = 0;
+    double xLon = 0;
+    double yLon = 0;
+    
     g->draw_rectangle({x_from_lon(min_lon), y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
     for (size_t i=0; i<intersections.size(); i++){
         xLon = intersections[i].position.lon();
@@ -96,6 +109,7 @@ void draw_main_canvas(ezgl::renderer *g){
             g->draw_line({start.first, start.second}, {end.first, end.second});
         }
     }
+    drawFeatures(g);
 }
 
 void map_bounds(){
@@ -153,3 +167,96 @@ float x_from_lon(float lon){
 float y_from_lat(float lat){
     return lat;
 }
+void drawFeatures(ezgl::renderer *g){
+    int numFeatures=getNumFeatures();
+    //584158 features in toronto map
+    //this loop draws all the features
+    
+    //fault at 5625
+    for(FeatureIndex i=0;i<numFeatures;i++){
+        if(getFeatureType(i) == Unknown){g->set_color(ezgl::BLACK);}
+        else if(getFeatureType(i) == Park){g->set_color(ezgl::SADDLE_BROWN);}
+        else if(getFeatureType(i)== Beach){g->set_color(ezgl::BISQUE);}
+        else if(getFeatureType(i)== Lake){g->set_color(ezgl::BLUE);}
+        else if(getFeatureType(i)== River){g->set_color(ezgl::BLUE);}
+        else if(getFeatureType(i) == Island){g->set_color(ezgl::KHAKI);}
+        else if(getFeatureType(i) == Building){g->set_color(ezgl::GREY_55);}
+        else if(getFeatureType(i) == Greenspace){g->set_color(ezgl::GREEN);}
+        else if(getFeatureType(i) == Golfcourse){g->set_color(ezgl::TURQUOISE);}
+        else if(getFeatureType(i) == Stream){g->set_color(ezgl::BLUE);}
+        //this condition checks for closed feature
+        if(getFeaturePoint(0,i).lat() == getFeaturePoint(getFeaturePointCount(i)-1,i).lat() &&
+           getFeaturePoint(0,i).lon() == getFeaturePoint(getFeaturePointCount(i)-1,i).lon() )  {
+            
+            std::vector<ezgl::point2d> points;
+            //put x-y coords of points that make up a closed feature into a vector
+            for(int j=0;j< getFeaturePointCount(i);j++){  
+                double x_coords = (double) x_from_lon(getFeaturePoint(j,i).lon());
+                double y_coords = (double) y_from_lat(getFeaturePoint(j,i).lat());
+                ezgl::point2d pointIn2D(x_coords, y_coords);
+                points.push_back(pointIn2D);
+            }
+            //use the vector to draw
+            if(points.size()>1){
+                g->fill_poly(points);
+            }
+        }
+        /* 
+        else{//open feature
+            for(int k=0;k+1<getFeaturePointCount(i);k++){
+                double start_x = x_from_lon(getFeaturePoint(k,i).lon());
+                double start_y = y_from_lat(getFeaturePoint(k,i).lat());
+                double end_x = x_from_lon(getFeaturePoint(k+1,i).lon());
+                double end_y = y_from_lat(getFeaturePoint(k+1,i).lat());                
+                ezgl::point2d start_point(start_x, start_y);
+                ezgl::point2d end_point(end_x, end_y);
+                g->set_line_dash(ezgl::line_dash::none);
+                g->draw_line(start_point,end_point);
+            }
+        }*/
+    }
+}
+    
+    /*
+    for(FeatureIndex i=0; i<numFeatures;i++){
+        std::vector<ezgl::point2d> points;
+        
+        if(getFeatureType(i) == Unknown){g->set_color(ezgl::BLACK);}
+        else if(getFeatureType(i) == Park){g->set_color(ezgl::SADDLE_BROWN);}
+        else if(getFeatureType(i)== Beach){g->set_color(ezgl::BISQUE);}
+        else if(getFeatureType(i)== Lake){g->set_color(ezgl::BLUE);}
+        else if(getFeatureType(i)== River){g->set_color(ezgl::BLUE);}
+        else if(getFeatureType(i) == Island){g->set_color(ezgl::KHAKI);}
+        else if(getFeatureType(i) == Building){g->set_color(ezgl::GREY_55);}
+        else if(getFeatureType(i) == Greenspace){g->set_color(ezgl::GREEN);}
+        else if(getFeatureType(i) == Golfcourse){g->set_color(ezgl::TURQUOISE);}
+        else if(getFeatureType(i) == Stream){g->set_color(ezgl::BLUE);}
+        
+        for(int j=0;j< getFeaturePointCount(i);j++){
+            double x_coords = x_from_lon(getFeaturePoint(j,i).lon());
+            double y_coords = y_from_lat(getFeaturePoint(j,i).lat());
+            ezgl::point2d pointIn2D(x_coords, y_coords);
+            points.push_back(pointIn2D);
+        }
+        
+        g->fill_poly(points);
+    
+    }
+     */
+
+/*
+ * this function is not really necessary but im keeping it in case there is future use
+void makeFeaturesVector(){
+    int featureNum = getNumFeatures();
+    featureData data;
+    for(FeatureIndex id = 0; id < featureNum; id++){
+        data.featureName = getFeatureName(id);
+        data.featureType = getFeatureType(id); 
+        data.pointsNum = getFeaturePointCount(id);
+        for(int i=0; i< getFeaturePointCount(id); i++){
+            data.pointsPosition.push_back(getFeaturePoint(i,id));
+        }
+        features.push_back(data);
+    }    
+}
+ */
