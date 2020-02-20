@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <math.h>
 using namespace std;
 using namespace ezgl; 
 
@@ -20,8 +21,12 @@ double max_lon;
 double min_lon;
 
 void map_bounds();
+
 float y_from_lat(float lat);
 float x_from_lon(float lon);
+float lat_from_y(float lat);
+float lon_from_x(float lon);
+
 
 struct intersectionData {
     LatLon position;
@@ -43,9 +48,11 @@ void zoom(ezgl::renderer *g){
 
     
     double zoom_level = ((full_map->m_second.x)-(full_map->m_first.x))/((current_map.m_second.x)-(current_map.m_first.x));
+    
     if( zoom_level < 3.5 ){
         cout << "Streets MAJOR" << endl;
         drawMajorStreets(g);
+        
     }
     else if (zoom_level > 3.5){ 
         cout << "MINOR Steets" << endl;
@@ -83,17 +90,24 @@ void drawAllStreets(renderer *g){
 }
 
 float x_from_lon(float lon){
-    double div1 = max_lat;
-    double div2 = min_lat;
-    double latAvg = (div1 + div2)/2;
-    double newLon = lon*cos(latAvg * 3.1415926535 /180);
-    return newLon;
+    double latAvg = (max_lat + min_lat)/2;
+    double x = lon*cos(latAvg * 3.1415926535 /180);
+    return x;
 }
 
 float y_from_lat(float lat){
     return lat;
 }
 
+float lon_from_x(float x){
+    double latAvg = (max_lat + min_lat)/2;
+    double lon = x / cos(latAvg * 3.1415926535 /180);
+    return lon;
+}
+
+float lat_from_y(float y){
+    return y;
+}
 
 void map_bounds(){
     

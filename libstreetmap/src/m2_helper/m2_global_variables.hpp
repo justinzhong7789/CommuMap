@@ -6,6 +6,7 @@
 #include "ezgl/graphics.hpp"
 #include "StreetsDatabaseAPI.h"
 #include "OSMDatabaseAPI.h"
+#include "global_variables.hpp"
 #include <string>
 #include <vector>
 #include <iostream>

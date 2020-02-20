@@ -16,12 +16,12 @@
 
 /* Allows for global variable declarations over a multiple source (cpp) files */
 
+
 extern std::vector<std::pair<double, double>> tableOfDivisors;
 extern std::multimap<std::string, StreetIndex> capitalizedStreetNamesTable;
 extern std::vector<std::vector<int>> segmentsOfStreets;
 extern std::vector<std::vector<int>> intersectionsOfStreets;
 extern std::vector<std::vector<int>> segmentsOfIntersections;
-extern std::vector<std::vector<std::string>> streetNamesOfIntersections;
 
 extern std::unordered_map<OSMID, const OSMWay*> OSMWayTable;
 extern std::unordered_map<OSMID, const OSMNode*> OSMNodeTable;
