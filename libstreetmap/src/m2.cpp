@@ -39,8 +39,8 @@ void draw_main_canvas(ezgl::renderer *g);
 
 void makeFeaturesVector();
 void drawFeatures(ezgl::renderer *g);
-
-
+double x_between_2_points(LatLon first, LatLon second);
+double y_between_2_points(LatLon first, LatLon second);
 void draw_map(){
     ezgl::application::settings settings;
     
@@ -88,8 +88,8 @@ void draw_main_canvas(ezgl::renderer *g){
 //            g->draw_line({start.first, start.second}, {end.first, end.second});
 //        }
 //    }
+    
     drawFeatures(g);
-
     //draw the diagonal line across the 
     zoom(g);
 }
@@ -126,7 +126,12 @@ void drawFeatures(ezgl::renderer *g){
     //584158 features in toronto map
     //this loop draws all the features
     
-    //fault at 5625
+    rectangle current_map = g->get_visible_world();
+    LatLon top_left(current_map.m_first.y, lon_from_x(current_map.m_first.x));
+    LatLon top_right(current_map.m_first.y, lon_from_x(current_map.m_second.x));
+    LatLon bottom_left(current_map.m_second.y, lon_from_x(current_map.m_first.x));
+    double current_area = abs(x_between_2_points(top_left, top_right)) * abs(y_between_2_points(top_right, bottom_left));
+    
     for(FeatureIndex i=0;i<numFeatures;i++){
         if(getFeatureType(i) == Unknown){g->set_color(ezgl::BLACK);}
         else if(getFeatureType(i) == Park){g->set_color(ezgl::SADDLE_BROWN);}
@@ -138,36 +143,55 @@ void drawFeatures(ezgl::renderer *g){
         else if(getFeatureType(i) == Greenspace){g->set_color(ezgl::GREEN);}
         else if(getFeatureType(i) == Golfcourse){g->set_color(ezgl::TURQUOISE);}
         else if(getFeatureType(i) == Stream){g->set_color(ezgl::BLUE);}
+        
+        
+        if(find_feature_area(i) > 0.001*current_area|| find_feature_area(i)==0){
         //this condition checks for closed feature
-        // closed features are polygons
-        if(getFeaturePoint(0,i).lat() == getFeaturePoint(getFeaturePointCount(i)-1,i).lat() &&
-           getFeaturePoint(0,i).lon() == getFeaturePoint(getFeaturePointCount(i)-1,i).lon() )  {
+            if(getFeaturePoint(0,i).lat() == getFeaturePoint(getFeaturePointCount(i)-1,i).lat() &&
+                getFeaturePoint(0,i).lon() == getFeaturePoint(getFeaturePointCount(i)-1,i).lon() )  {
             
-            std::vector<ezgl::point2d> points;
-            //put x-y coords of points that make up a closed feature into a vector
-            for(int j=0;j< getFeaturePointCount(i);j++){  
-                double x_coords = (double) x_from_lon(getFeaturePoint(j,i).lon());
-                double y_coords = (double) y_from_lat(getFeaturePoint(j,i).lat());
-                ezgl::point2d pointIn2D(x_coords, y_coords);
-                points.push_back(pointIn2D);
+                std::vector<ezgl::point2d> points;
+                //put x-y coords of points that make up a closed feature into a vector
+                for(int j=0;j< getFeaturePointCount(i);j++){  
+                    double x_coords = (double) x_from_lon(getFeaturePoint(j,i).lon());
+                    double y_coords = (double) y_from_lat(getFeaturePoint(j,i).lat());
+                    ezgl::point2d pointIn2D(x_coords, y_coords);
+                    points.push_back(pointIn2D);
+                }
+                //use the vector to draw
+                if(points.size()>1){
+                    g->fill_poly(points);
+                }
             }
-            //use the vector to draw
-            if(points.size()>1){
-                g->fill_poly(points);
-            }
-        }
-        else{//open feature
-            //open features are lines
-            for(int k=0;k+1<getFeaturePointCount(i);k++){
-                double start_x = x_from_lon(getFeaturePoint(k,i).lon());
-                double start_y = y_from_lat(getFeaturePoint(k,i).lat());
-                double end_x = x_from_lon(getFeaturePoint(k+1,i).lon());
-                double end_y = y_from_lat(getFeaturePoint(k+1,i).lat());                
-                ezgl::point2d start_point(start_x, start_y);
-                ezgl::point2d end_point(end_x, end_y);
-                g->set_line_dash(ezgl::line_dash::none);
-                g->draw_line(start_point,end_point);
-            }
+            else{//open feature
+                //open features are lines
+                for(int k=0;k+1<getFeaturePointCount(i);k++){
+                    double start_x = x_from_lon(getFeaturePoint(k,i).lon());
+                    double start_y = y_from_lat(getFeaturePoint(k,i).lat());
+                    double end_x = x_from_lon(getFeaturePoint(k+1,i).lon());
+                    double end_y = y_from_lat(getFeaturePoint(k+1,i).lat());                
+                    ezgl::point2d start_point(start_x, start_y);
+                    ezgl::point2d end_point(end_x, end_y);
+                    g->set_line_dash(ezgl::line_dash::none);
+                    g->draw_line(start_point,end_point);
+                }
+            }   
         }
     }
+}
+//distance in meters
+double x_between_2_points(LatLon first, LatLon second){
+    double LatAvg = (first.lat()+second.lat()) * DEGREE_TO_RADIAN / 2;
+    double x1= first.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
+    double x2=second.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
+    return EARTH_RADIUS_METERS * (x2-x1);
+}
+
+
+
+// Find the distance in the y component of two points using the formula provided in M1 Instructions
+double y_between_2_points(LatLon first, LatLon second){  
+    double y1= first.lat() * DEGREE_TO_RADIAN;   
+    double y2= second.lat() * DEGREE_TO_RADIAN;
+    return EARTH_RADIUS_METERS * (y2-y1); 
 }

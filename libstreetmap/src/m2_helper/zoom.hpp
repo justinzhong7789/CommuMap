@@ -40,7 +40,7 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g);
 void drawAllStreets(ezgl::renderer *g);
 
 void zoom(ezgl::renderer *g){
-    
+  
     point2d *min = new point2d(min_lon, min_lat);
     point2d *max = new point2d(max_lon, max_lat);
     rectangle *full_map = new rectangle(*min, *max);
@@ -69,6 +69,9 @@ void zoom(ezgl::renderer *g){
         cout << "Highway" << endl;
         drawStreets(streetsizes.highway, g);
     }
+    delete min;
+    delete max;
+    delete full_map;
 }
 
 void drawStreets(vector<StreetData> streets, ezgl::renderer *g){
