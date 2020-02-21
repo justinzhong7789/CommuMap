@@ -27,3 +27,25 @@ extern std::unordered_map<OSMID, const OSMWay*> OSMWayTable;
 extern std::unordered_map<OSMID, const OSMNode*> OSMNodeTable;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
+
+struct streetSegmentsData {
+    // node takes the start, end, and curve points (if applicable) of the street segment
+    std::vector<LatLon> node;
+};
+
+struct StreetData {
+    std::vector<streetSegmentsData> segments;
+    std::string name;
+    double length;
+    float speed;
+    //std::vector<std::vector<LatLon>> node;
+};
+
+struct StreetSize {
+    std::vector<StreetData> highway;
+    std::vector<StreetData> major;
+    std::vector<StreetData> minor;
+    std::vector<StreetData> local;
+};
+
+extern StreetSize streetsizes;

@@ -13,7 +13,15 @@
 #include <iostream>
 #include <math.h>
 using namespace std;
-using namespace ezgl; 
+using namespace ezgl;
+
+
+struct intersectionData {
+    LatLon position;
+    std::string name;
+};
+
+std::vector <intersectionData> intersections;
 
 double max_lat;
 double min_lat;
@@ -27,16 +35,8 @@ float x_from_lon(float lon);
 float lat_from_y(float lat);
 float lon_from_x(float lon);
 
-
-struct intersectionData {
-    LatLon position;
-    std::string name;
-};
-
-std::vector <intersectionData> intersections;
-
 void zoom(ezgl::renderer *g);
-void drawMajorStreets(ezgl::renderer *g);
+void drawStreets(vector<StreetData> streets, ezgl::renderer *g);
 void drawAllStreets(ezgl::renderer *g);
 
 void zoom(ezgl::renderer *g){
@@ -49,26 +49,37 @@ void zoom(ezgl::renderer *g){
     
     double zoom_level = ((full_map->m_second.x)-(full_map->m_first.x))/((current_map.m_second.x)-(current_map.m_first.x));
     
-    if( zoom_level < 3.5 ){
-        cout << "Streets MAJOR" << endl;
-        drawMajorStreets(g);
-        
-    }
-    else if (zoom_level > 3.5){ 
-        cout << "MINOR Steets" << endl;
+    if (20 < zoom_level){
+        cout << "all"<< endl;
         drawAllStreets(g);
     }
-    
+    if (7 < zoom_level ){
+        cout << "Local" << endl;
+        drawStreets(streetsizes.local, g);
+    }
+    if (4 < zoom_level){ 
+        cout << "Minor" << endl;
+       drawStreets(streetsizes.minor, g);
+    }
+    if ( 2 < zoom_level){
+        cout << "Major" << endl;
+        drawStreets(streetsizes.major, g);
+    }
+    if ( 0.5 < zoom_level){
+        cout << "Highway" << endl;
+        drawStreets(streetsizes.highway, g);
+    }
 }
 
-void drawMajorStreets(ezgl::renderer *g){
-    for (int i=0; i<bigStreetsTable.size(); i++){
+void drawStreets(vector<StreetData> streets, ezgl::renderer *g){
+    
+    for (int i=0; i<streets.size(); i++){
         // Iterate through every street segment in the street
-        for (int j=0; j<bigStreetsTable[i].segments.size(); j++){
+        for (int j=0; j<streets[i].segments.size(); j++){
             // Iterate through every node in the street segment
-            for (int k=1; k<bigStreetsTable[i].segments[j].node.size(); k++){
-                std::pair <float, float> start = {x_from_lon(bigStreetsTable[i].segments[j].node[k-1].lon()), y_from_lat((bigStreetsTable[i].segments)[j].node[k-1].lat())};
-                std::pair <float, float> end = {x_from_lon(bigStreetsTable[i].segments[j].node[k].lon()), y_from_lat(bigStreetsTable[i].segments[j].node[k].lat())};
+            for (int k=1; k<streets[i].segments[j].node.size(); k++){
+                std::pair <float, float> start = {x_from_lon(streets[i].segments[j].node[k-1].lon()), y_from_lat((streets[i].segments)[j].node[k-1].lat())};
+                std::pair <float, float> end = {x_from_lon(streets[i].segments[j].node[k].lon()), y_from_lat(streets[i].segments[j].node[k].lat())};
                 g->set_color(ezgl::BLACK);
                 g->set_line_dash(ezgl::line_dash::none);
                 g->draw_line({start.first, start.second}, {end.first, end.second});

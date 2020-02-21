@@ -55,7 +55,6 @@ void draw_map(){
    
     map_bounds();
     makeStreetsVector();
-    makeSegments_OfStreets();    
     makeStreetSizeTable();
 
     ezgl::rectangle initial_world({x_from_lon(min_lon),y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});

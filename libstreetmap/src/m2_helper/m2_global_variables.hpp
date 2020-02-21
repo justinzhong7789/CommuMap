@@ -2,6 +2,7 @@
 
 #include "m1.h"
 #include "m2.h"
+#include "global_variables.hpp"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
 #include "StreetsDatabaseAPI.h"
@@ -14,53 +15,30 @@ using namespace std;
 using namespace ezgl; 
 
 void makeStreetSizeTable();
-void makeSegments_OfStreets();
 void makeStreetsVector();
 
 std::vector<LatLon> add_nodes(StreetSegmentIndex id);
 
-
-struct streetSegmentsData {
-    // node takes the start, end, and curve points (if applicable) of the street segment
-    std::vector<LatLon> node;
-};
-
-struct streetData {
-    std::vector<streetSegmentsData> segments;
-    std::string name;
-    double length;
-    //std::vector<std::vector<LatLon>> node;
-};
-
 std::vector <streetSegmentsData> streetSegments;
 
+StreetSize streetsizes;
+
+
 // Define big streets as streets with length 1+ km
-std::vector <streetData> bigStreetsTable;
-std::vector<std::vector<int>> segments_OfStreets;
+//std::vector <streetData> bigStreetsTable;
 
- void makeSegments_OfStreets(){    
-
-    int street_ID;
-    // Resizing global variable to allow for inserting through indexes
-    segments_OfStreets.resize(getNumStreets());
-    // Loops through all the street segments
-    for(int j =0 ; j< getNumStreetSegments() ; ++j){
-        street_ID = getInfoStreetSegment(j).streetID;
-        // Inserts the segment ID into the index of the street ID 
-        segments_OfStreets[street_ID].push_back(j);
-    }
-}
- 
 // add all street names length together
 void makeStreetSizeTable(){
-    streetData street_data;
+    StreetData street_data;
+    StreetSize streets;
     streetSegmentsData street_segment_data;
 
     for (StreetIndex i=0; i<getNumStreets(); i++){
         double street_length = 0;
         street_data.segments.clear();
-        for (int j=0; j<segments_OfStreets[i].size(); j++){
-            StreetSegmentIndex id = segments_OfStreets[i][j];
+        
+        for (int j=0; j<segmentsOfStreets[i].size(); j++){
+            StreetSegmentIndex id = segmentsOfStreets[i][j];
             street_length += find_street_segment_length(id);
             street_segment_data.node = add_nodes(id);
             street_data.segments.push_back(street_segment_data);
@@ -68,8 +46,22 @@ void makeStreetSizeTable(){
         street_data.name = getStreetName(i);
         street_data.length = street_length;
         
-        if (street_length > 10000){           
-            bigStreetsTable.push_back(street_data);
+        
+     float speed = getInfoStreetSegment(segmentsOfStreets[i][0]).speedLimit; 
+//        
+//        //Identifying highways
+        if(120 > speed && speed > 70 && street_length > 1000) {
+            streetsizes.highway.push_back(street_data);
+        }
+        else if (70 > speed && speed > 50 && street_length > 1000){          
+            streetsizes.major.push_back(street_data);
+            
+        }
+        else if (50 == speed && street_length > 500){
+            streetsizes.minor.push_back(street_data);
+        }
+        else if (40 >= speed && street_length < 500 && street_length > 100 ){
+            streetsizes.local.push_back(street_data);
         }
     }
 }
@@ -135,6 +127,7 @@ std::vector<LatLon> add_nodes(StreetSegmentIndex id){
 }
 
 void makeStreetsVector(){
+    
         streetSegments.resize(getNumStreetSegments());
     for (StreetSegmentIndex id=0; id<streetSegments.size(); id++){
         InfoStreetSegment info = getInfoStreetSegment(id);
