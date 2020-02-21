@@ -41,6 +41,7 @@ void makeFeaturesVector();
 void drawFeatures(ezgl::renderer *g);
 double x_between_2_points(LatLon first, LatLon second);
 double y_between_2_points(LatLon first, LatLon second);
+
 void draw_map(){
     ezgl::application::settings settings;
     
@@ -59,24 +60,24 @@ void draw_map(){
 
     ezgl::rectangle initial_world({x_from_lon(min_lon),y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
 
-    application.add_canvas("MainCanvas", draw_main_canvas, initial_world);
+    application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
 
     application.run(nullptr, act_on_mouse_click, nullptr, nullptr);
 }
 
 void draw_main_canvas(ezgl::renderer *g){
     
-    g->draw_rectangle({x_from_lon(min_lon), y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
-    for (size_t i=0; i<intersections.size(); i++){
-        
-        float x = x_from_lon(intersections[i].position.lon());
-        float y = y_from_lat(intersections[i].position.lat());
-        
-        float width = 0.001;
-        float height = width;
-        
-        g->fill_rectangle({x,y}, {x+width, y+height});
-    }
+//    g->draw_rectangle({x_from_lon(min_lon), y_from_lat(min_lat)}, {x_from_lon(max_lon),y_from_lat(max_lat)});
+//    for (size_t i=0; i<intersections.size(); i++){
+//        
+//        float x = x_from_lon(intersections[i].position.lon());
+//        float y = y_from_lat(intersections[i].position.lat());
+//        
+//        float width = 0.001;
+//        float height = width;
+//        
+//        g->fill_rectangle({x,y}, {x+width, y+height});
+//    }
 
 //    
 //    for (size_t i=0; i<streetSegments.size(); i++){
@@ -134,15 +135,15 @@ void drawFeatures(ezgl::renderer *g){
     
     for(FeatureIndex i=0;i<numFeatures;i++){
         if(getFeatureType(i) == Unknown){g->set_color(ezgl::BLACK);}
-        else if(getFeatureType(i) == Park){g->set_color(ezgl::SADDLE_BROWN);}
-        else if(getFeatureType(i)== Beach){g->set_color(ezgl::BISQUE);}
-        else if(getFeatureType(i)== Lake){g->set_color(ezgl::BLUE);}
-        else if(getFeatureType(i)== River){g->set_color(ezgl::BLUE);}
-        else if(getFeatureType(i) == Island){g->set_color(ezgl::KHAKI);}
+        else if(getFeatureType(i) == Park){g->set_color(GRASS);}
+        else if(getFeatureType(i)== Beach){g->set_color(GRASS);}
+        else if(getFeatureType(i)== Lake){g->set_color(WATER);}
+        else if(getFeatureType(i)== River){g->set_color(WATER);}
+        else if(getFeatureType(i) == Island){g->set_color(GRASS);}
         else if(getFeatureType(i) == Building){g->set_color(ezgl::GREY_55);}
-        else if(getFeatureType(i) == Greenspace){g->set_color(ezgl::GREEN);}
-        else if(getFeatureType(i) == Golfcourse){g->set_color(ezgl::TURQUOISE);}
-        else if(getFeatureType(i) == Stream){g->set_color(ezgl::BLUE);}
+        else if(getFeatureType(i) == Greenspace){g->set_color(GRASS);}
+        else if(getFeatureType(i) == Golfcourse){g->set_color(GRASS);}
+        else if(getFeatureType(i) == Stream){g->set_color(WATER);}
         
         
         if(find_feature_area(i) > 0.001*current_area|| find_feature_area(i)==0){

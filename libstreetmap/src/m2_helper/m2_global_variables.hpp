@@ -33,7 +33,9 @@ void makeStreetSizeTable(){
     StreetSize streets;
     streetSegmentsData street_segment_data;
 
-    for (StreetIndex i=0; i<getNumStreets(); i++){
+    
+    //Starts at 1 so it doesn't include the <unknown> street
+    for (StreetIndex i=1; i<getNumStreets(); i++){
         double street_length = 0;
         street_data.segments.clear();
         
@@ -50,10 +52,10 @@ void makeStreetSizeTable(){
      float speed = getInfoStreetSegment(segmentsOfStreets[i][0]).speedLimit; 
 //        
 //        //Identifying highways
-        if(120 > speed && speed > 70 && street_length > 1000) {
+        if(120 > speed && speed > 80 && street_length > 1000) {
             streetsizes.highway.push_back(street_data);
         }
-        else if (70 > speed && speed > 50 && street_length > 1000){          
+        else if (80 > speed && speed > 50 && street_length > 1000){          
             streetsizes.major.push_back(street_data);
             
         }
@@ -151,3 +153,10 @@ void makeStreetsVector(){
         }
     }
 }
+
+
+ezgl::color GRASS(192,211,192);
+ezgl::color BACKGROUND(237,237,237);
+ezgl::color WATER(182,196,201);
+ezgl::color HIGHWAY(131,133,134);
+ezgl::color OUTLINE(197,197,197);

@@ -36,8 +36,8 @@ float lat_from_y(float lat);
 float lon_from_x(float lon);
 
 void zoom(ezgl::renderer *g);
-void drawStreets(vector<StreetData> streets, ezgl::renderer *g);
-void drawAllStreets(ezgl::renderer *g);
+void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width); 
+void drawAllStreets(ezgl::renderer *g, int width);
 
 void zoom(ezgl::renderer *g){
   
@@ -49,32 +49,36 @@ void zoom(ezgl::renderer *g){
     
     double zoom_level = ((full_map->m_second.x)-(full_map->m_first.x))/((current_map.m_second.x)-(current_map.m_first.x));
     
+    //check when zoom is close to 0
+    int width = zoom_level*pow(2,1/zoom_level);
+    
     if (20 < zoom_level){
         cout << "all"<< endl;
-        drawAllStreets(g);
+        drawAllStreets(g, width);
     }
     if (7 < zoom_level ){
         cout << "Local" << endl;
-        drawStreets(streetsizes.local, g);
+        drawStreets(streetsizes.local, g, 1 );//1
     }
     if (4 < zoom_level){ 
         cout << "Minor" << endl;
-       drawStreets(streetsizes.minor, g);
+       drawStreets(streetsizes.minor, g, 2);//2
     }
     if ( 2 < zoom_level){
         cout << "Major" << endl;
-        drawStreets(streetsizes.major, g);
+        drawStreets(streetsizes.major, g, 3);//3
     }
     if ( 0.5 < zoom_level){
         cout << "Highway" << endl;
-        drawStreets(streetsizes.highway, g);
+        //CURRENTLY NO SPECIFIC DRAWING FOR HIGHWAY
+        drawStreets(streetsizes.highway, g, 5);//5
     }
     delete min;
     delete max;
     delete full_map;
 }
 
-void drawStreets(vector<StreetData> streets, ezgl::renderer *g){
+void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width ){
     
     for (int i=0; i<streets.size(); i++){
         // Iterate through every street segment in the street
@@ -83,20 +87,36 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g){
             for (int k=1; k<streets[i].segments[j].node.size(); k++){
                 std::pair <float, float> start = {x_from_lon(streets[i].segments[j].node[k-1].lon()), y_from_lat((streets[i].segments)[j].node[k-1].lat())};
                 std::pair <float, float> end = {x_from_lon(streets[i].segments[j].node[k].lon()), y_from_lat(streets[i].segments[j].node[k].lat())};
-                g->set_color(ezgl::BLACK);
+                
                 g->set_line_dash(ezgl::line_dash::none);
+                
+                //Outline colour
+                g->set_color(OUTLINE);
+                g->set_line_width(width+2);
                 g->draw_line({start.first, start.second}, {end.first, end.second});
+                
+                //Fill colour
+                g->set_color(WHITE);
+                g->set_line_width(width);
+                g->draw_line({start.first, start.second}, {end.first, end.second});
+                
             }
         }
     }
 }
 
-void drawAllStreets(renderer *g){
+void drawAllStreets(renderer *g, int width){
        for (size_t i=0; i<streetSegments.size(); i++){
         for (size_t j=1; j<streetSegments[i].node.size(); j++){
             std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
             std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
-            g->set_color(ezgl::BLACK);
+            
+            g->set_color(OUTLINE);
+            g->set_line_width(width+2);
+            g->draw_line({start.first, start.second}, {end.first, end.second});
+            
+            g->set_line_width(width);
+            g->set_color(ezgl::WHITE);
             g->set_line_dash(ezgl::line_dash::none);
             g->draw_line({start.first, start.second}, {end.first, end.second});
         }
