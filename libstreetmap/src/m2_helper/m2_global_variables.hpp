@@ -41,6 +41,8 @@ void makeStreetSizeTable(){
         
         for (int j=0; j<segmentsOfStreets[i].size(); j++){
             StreetSegmentIndex id = segmentsOfStreets[i][j];
+            street_segment_data.id = id;
+            
             street_length += find_street_segment_length(id);
             street_segment_data.node = add_nodes(id);
             street_data.segments.push_back(street_segment_data);
@@ -49,7 +51,7 @@ void makeStreetSizeTable(){
         street_data.length = street_length;
         
         
-     float speed = getInfoStreetSegment(segmentsOfStreets[i][0]).speedLimit; 
+        float speed = getInfoStreetSegment(segmentsOfStreets[i][0]).speedLimit; 
 //        
 //        //Identifying highways
         if(120 > speed && speed > 80 && street_length > 1000) {
@@ -89,23 +91,7 @@ void makeStreetsSizeTable(){
         }
     }
 }*/
-/*    
-void makeBigStreetsTable(){
-    streetSegmentsData temp;
-    InfoStreetSegment info;
-    for (StreetSegmentIndex id = 0; id<getNumStreetSegments(); id++){
-         
-        // If street length is greater than 1000m, add to the table
-        //if (tableOfDivisors[id].first > 1000){
-        // if (find_street_segment_length(id) > 500){
-            info = getInfoStreetSegment(id);
-            
-            temp.node = add_nodes(id);
-            temp.streetName = getStreetName(info.streetID);
-            bigStreetsTable.push_back(temp);
-        }
-    }
-} */
+
 std::vector<LatLon> add_nodes(StreetSegmentIndex id){
     InfoStreetSegment info = getInfoStreetSegment(id);
     std::vector<LatLon> node_list;

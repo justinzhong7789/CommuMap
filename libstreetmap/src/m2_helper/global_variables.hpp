@@ -30,6 +30,7 @@ typedef std::vector<int>::iterator VectorIt;
 
 struct streetSegmentsData {
     // node takes the start, end, and curve points (if applicable) of the street segment
+    StreetSegmentIndex id;
     std::vector<LatLon> node;
 };
 
