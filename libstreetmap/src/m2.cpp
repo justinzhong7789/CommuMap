@@ -80,11 +80,12 @@ void draw_main_canvas(ezgl::renderer *g) {
         full_map.m_second.y = max_lat;
         
         full_screen = g->world_to_screen(full_map);
-        
+    //    area_full_screen = findArea(full_map.m_first.x, full_map.m_first.y, full_map.m_second.x, full_map.m_second.y);
         numTimesDrawn++;
     }
     
-    zoom(g);
     drawFeatures(g);
+    zoom(g);
+    //drawFeatures(g);
 }
 

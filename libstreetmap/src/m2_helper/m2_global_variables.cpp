@@ -40,7 +40,7 @@ void makeStreetSizeTable(){
         if(120 > speed && speed > 80 && street_length > 1000) {
             streetsizes.highway.push_back(street_data);
         }
-        else if (80 > speed && speed > 50 && street_length > 1000){          
+        else if (street_length > 5000){          
             streetsizes.major.push_back(street_data);
             
         }

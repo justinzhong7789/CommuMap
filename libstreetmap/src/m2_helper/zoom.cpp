@@ -8,11 +8,11 @@ double min_lon;
 rectangle full_map;
 rectangle full_screen;
 
-
-ezgl::color GRASS(192,211,192);
-ezgl::color WATER(182,196,201);
-ezgl::color HIGHWAY(131,133,134);
-ezgl::color OUTLINE(197,197,197);
+//ezgl::color GRASS(192,211,192);
+//ezgl::color WATER(182,196,201);
+//ezgl::color HIGHWAY(131,133,134);
+//ezgl::color OUTLINE(197,197,197);
+//ezgl::color BUILDINGS(224,224,224);
 
 //ezgl::color GRASS.;
 //ezgl::color BACKGROUND;
@@ -20,63 +20,128 @@ ezgl::color OUTLINE(197,197,197);
 //ezgl::color HIGHWAY;
 //ezgl::color OUTLINE;
 
+//double area_full_map = findArea(full_map.m_first.x, full_map.m_first.y, full_map.m_second.x, full_map.m_second.y);
+
 std::vector <intersectionData> intersections;
+
+double findArea(double x1, double y1, double x2, double y2){
+    
+    double xdiff = x2-x1;
+    double ydiff = y2-y1;
+    return xdiff*ydiff;
+}
+
+
 
 void zoom(ezgl::renderer *g){
 
     rectangle current_map = g->get_visible_world();
     rectangle current_screen = g->get_visible_screen();
 
-    double zoom_map = ((full_map.m_second.x)-(full_map.m_first.x))/((current_map.m_second.x)-(current_map.m_first.x));
-    double zoom_screen = ((full_screen.m_second.x)-(full_screen.m_first.x))/((current_screen.m_second.x)-(current_screen.m_first.x));
+    double zoom_map = area_full_map/ findArea(current_map.m_first.x, current_map.m_first.y, current_map.m_second.x, current_map.m_second.y);
+    double zoom_screen = findArea(current_screen.m_first.x, current_screen.m_first.y, current_screen.m_second.x, current_screen.m_second.y) / area_full_screen;
     
-    double zoom_level = zoom_screen;
+    double zoom_level = zoom_screen*zoom_map*100;
     //check when zoom is close to 0
-    int width = ceil(zoom_level*pow(2,1/zoom_level));
+    //int width = ceil(zoom_level*pow(2,1/zoom_level));
     
     
     cout<< "Zoom Map: "<< zoom_map << endl;
+    cout<< "Screen values = X1: "<< current_screen.m_first.x << "Y1: " << current_screen.m_first.y 
+            << "// X2: " << current_screen.m_second.x << "Y1: " << current_screen.m_second.y << endl;
+    
     cout<< "Zoom Screen: "<< zoom_screen << endl;
-    cout<< "width: " << width << endl;
+    
     cout<< "Zoom Level: "<< zoom_level << endl << endl;
     
-    if (20 < zoom_level){
-        cout << "all"<< endl;
-        drawAllStreets(g, 1);
+  
+    int zoom_adjust_two = 1;
+    int zoom_adjust_three = 1;
+    double zoom_adjust_four = 1;
+    int zoom_adjust_five = 1;
+    
+    if(zoom_screen > 1.5 ){
+        zoom_adjust_two = 2;
+        zoom_adjust_three = 3;
+        zoom_adjust_four = 4.5;
+        zoom_adjust_five = 5;
     }
-    if (7 < zoom_level ){
-        cout << "Local" << endl;
-        drawStreets(streetsizes.local, g, 1 );//1
+    int width = 12;
+    
+    if ( ZOOM_EIGHT < zoom_adjust_two*zoom_level){
+        cout << "Zoom 8 : all : buildings" << endl;
+        width = ceil(zoom_adjust_two*zoom_level/103100);
+        drawAllStreets(g, width);
+        drawStreets(streetsizes.local, g, width );
+        drawStreets(streetsizes.minor, g, width);//3
+        drawStreets(streetsizes.major, g, width);//3
+        drawStreets(streetsizes.highway, g, width);
+    cout << "width: " << width << endl;
     }
-    if (4 < zoom_level){ 
-        cout << "Minor" << endl;
-       drawStreets(streetsizes.minor, g, 2);//2
+    else if ( ZOOM_SEVEN < zoom_adjust_two*zoom_level ){
+        cout << "Zoom 7 : local : playgrounds " << endl;
+        //width = ceil(high_zoom_adjust*zoom_level/9170);
+        drawStreets(streetsizes.local, g, width );
+        drawStreets(streetsizes.minor, g, width);//3
+        drawStreets(streetsizes.major, g, width);//3
+        drawStreets(streetsizes.highway, g, width);
+    cout << "width: " << width << endl;
     }
-    if ( 2 < zoom_level){
-        cout << "Major" << endl;
-        drawStreets(streetsizes.major, g, 3);//3
+    else if ( ZOOM_SIX < zoom_adjust_three*zoom_level){
+        cout << "Zoom 6 : ponds and rivers" << endl;
+        //width = ceil(high_zoom_adjust*zoom_level/3200);
+        drawStreets(streetsizes.minor, g, width);//3
+        drawStreets(streetsizes.major, g, width);//3
+        drawStreets(streetsizes.highway, g, width);
+    cout << "width: " << width << endl;
     }
-    if ( 0.1 < zoom_level){
-        cout << "Highway" << endl;
+    else if ( ZOOM_FIVE < zoom_adjust_three*zoom_level){
+        cout << "Zoom 5 : minor : marshes" << endl;
+        //width = ceil(low_zoom_adjust*zoom_level/260);
+        drawStreets(streetsizes.minor, g, width);//3
+        drawStreets(streetsizes.major, g, width);//3
+        drawStreets(streetsizes.highway, g, width);
+    cout << "width: " << width << endl;
+    }
+    else if ( ZOOM_FOUR < zoom_adjust_four*zoom_level){
+        cout << "Zoom 4 : parks and farms" << endl;
+        //width = ceil(low_zoom_adjust*zoom_level/147);
+        drawStreets(streetsizes.major, g, width);//3
+        drawStreets(streetsizes.highway, g, width);
+    cout << "width: " << width << endl;
+    }
+    else if ( ZOOM_THREE < zoom_adjust_four *zoom_level){
+        cout << "Zoom 3 : major : golf club" << endl;
+        //width = ceil(low_zoom_adjust*zoom_level/60);
+        drawStreets(streetsizes.major, g, width);//3
+        drawStreets(streetsizes.highway, g, width);
+    cout << "width: " << width << endl;
+    }
+    else if ( ZOOM_TWO < zoom_adjust_five*zoom_level){
+        cout << "Zoom 2 : big features" << endl;
+        //width = ceil(zoom_level/19);
+        drawStreets(streetsizes.highway, g, width);
+    cout << "width: " << width << endl;
+    }
+    else if ( ZOOM_ONE < zoom_adjust_five * zoom_level){
+        cout << "Zoom 1 : highway" << endl;
+        //width = ceil(zoom_level/15);
+        drawStreets(streetsizes.highway, g, width);
         //CURRENTLY NO SPECIFIC DRAWING FOR HIGHWAY
-
-        drawStreets(streetsizes.highway, g, 5);//5
-        if (6 < zoom_level){
-            drawStreetNames(streetsizes.highway, g, 6);
-        }
-        if (10 < zoom_level){
-            drawStreetNames(streetsizes.major, g, 6);
-        }
-        if (15 < zoom_level){
-            drawStreetNames(streetsizes.minor, g, 6);
-        }
-        if (25 < zoom_level){
-            drawStreetNames(streetsizes.local, g, 6);
-        }
-
-        drawStreets(streetsizes.highway, g, width);//5
-
-        drawStreets(streetsizes.highway, g, 5);//5
+        cout << "width: " << width << endl;
+//        drawStreets(streetsizes.highway, g, 5);//5
+//        if (6 < zoom_level){
+//            drawStreetNames(streetsizes.highway, g, 6);
+//        }
+//        if (10 < zoom_level){
+//            drawStreetNames(streetsizes.major, g, 6);
+//        }
+//        if (15 < zoom_level){
+//            drawStreetNames(streetsizes.minor, g, 6);
+//        }
+//        if (25 < zoom_level){
+//            drawStreetNames(streetsizes.local, g, 6);
+//        }
     }
     
 }
@@ -213,7 +278,7 @@ void drawFeatures(ezgl::renderer *g) {
 
     for (FeatureIndex i = 0; i < numFeatures; i++) {
         if (getFeatureType(i) == Unknown) {
-            g->set_color(ezgl::BLACK);
+            g->set_color(BUILDINGS);
         } else if (getFeatureType(i) == Park) {
             g->set_color(GRASS);
         } else if (getFeatureType(i) == Beach) {
@@ -225,7 +290,7 @@ void drawFeatures(ezgl::renderer *g) {
         } else if (getFeatureType(i) == Island) {
             g->set_color(GRASS);
         } else if (getFeatureType(i) == Building) {
-            g->set_color(ezgl::GREY_55);
+            g->set_color(BUILDINGS);
         } else if (getFeatureType(i) == Greenspace) {
             g->set_color(GRASS);
         } else if (getFeatureType(i) == Golfcourse) {
