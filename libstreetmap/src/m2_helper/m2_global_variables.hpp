@@ -23,7 +23,6 @@ std::vector <streetSegmentsData> streetSegments;
 
 StreetSize streetsizes;
 
-
 // Define big streets as streets with length 1+ km
 //std::vector <streetData> bigStreetsTable;
 

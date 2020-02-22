@@ -40,36 +40,46 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width);
 void drawAllStreets(ezgl::renderer *g, int width);
 void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size);
 
+rectangle full_screen; 
+rectangle full_map;
+
+int numTimesDrawn = 0;
+
 void zoom(ezgl::renderer *g){
-  
-    point2d *min = new point2d(min_lon, min_lat);
-    point2d *max = new point2d(max_lon, max_lat);
-    rectangle *full_map = new rectangle(*min, *max);
+
     rectangle current_map = g->get_visible_world();
-      
+    rectangle current_screen = g->get_visible_screen();
+
+    double zoom_map = ((full_map.m_second.x)-(full_map.m_first.x))/((current_map.m_second.x)-(current_map.m_first.x));
+    double zoom_screen = ((full_screen.m_second.x)-(full_screen.m_first.x))/((current_screen.m_second.x)-(current_screen.m_first.x));
     
-    double zoom_level = ((full_map->m_second.x)-(full_map->m_first.x))/((current_map.m_second.x)-(current_map.m_first.x));
-    
+    double zoom_level = zoom_screen;
     //check when zoom is close to 0
-    int width = zoom_level*pow(2,1/zoom_level);
+    int width = ceil(zoom_level*pow(2,1/zoom_level));
+    
+    
+    cout<< "Zoom Map: "<< zoom_map << endl;
+    cout<< "Zoom Screen: "<< zoom_screen << endl;
+    cout<< "width: " << width << endl;
+    cout<< "Zoom Level: "<< zoom_level << endl << endl;
     
     if (20 < zoom_level){
         cout << "all"<< endl;
-        drawAllStreets(g, width);
+        drawAllStreets(g, 1);
     }
     if (7 < zoom_level ){
         cout << "Local" << endl;
-        drawStreets(streetsizes.local, g, width );//1
+        drawStreets(streetsizes.local, g, 1 );//1
     }
     if (4 < zoom_level){ 
         cout << "Minor" << endl;
-       drawStreets(streetsizes.minor, g, width);//2
+       drawStreets(streetsizes.minor, g, 2);//2
     }
     if ( 2 < zoom_level){
         cout << "Major" << endl;
-        drawStreets(streetsizes.major, g, width);//3
+        drawStreets(streetsizes.major, g, 3);//3
     }
-    if ( 0.5 < zoom_level){
+    if ( 0.1 < zoom_level){
         cout << "Highway" << endl;
         //CURRENTLY NO SPECIFIC DRAWING FOR HIGHWAY
 
@@ -88,10 +98,10 @@ void zoom(ezgl::renderer *g){
         }
 
         drawStreets(streetsizes.highway, g, width);//5
+
+        drawStreets(streetsizes.highway, g, 5);//5
     }
-    delete min;
-    delete max;
-    delete full_map;
+    
 }
 
 void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width ){
