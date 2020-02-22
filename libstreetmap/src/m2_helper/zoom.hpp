@@ -59,19 +59,20 @@ void zoom(ezgl::renderer *g){
     }
     if (7 < zoom_level ){
         cout << "Local" << endl;
-        drawStreets(streetsizes.local, g, 1 );//1
+        drawStreets(streetsizes.local, g, width );//1
     }
     if (4 < zoom_level){ 
         cout << "Minor" << endl;
-       drawStreets(streetsizes.minor, g, 2);//2
+       drawStreets(streetsizes.minor, g, width);//2
     }
     if ( 2 < zoom_level){
         cout << "Major" << endl;
-        drawStreets(streetsizes.major, g, 3);//3
+        drawStreets(streetsizes.major, g, width);//3
     }
     if ( 0.5 < zoom_level){
         cout << "Highway" << endl;
         //CURRENTLY NO SPECIFIC DRAWING FOR HIGHWAY
+
         drawStreets(streetsizes.highway, g, 5);//5
         if (6 < zoom_level){
             drawStreetNames(streetsizes.highway, g, 6);
@@ -85,6 +86,8 @@ void zoom(ezgl::renderer *g){
         if (25 < zoom_level){
             drawStreetNames(streetsizes.local, g, 6);
         }
+
+        drawStreets(streetsizes.highway, g, width);//5
     }
     delete min;
     delete max;
