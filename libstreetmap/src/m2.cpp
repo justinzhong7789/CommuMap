@@ -134,34 +134,54 @@ void drawFeatures(ezgl::renderer *g){
     double current_area = abs(x_between_2_points(top_left, top_right)) * abs(y_between_2_points(top_right, bottom_left));
     
     for(FeatureIndex i=0;i<numFeatures;i++){
-        if(getFeatureType(i) == Unknown){g->set_color(ezgl::BLACK);}
-        else if(getFeatureType(i) == Park){g->set_color(GRASS);}
-        else if(getFeatureType(i)== Beach){g->set_color(GRASS);}
-        else if(getFeatureType(i)== Lake){g->set_color(WATER);}
-        else if(getFeatureType(i)== River){g->set_color(WATER);}
-        else if(getFeatureType(i) == Island){g->set_color(GRASS);}
-        else if(getFeatureType(i) == Building){g->set_color(ezgl::GREY_55);}
-        else if(getFeatureType(i) == Greenspace){g->set_color(GRASS);}
-        else if(getFeatureType(i) == Golfcourse){g->set_color(GRASS);}
-        else if(getFeatureType(i) == Stream){g->set_color(WATER);}
-        
-        
         if(find_feature_area(i) > 0.001*current_area|| find_feature_area(i)==0){
-        //this condition checks for closed feature
+            if(getFeatureType(i) == Unknown){g->set_color(ezgl::BLACK);}
+            else if(getFeatureType(i) == Park){g->set_color(GRASS);}
+            else if(getFeatureType(i)== Beach){g->set_color(GRASS);}
+            else if(getFeatureType(i)== Lake){g->set_color(WATER);}
+            else if(getFeatureType(i)== River){g->set_color(WATER);}
+            else if(getFeatureType(i) == Island){g->set_color(GRASS);}
+            else if(getFeatureType(i) == Building){g->set_color(ezgl::GREY_55);}
+            else if(getFeatureType(i) == Greenspace){g->set_color(GRASS);}
+            else if(getFeatureType(i) == Golfcourse){g->set_color(GRASS);}
+            else if(getFeatureType(i) == Stream){g->set_color(WATER);}
+            //this condition checks for closed feature
             if(getFeaturePoint(0,i).lat() == getFeaturePoint(getFeaturePointCount(i)-1,i).lat() &&
                 getFeaturePoint(0,i).lon() == getFeaturePoint(getFeaturePointCount(i)-1,i).lon() )  {
             
                 std::vector<ezgl::point2d> points;
+                double max_x = 0;
+                double max_y = 0;
+                double min_x;
+                double min_y;
+                double ave_x = 0;
+                double ave_y = 0;
                 //put x-y coords of points that make up a closed feature into a vector
                 for(int j=0;j< getFeaturePointCount(i);j++){  
                     double x_coords = (double) x_from_lon(getFeaturePoint(j,i).lon());
                     double y_coords = (double) y_from_lat(getFeaturePoint(j,i).lat());
                     ezgl::point2d pointIn2D(x_coords, y_coords);
+                    if(j==0){
+                        min_x = x_coords;
+                        min_y = y_coords; //this is to initialize the variable
+                    }
+                    if(x_coords > max_x){max_x = x_coords;}
+                    if(x_coords < min_x){min_x = x_coords;}
+                    if(y_coords > max_y){max_y = y_coords;}
+                    if(y_coords < min_y){min_y = y_coords;}
                     points.push_back(pointIn2D);
                 }
+                //find the average between x_max and x_min, max_y and min_y
+                ave_x = (min_x + max_x)/2;
+                ave_y = (min_y + max_y)/2;
                 //use the vector to draw
                 if(points.size()>1){
+                    
                     g->fill_poly(points);
+                    g->set_color(ezgl::BLACK);
+                    ezgl::point2d point(ave_x,ave_y);
+                    g->draw_text(point, getFeatureName(i), max_x-min_x, max_y- min_y);
+                    std::cout<< getFeatureName(i)<<endl;
                 }
             }
             else{//open feature
