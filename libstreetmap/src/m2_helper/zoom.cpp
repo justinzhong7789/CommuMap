@@ -421,20 +421,33 @@ void drawBuildings(std::vector<int> features, ezgl::renderer *g ){
                     getFeaturePoint(0, i).lon() == getFeaturePoint(getFeaturePointCount(i) - 1, i).lon()) {
 
                 std::vector<ezgl::point2d> points;
+                double maxX = x_from_lon(getFeaturePoint(0,i).lon());
+                double minX = x_from_lon(getFeaturePoint(0,i).lon());
+                double maxY = y_from_lat(getFeaturePoint(0,i).lat());
+                double minY = y_from_lat(getFeaturePoint(0,i).lat());
                 //put x-y coords of points that make up a closed feature into a vector
                 for (int j = 0; j < getFeaturePointCount(i); j++) {
                     double x_coords = (double) x_from_lon(getFeaturePoint(j, i).lon());
                     double y_coords = (double) y_from_lat(getFeaturePoint(j, i).lat());
                     ezgl::point2d pointIn2D(x_coords, y_coords);
                     points.push_back(pointIn2D);
+                    if(x_coords > maxX){maxX = x_coords;}
+                    if(x_coords < minX){minX = x_coords;}
+                    if(y_coords > maxY){maxY = y_coords;}
+                    if(y_coords < maxY){minY = y_coords;}
                 }
                 //use the vector to draw
                 if (points.size() > 1) {
                     g->fill_poly(points);
                 }
+                if(getFeatureName(i)!="<noname>"){
+                    g->set_color(ezgl::BLACK);
+                    g->draw_text({(maxX + minX)/2, (maxY + minY)/2}, getFeatureName(i));
+                }
             } else {//open feature
                 //open features are lines
                 for (int k = 0; k + 1 < getFeaturePointCount(i); k++) {
+                    //this process is to connect the lines between each feature point
                     double start_x = x_from_lon(getFeaturePoint(k, i).lon());
                     double start_y = y_from_lat(getFeaturePoint(k, i).lat());
                     double end_x = x_from_lon(getFeaturePoint(k + 1, i).lon());
