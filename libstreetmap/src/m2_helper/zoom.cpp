@@ -76,7 +76,10 @@ void zoom(ezgl::renderer *g){
         drawStreets(streetsizes.minor, g, width);//3
         drawStreets(streetsizes.major, g, width);//3
         drawStreets(streetsizes.highway, g, width);
-    cout << "width: " << width << endl;
+        cout << "width: " << width << endl;
+    
+      drawBuildings(featuresizes.eight, g);
+    
     }
     else if ( ZOOM_SEVEN < zoom_adjust_two*zoom_level ){
         cout << "Zoom 7 : local : playgrounds " << endl;
@@ -86,6 +89,7 @@ void zoom(ezgl::renderer *g){
         drawStreets(streetsizes.major, g, width);//3
         drawStreets(streetsizes.highway, g, width);
     cout << "width: " << width << endl;
+    //drawFeatures(featuresizes.seven, g);
     }
     else if ( ZOOM_SIX < zoom_adjust_three*zoom_level){
         cout << "Zoom 6 : ponds and rivers" << endl;
@@ -94,6 +98,7 @@ void zoom(ezgl::renderer *g){
         drawStreets(streetsizes.major, g, width);//3
         drawStreets(streetsizes.highway, g, width);
     cout << "width: " << width << endl;
+    //drawFeatures(featuresizes.six, g);
     }
     else if ( ZOOM_FIVE < zoom_adjust_three*zoom_level){
         cout << "Zoom 5 : minor : marshes" << endl;
@@ -102,6 +107,7 @@ void zoom(ezgl::renderer *g){
         drawStreets(streetsizes.major, g, width);//3
         drawStreets(streetsizes.highway, g, width);
     cout << "width: " << width << endl;
+    //drawFeatures(featuresizes.five, g);
     }
     else if ( ZOOM_FOUR < zoom_adjust_four*zoom_level){
         cout << "Zoom 4 : parks and farms" << endl;
@@ -109,6 +115,7 @@ void zoom(ezgl::renderer *g){
         drawStreets(streetsizes.major, g, width);//3
         drawStreets(streetsizes.highway, g, width);
     cout << "width: " << width << endl;
+    //drawFeatures(featuresizes.four, g);
     }
     else if ( ZOOM_THREE < zoom_adjust_four *zoom_level){
         cout << "Zoom 3 : major : golf club" << endl;
@@ -116,12 +123,14 @@ void zoom(ezgl::renderer *g){
         drawStreets(streetsizes.major, g, width);//3
         drawStreets(streetsizes.highway, g, width);
     cout << "width: " << width << endl;
+    //drawFeatures(featuresizes.three, g);
     }
     else if ( ZOOM_TWO < zoom_adjust_five*zoom_level){
         cout << "Zoom 2 : big features" << endl;
         //width = ceil(zoom_level/19);
         drawStreets(streetsizes.highway, g, width);
     cout << "width: " << width << endl;
+    //drawFeatures(featuresizes.two, g);
     }
     else if ( ZOOM_ONE < zoom_adjust_five * zoom_level){
         cout << "Zoom 1 : highway" << endl;
@@ -129,6 +138,7 @@ void zoom(ezgl::renderer *g){
         drawStreets(streetsizes.highway, g, width);
         //CURRENTLY NO SPECIFIC DRAWING FOR HIGHWAY
         cout << "width: " << width << endl;
+      //  drawFeatures(featuresizes.one, g);
 //        drawStreets(streetsizes.highway, g, 5);//5
 //        if (6 < zoom_level){
 //            drawStreetNames(streetsizes.highway, g, 6);
@@ -263,6 +273,25 @@ void map_bounds(){
 }
 
 
+//distance in meters
+
+double x_between_2_points(LatLon first, LatLon second) {
+    double LatAvg = (first.lat() + second.lat()) * DEGREE_TO_RADIAN / 2;
+    double x1 = first.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
+    double x2 = second.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
+    return EARTH_RADIUS_METERS * (x2 - x1);
+}
+
+
+
+// Find the distance in the y component of two points using the formula provided in M1 Instructions
+
+double y_between_2_points(LatLon first, LatLon second) {
+    double y1 = first.lat() * DEGREE_TO_RADIAN;
+    double y2 = second.lat() * DEGREE_TO_RADIAN;
+    return EARTH_RADIUS_METERS * (y2 - y1);
+}
+
 void drawFeatures(ezgl::renderer *g) {
     int numFeatures = getNumFeatures();
     //584158 features in toronto map
@@ -277,7 +306,77 @@ void drawFeatures(ezgl::renderer *g) {
     double current_area = abs(x_between_2_points(top_left, top_right)) * abs(y_between_2_points(top_right, bottom_left));
 
     for (FeatureIndex i = 0; i < numFeatures; i++) {
-        if (getFeatureType(i) == Unknown) {
+        
+        if(getFeatureType(i) == Building){
+            featuresizes.eight.push_back(i);
+        }else{
+            
+
+            if (getFeatureType(i) == Unknown) {
+                g->set_color(BUILDINGS);
+            } else if (getFeatureType(i) == Park) {
+                g->set_color(GRASS);
+            } else if (getFeatureType(i) == Beach) {
+                g->set_color(GRASS);
+            } else if (getFeatureType(i) == Lake) {
+                g->set_color(WATER);
+            } else if (getFeatureType(i) == River) {
+                g->set_color(WATER);
+            } else if (getFeatureType(i) == Island) {
+                g->set_color(GRASS);
+            } else if (getFeatureType(i) == Building) {
+                g->set_color(BUILDINGS);
+            } else if (getFeatureType(i) == Greenspace) {
+                g->set_color(GRASS);
+            } else if (getFeatureType(i) == Golfcourse) {
+                g->set_color(GRASS);
+            } else if (getFeatureType(i) == Stream) {
+                g->set_color(WATER);
+            }
+
+
+            if (find_feature_area(i) > 0.001 * current_area || find_feature_area(i) == 0) {
+                //this condition checks for closed feature
+                if (getFeaturePoint(0, i).lat() == getFeaturePoint(getFeaturePointCount(i) - 1, i).lat() &&
+                        getFeaturePoint(0, i).lon() == getFeaturePoint(getFeaturePointCount(i) - 1, i).lon()) {
+
+                    std::vector<ezgl::point2d> points;
+                    //put x-y coords of points that make up a closed feature into a vector
+                    for (int j = 0; j < getFeaturePointCount(i); j++) {
+                        double x_coords = (double) x_from_lon(getFeaturePoint(j, i).lon());
+                        double y_coords = (double) y_from_lat(getFeaturePoint(j, i).lat());
+                        ezgl::point2d pointIn2D(x_coords, y_coords);
+                        points.push_back(pointIn2D);
+                    }
+                    //use the vector to draw
+                    if (points.size() > 1) {
+                        g->fill_poly(points);
+                    }
+                } else {//open feature
+                    //open features are lines
+                    for (int k = 0; k + 1 < getFeaturePointCount(i); k++) {
+                        double start_x = x_from_lon(getFeaturePoint(k, i).lon());
+                        double start_y = y_from_lat(getFeaturePoint(k, i).lat());
+                        double end_x = x_from_lon(getFeaturePoint(k + 1, i).lon());
+                        double end_y = y_from_lat(getFeaturePoint(k + 1, i).lat());
+                        ezgl::point2d start_point(start_x, start_y);
+                        ezgl::point2d end_point(end_x, end_y);
+                        g->set_line_dash(ezgl::line_dash::none);
+                        g->draw_line(start_point, end_point);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void drawBuildings(std::vector<int> features, ezgl::renderer *g ){
+    
+    g->set_line_width(1);
+    
+    for (int i = 0; i< features.size() ; i++){
+        
+          if (getFeatureType(i) == Unknown) {
             g->set_color(BUILDINGS);
         } else if (getFeatureType(i) == Park) {
             g->set_color(GRASS);
@@ -298,11 +397,9 @@ void drawFeatures(ezgl::renderer *g) {
         } else if (getFeatureType(i) == Stream) {
             g->set_color(WATER);
         }
-
-
-        if (find_feature_area(i) > 0.001 * current_area || find_feature_area(i) == 0) {
-            //this condition checks for closed feature
-            if (getFeaturePoint(0, i).lat() == getFeaturePoint(getFeaturePointCount(i) - 1, i).lat() &&
+        
+        
+        if (getFeaturePoint(0, i).lat() == getFeaturePoint(getFeaturePointCount(i) - 1, i).lat() &&
                     getFeaturePoint(0, i).lon() == getFeaturePoint(getFeaturePointCount(i) - 1, i).lon()) {
 
                 std::vector<ezgl::point2d> points;
@@ -330,25 +427,5 @@ void drawFeatures(ezgl::renderer *g) {
                     g->draw_line(start_point, end_point);
                 }
             }
-        }
     }
 }
-//distance in meters
-
-double x_between_2_points(LatLon first, LatLon second) {
-    double LatAvg = (first.lat() + second.lat()) * DEGREE_TO_RADIAN / 2;
-    double x1 = first.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
-    double x2 = second.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
-    return EARTH_RADIUS_METERS * (x2 - x1);
-}
-
-
-
-// Find the distance in the y component of two points using the formula provided in M1 Instructions
-
-double y_between_2_points(LatLon first, LatLon second) {
-    double y1 = first.lat() * DEGREE_TO_RADIAN;
-    double y2 = second.lat() * DEGREE_TO_RADIAN;
-    return EARTH_RADIUS_METERS * (y2 - y1);
-}
-

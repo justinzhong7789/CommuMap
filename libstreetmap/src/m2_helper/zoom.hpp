@@ -51,7 +51,8 @@ void drawAllStreets(ezgl::renderer *g, int width);
 void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size);
 
 void makeFeaturesVector();
-void drawFeatures(ezgl::renderer *g);
+void drawFeatures(ezgl::renderer *g );
+void drawBuildings(std::vector<int> features, ezgl::renderer *g );
 double x_between_2_points(LatLon first, LatLon second);
 double y_between_2_points(LatLon first, LatLon second);
 

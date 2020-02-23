@@ -60,7 +60,8 @@ void draw_map() {
 
     makeStreetsVector();
     makeStreetSizeTable();
-
+  //  sortFeatures();
+    
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
@@ -84,8 +85,8 @@ void draw_main_canvas(ezgl::renderer *g) {
         numTimesDrawn++;
     }
     
-    drawFeatures(g);
+        drawFeatures(g);
     zoom(g);
-    //drawFeatures(g);
+
 }
 

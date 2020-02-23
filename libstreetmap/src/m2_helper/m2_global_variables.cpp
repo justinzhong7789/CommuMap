@@ -9,6 +9,7 @@ std::vector <streetSegmentsData> streetSegments;
 
 StreetSize streetsizes;
 
+FeatureSize featuresizes;
 
 // add all street names length together
 void makeStreetSizeTable(){
@@ -35,7 +36,7 @@ void makeStreetSizeTable(){
         
         
         float speed = getInfoStreetSegment(segmentsOfStreets[i][0]).speedLimit; 
-//        
+
 //        //Identifying highways
         if(120 > speed && speed > 80 && street_length > 1000) {
             streetsizes.highway.push_back(street_data);
@@ -52,28 +53,6 @@ void makeStreetSizeTable(){
         }
     }
 }
-
-/*
-void makeStreetsSizeTable(){
-    streetData street_data;
-    InfoStreetSegment info;
-    for (StreetIndex i=0; i<getNumStreets(); i++){
-        double street_length = 0;
-        (street_data.node).clear();
-        for (StreetSegmentIndex j=0; j<segmentsOfStreets[i].size(); j++){
-            street_length += find_street_segment_length(j);
-            info = getInfoStreetSegment(j);
-            (street_data.node).push_back(add_nodes(j));
-        }
-        street_data.name = getStreetName(i);
-        street_data.length = street_length;
-        
-        if (street_length > 1000){
-            
-            bigStreetsTable.push_back(street_data);
-        }
-    }
-}*/
 
 std::vector<LatLon> add_nodes(StreetSegmentIndex id){
     InfoStreetSegment info = getInfoStreetSegment(id);
@@ -122,3 +101,108 @@ void makeStreetsVector(){
         }
     }
 }
+//
+//void sortFeatures() {
+//    int numFeatures = getNumFeatures();
+//    //584158 features in toronto map
+//    //this loop draws all the features
+//    
+//
+//    for (FeatureIndex i = 0; i < numFeatures; i++) {
+//
+//        //cout << "The feature area of "<<i<<" is: "<<find_feature_area(i)<< endl;
+////        if (find_feature_area(i) > 5000) {
+////            featuresizes.eight.push_back(i);
+////        }
+////        else if (find_feature_area(i) > 3000) {
+////            featuresizes.seven.push_back(i);
+////        }
+////        else if (find_feature_area(i) > 2000) {
+////            featuresizes.six.push_back(i);
+////        }
+////        else if (find_feature_area(i) > 1000) {
+////            featuresizes.five.push_back(i);
+////        }
+////        else if (find_feature_area(i) > 500) {
+////            featuresizes.four.push_back(i);
+////        }
+////        else if (find_feature_area(i) > 400) {
+////            featuresizes.three.push_back(i);
+////        }
+////        else if (find_feature_area(i) > 300) {
+////            featuresizes.two.push_back(i);
+////        }
+////        else {
+////            featuresizes.one.push_back(i);
+////        }
+////    }
+// 
+//        if (getFeatureType(i) == Park) {
+//            featuresizes.two.push_back(i);
+//            featuresizes.three.push_back(i);
+//            featuresizes.four.push_back(i);
+//            featuresizes.five.push_back(i);
+//            featuresizes.six.push_back(i);
+//            featuresizes.seven.push_back(i);
+//            featuresizes.eight.push_back(i);
+//        } else if (getFeatureType(i) == Beach) {
+//            featuresizes.three.push_back(i);
+//              featuresizes.four.push_back(i);
+//            featuresizes.five.push_back(i);
+//            featuresizes.six.push_back(i);
+//            featuresizes.seven.push_back(i);
+//            featuresizes.eight.push_back(i);
+//        } else if (getFeatureType(i) == Lake) {
+//            featuresizes.one.push_back(i);
+//            featuresizes.two.push_back(i);
+//            featuresizes.three.push_back(i);
+//            featuresizes.four.push_back(i);
+//            featuresizes.five.push_back(i);
+//            featuresizes.six.push_back(i);
+//            featuresizes.seven.push_back(i);
+//            featuresizes.eight.push_back(i);
+//        } else if (getFeatureType(i) == River) {
+//            featuresizes.four.push_back(i);
+//            featuresizes.five.push_back(i);
+//            featuresizes.six.push_back(i);
+//            featuresizes.seven.push_back(i);
+//            featuresizes.eight.push_back(i);
+//        } else if (getFeatureType(i) == Island) {
+//            featuresizes.one.push_back(i);
+//                featuresizes.two.push_back(i);
+//            featuresizes.three.push_back(i);
+//            featuresizes.four.push_back(i);
+//            featuresizes.five.push_back(i);
+//            featuresizes.six.push_back(i);
+//            featuresizes.seven.push_back(i);
+//            featuresizes.eight.push_back(i);
+//        } else if (getFeatureType(i) == Building) {
+//            featuresizes.seven.push_back(i);
+//            featuresizes.eight.push_back(i);
+//        } else if (getFeatureType(i) == Greenspace) {
+//            featuresizes.five.push_back(i);
+//            featuresizes.six.push_back(i);
+//            featuresizes.seven.push_back(i);
+//            featuresizes.eight.push_back(i);
+//        } else if (getFeatureType(i) == Golfcourse) {
+//            featuresizes.two.push_back(i);
+//            featuresizes.three.push_back(i);
+//            featuresizes.four.push_back(i);
+//            featuresizes.five.push_back(i);
+//            featuresizes.six.push_back(i);
+//            featuresizes.seven.push_back(i);
+//            featuresizes.eight.push_back(i);
+//        } else if (getFeatureType(i) == Stream) {
+//            featuresizes.three.push_back(i);
+//               featuresizes.four.push_back(i);
+//            featuresizes.five.push_back(i);
+//            featuresizes.six.push_back(i);
+//            featuresizes.seven.push_back(i);
+//        }
+//        else{
+//            featuresizes.eight.push_back(i);
+//        }
+//    }
+//    
+//}
+
