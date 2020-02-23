@@ -15,149 +15,64 @@
 using namespace std;
 using namespace ezgl;
 
-
 struct intersectionData {
     LatLon position;
     std::string name;
 };
 
-std::vector <intersectionData> intersections;
+extern std::vector <intersectionData> intersections;
 
-double max_lat;
-double min_lat;
-double max_lon;
-double min_lon;
+extern double max_lat;
+extern double min_lat;
+extern double max_lon;
+extern double min_lon;
 
 void map_bounds();
 
+//x and y conversions
 float y_from_lat(float lat);
 float x_from_lon(float lon);
 float lat_from_y(float lat);
 float lon_from_x(float lon);
 
+//Zoom level variables
+extern rectangle full_screen; 
+extern rectangle full_map;
+
+//Main zoom function
 void zoom(ezgl::renderer *g);
+
+//Draws streets with different widths not including <unknowns>
 void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width); 
+//Draws all the streets including <unknowns>
 void drawAllStreets(ezgl::renderer *g, int width);
 
-void zoom(ezgl::renderer *g){
-  
-    point2d *min = new point2d(min_lon, min_lat);
-    point2d *max = new point2d(max_lon, max_lat);
-    rectangle *full_map = new rectangle(*min, *max);
-    rectangle current_map = g->get_visible_world();
+//Draws all the street names
+void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size);
 
-    
-    double zoom_level = ((full_map->m_second.x)-(full_map->m_first.x))/((current_map.m_second.x)-(current_map.m_first.x));
-    
-    //check when zoom is close to 0
-    int width = zoom_level*pow(2,1/zoom_level);
-    
-    if (20 < zoom_level){
-        cout << "all"<< endl;
-        drawAllStreets(g, width);
-    }
-    if (7 < zoom_level ){
-        cout << "Local" << endl;
-        drawStreets(streetsizes.local, g, 1 );//1
-    }
-    if (4 < zoom_level){ 
-        cout << "Minor" << endl;
-       drawStreets(streetsizes.minor, g, 2);//2
-    }
-    if ( 2 < zoom_level){
-        cout << "Major" << endl;
-        drawStreets(streetsizes.major, g, 3);//3
-    }
-    if ( 0.5 < zoom_level){
-        cout << "Highway" << endl;
-        //CURRENTLY NO SPECIFIC DRAWING FOR HIGHWAY
-        drawStreets(streetsizes.highway, g, 5);//5
-    }
-    delete min;
-    delete max;
-    delete full_map;
-}
+void makeFeaturesVector();
+void drawFeatures(ezgl::renderer *g );
+void drawBuildings(std::vector<int> features, ezgl::renderer *g );
+double x_between_2_points(LatLon first, LatLon second);
+double y_between_2_points(LatLon first, LatLon second);
 
-void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width ){
-    
-    for (int i=0; i<streets.size(); i++){
-        // Iterate through every street segment in the street
-        for (int j=0; j<streets[i].segments.size(); j++){
-            // Iterate through every node in the street segment
-            for (int k=1; k<streets[i].segments[j].node.size(); k++){
-                std::pair <float, float> start = {x_from_lon(streets[i].segments[j].node[k-1].lon()), y_from_lat((streets[i].segments)[j].node[k-1].lat())};
-                std::pair <float, float> end = {x_from_lon(streets[i].segments[j].node[k].lon()), y_from_lat(streets[i].segments[j].node[k].lat())};
-                
-                g->set_line_dash(ezgl::line_dash::none);
-                
-                //Outline colour
-                g->set_color(OUTLINE);
-                g->set_line_width(width+2);
-                g->draw_line({start.first, start.second}, {end.first, end.second});
-                
-                //Fill colour
-                g->set_color(WHITE);
-                g->set_line_width(width);
-                g->draw_line({start.first, start.second}, {end.first, end.second});
-                
-            }
-        }
-    }
-}
+double findArea(double x1, double y1, double x2, double y2);
 
-void drawAllStreets(renderer *g, int width){
-       for (size_t i=0; i<streetSegments.size(); i++){
-        for (size_t j=1; j<streetSegments[i].node.size(); j++){
-            std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
-            std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
-            
-            g->set_color(OUTLINE);
-            g->set_line_width(width+2);
-            g->draw_line({start.first, start.second}, {end.first, end.second});
-            
-            g->set_line_width(width);
-            g->set_color(ezgl::WHITE);
-            g->set_line_dash(ezgl::line_dash::none);
-            g->draw_line({start.first, start.second}, {end.first, end.second});
-        }
-    }
-}
+const int ZOOM_ONE   = 1;
+const int ZOOM_TWO   = 190;
+const int ZOOM_THREE = 534;
+const int ZOOM_FOUR  = 1467;
+const int ZOOM_FIVE  = 2591;
+const int ZOOM_SIX   = 32736;
+const int ZOOM_SEVEN = 91698;
+const int ZOOM_EIGHT = 730567;
 
-float x_from_lon(float lon){
-    double latAvg = (max_lat + min_lat)/2;
-    double x = lon*cos(latAvg * 3.1415926535 /180);
-    return x;
-}
+const ezgl::color GRASS(192,211,192);
+const ezgl::color WATER(182,196,201);
+const ezgl::color HIGHWAY(131,133,134);
+const ezgl::color OUTLINE(197,197,197);
+const ezgl::color BUILDINGS(224,224,224);
 
-float y_from_lat(float lat){
-    return lat;
-}
-
-float lon_from_x(float x){
-    double latAvg = (max_lat + min_lat)/2;
-    double lon = x / cos(latAvg * 3.1415926535 /180);
-    return lon;
-}
-
-float lat_from_y(float y){
-    return y;
-}
-
-void map_bounds(){
-    
-    intersections.resize(getNumIntersections());
-    max_lat = -999999;
-    min_lat = 9999999;
-    max_lon = -9999999;
-    min_lon = 9999999;
-    for (int id=0; id<getNumIntersections(); id++){
-        intersections[id].position = getIntersectionPosition(id);
-        intersections[id].name = getIntersectionName(id);
-        
-        max_lat = std::max(max_lat, intersections[id].position.lat());
-        min_lat = std::min(min_lat, intersections[id].position.lat());
-        max_lon = std::max(max_lon, intersections[id].position.lon());
-        min_lon = std::min(min_lon, intersections[id].position.lon());
-    }
-    
-}
+const double area_full_screen = 1831656;
+//const double area_full_screen = 360000;
+const double area_full_map = 0.34959285;
