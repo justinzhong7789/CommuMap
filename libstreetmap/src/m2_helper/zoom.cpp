@@ -140,9 +140,9 @@ void zoom(ezgl::renderer *g){
         cout << "width: " << width << endl;
       //  drawFeatures(featuresizes.one, g);
 //        drawStreets(streetsizes.highway, g, 5);//5
-//        if (6 < zoom_level){
-//            drawStreetNames(streetsizes.highway, g, 6);
-//        }
+        if (ZOOM_ONE < zoom_adjust_five * zoom_level){
+            drawStreetNames(streetsizes.highway, g, 10);
+        }
 //        if (10 < zoom_level){
 //            drawStreetNames(streetsizes.major, g, 6);
 //        }
@@ -204,10 +204,12 @@ void drawAllStreets(renderer *g, int width){
 void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
     double angle = 0;
     InfoStreetSegment info;
-    //const float textsquare_width = 100;
-    //ezgl::rectangle textsquare = {{100, 400}, textsquare_width, textsquare_width};
-    
-    for (size_t i=0; i<streets.size(); i++){
+    // Creates a vector of all the names that will be displayed; this checks for duplicates and prevents it from drawing names more than once
+    // De-clutters the map a bit
+    std::vector<std::string> check_names; 
+    check_names.push_back(streets[0].name);
+    // Loop through every street
+    for (size_t i=0; i<streets.size(); i=i+2){
         std::string street_name = streets[i].name;
         float last_position = x_from_lon(getIntersectionPosition(getInfoStreetSegment(streets[i].segments[0].id).from).lon())-1;
         
@@ -222,12 +224,20 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
                 last_position = center.first;
             angle = atan((end.second - start.second)/(end.first - start.first))*180/M_PI;
             
-            g->set_font_size(font_size);
-            g->set_color(ezgl::BLACK);
-            g->set_text_rotation(angle);
+            for (int k=0; k<check_names.size(); k++){
+                if (check_names[k] == street_name){
+                    break;
+                } 
+                else if (k==check_names.size()-1){
+                g->set_font_size(font_size);
+                g->set_color(ezgl::BLACK);
+                g->set_text_rotation(angle);
             //g->draw_text({center.first, center.second}, street_name);
             //g->draw_text({start.first, start.second}, street_name, 100, 100);
-            g->draw_text({center.first, center.second}, street_name);
+                g->draw_text({center.first, center.second}, street_name);
+                check_names.push_back(street_name);
+                }
+            }
             }
         }
     }
