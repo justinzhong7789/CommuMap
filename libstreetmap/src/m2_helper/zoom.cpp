@@ -1,37 +1,9 @@
 #include "zoom.hpp"
 
-double max_lat;
-double min_lat;
-double max_lon;
-double min_lon;
-
 rectangle full_map;
 rectangle full_screen;
 
-//ezgl::color GRASS(192,211,192);
-//ezgl::color WATER(182,196,201);
-//ezgl::color HIGHWAY(131,133,134);
-//ezgl::color OUTLINE(197,197,197);
-//ezgl::color BUILDINGS(224,224,224);
-
-//ezgl::color GRASS.;
-//ezgl::color BACKGROUND;
-//ezgl::color WATER;
-//ezgl::color HIGHWAY;
-//ezgl::color OUTLINE;
-
-//double area_full_map = findArea(full_map.m_first.x, full_map.m_first.y, full_map.m_second.x, full_map.m_second.y);
-
 std::vector <intersectionData> intersections;
-
-double findArea(double x1, double y1, double x2, double y2){
-    
-    double xdiff = x2-x1;
-    double ydiff = y2-y1;
-    return xdiff*ydiff;
-}
-
-
 
 void zoom(ezgl::renderer *g){
 
@@ -45,113 +17,68 @@ void zoom(ezgl::renderer *g){
     //check when zoom is close to 0
     //int width = ceil(zoom_level*pow(2,1/zoom_level));
     
+    double zoom_small = 0.0;
     
-    cout<< "Zoom Map: "<< zoom_map << endl;
-    cout<< "Screen values = X1: "<< current_screen.m_first.x << "Y1: " << current_screen.m_first.y 
-            << "// X2: " << current_screen.m_second.x << "Y1: " << current_screen.m_second.y << endl;
-    
-    cout<< "Zoom Screen: "<< zoom_screen << endl;
-    
-    cout<< "Zoom Level: "<< zoom_level << endl << endl;
-    
-  
-    int zoom_adjust_two = 1;
-    int zoom_adjust_three = 1;
-    double zoom_adjust_four = 1;
-    int zoom_adjust_five = 1;
-    
-    if(zoom_screen > 1.5 ){
-        zoom_adjust_two = 2;
-        zoom_adjust_three = 3;
-        zoom_adjust_four = 4.5;
-        zoom_adjust_five = 5;
-    }
     int width = 12;
     
-    if ( ZOOM_EIGHT < zoom_adjust_two*zoom_level){
-        cout << "Zoom 8 : all : buildings" << endl;
-        width = ceil(zoom_adjust_two*zoom_level/103100);
-        drawAllStreets(g, width);
-        drawStreets(streetsizes.local, g, width );
-        drawStreets(streetsizes.minor, g, width);//3
-        drawStreets(streetsizes.major, g, width);//3
-        drawStreets(streetsizes.highway, g, width);
-        cout << "width: " << width << endl;
+    int zoomCase = zoomArraySize;
     
-      drawBuildings(featuresizes.eight, g);
-    
-    }
-    else if ( ZOOM_SEVEN < zoom_adjust_two*zoom_level ){
-        cout << "Zoom 7 : local : playgrounds " << endl;
-        //width = ceil(high_zoom_adjust*zoom_level/9170);
-        drawStreets(streetsizes.local, g, width );
-        drawStreets(streetsizes.minor, g, width);//3
-        drawStreets(streetsizes.major, g, width);//3
-        drawStreets(streetsizes.highway, g, width);
-    cout << "width: " << width << endl;
-    //drawFeatures(featuresizes.seven, g);
-    }
-    else if ( ZOOM_SIX < zoom_adjust_three*zoom_level){
-        cout << "Zoom 6 : ponds and rivers" << endl;
-        //width = ceil(high_zoom_adjust*zoom_level/3200);
-        drawStreets(streetsizes.minor, g, width);//3
-        drawStreets(streetsizes.major, g, width);//3
-        drawStreets(streetsizes.highway, g, width);
-    cout << "width: " << width << endl;
-    //drawFeatures(featuresizes.six, g);
-    }
-    else if ( ZOOM_FIVE < zoom_adjust_three*zoom_level){
-        cout << "Zoom 5 : minor : marshes" << endl;
-        //width = ceil(low_zoom_adjust*zoom_level/260);
-        drawStreets(streetsizes.minor, g, width);//3
-        drawStreets(streetsizes.major, g, width);//3
-        drawStreets(streetsizes.highway, g, width);
-    cout << "width: " << width << endl;
-    //drawFeatures(featuresizes.five, g);
-    }
-    else if ( ZOOM_FOUR < zoom_adjust_four*zoom_level){
-        cout << "Zoom 4 : parks and farms" << endl;
-        //width = ceil(low_zoom_adjust*zoom_level/147);
-        drawStreets(streetsizes.major, g, width);//3
-        drawStreets(streetsizes.highway, g, width);
-    cout << "width: " << width << endl;
-    //drawFeatures(featuresizes.four, g);
-    }
-    else if ( ZOOM_THREE < zoom_adjust_four *zoom_level){
-        cout << "Zoom 3 : major : golf club" << endl;
-        //width = ceil(low_zoom_adjust*zoom_level/60);
-        drawStreets(streetsizes.major, g, width);//3
-        drawStreets(streetsizes.highway, g, width);
-    cout << "width: " << width << endl;
-    //drawFeatures(featuresizes.three, g);
-    }
-    else if ( ZOOM_TWO < zoom_adjust_five*zoom_level){
-        cout << "Zoom 2 : big features" << endl;
-        //width = ceil(zoom_level/19);
-        drawStreets(streetsizes.highway, g, width);
-    cout << "width: " << width << endl;
-    //drawFeatures(featuresizes.two, g);
-    }
-    else if ( ZOOM_ONE < zoom_adjust_five * zoom_level){
-        cout << "Zoom 1 : highway" << endl;
-        //width = ceil(zoom_level/15);
-        drawStreets(streetsizes.highway, g, width);
-        //CURRENTLY NO SPECIFIC DRAWING FOR HIGHWAY
-        cout << "width: " << width << endl;
-      //  drawFeatures(featuresizes.one, g);
-//        drawStreets(streetsizes.highway, g, 5);//5
-        if (ZOOM_ONE < zoom_adjust_five * zoom_level){
-            drawStreetNames(streetsizes.highway, g, 10);
+    for(int i = 0; i < zoomArraySize; i++){
+        
+        if(zoom_screen > ZOOM_SCREEN_INIT){
+            zoom_small = 0.9*pow(2,zoom_level);
+            if(zoomLevel[i] < zoom_small){
+                zoomCase = i;
+                break;
+            }
+        }else{
+            if(zoomLevel[i] < zoom_level){
+                zoomCase = i;
+                break;
+            }
         }
-//        if (10 < zoom_level){
-//            drawStreetNames(streetsizes.major, g, 6);
-//        }
-//        if (15 < zoom_level){
-//            drawStreetNames(streetsizes.minor, g, 6);
-//        }
-//        if (25 < zoom_level){
-//            drawStreetNames(streetsizes.local, g, 6);
-//        }
+       
+    }
+    
+     cout << "At level: "<< zoomCase << endl;
+     
+     cout<< "Screen values = X1: "<< current_screen.m_first.x << "Y1: " << current_screen.m_first.y 
+            << "// X2: " << current_screen.m_second.x << "Y1: " << current_screen.m_second.y << endl;
+    cout<< "Zoom Map: "<< zoom_map << endl;
+    cout<< "Zoom Screen: "<< zoom_screen << endl;
+    cout<< "Zoom Level Full: "<< zoom_level << endl ;
+    cout<< "Zoom Level Small: "<< zoom_small << endl <<endl;
+     
+    switch (zoomCase){
+        case 0:
+            drawFeatures(featuretypes.unknownFeatures, g);
+            //drawAllStreets(g, width*(zoom_level/ZOOM_ZERO));
+            
+            break;
+        case 1:
+            drawFeatures(featuretypes.buildings, g);
+            //drawAllStreets(g, width*(zoom_level/ZOOM_ONE));
+            
+        case 2:
+            drawFeatures(featuretypes.streams, g);
+            //drawStreets(streetsizes.local, g , width);
+            
+        case 3:
+            //drawStreets(streetsizes.minor, g , width);
+        case 4:
+            drawFeatures(featuretypes.golfcourses, g);
+            drawFeatures(featuretypes.beaches, g);
+            //drawStreets(streetsizes.major, g , width);
+        case 5:
+            drawFeatures(featuretypes.islands, g);
+            drawFeatures(featuretypes.lakes, g);
+            drawFeatures(featuretypes.rivers, g);
+            drawFeatures(featuretypes.bigparks, g);
+            //drawStreets(streetsizes.highway, g, width);
+            break;
+        default: 
+            //drawStreets(streetsizes.highway, g, width);
+            break;
     }
     
 }
@@ -173,10 +100,14 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width ){
                 g->set_line_width(width+2);
                 g->draw_line({start.first, start.second}, {end.first, end.second});
                 
+                g->set_line_cap(ezgl::line_cap::round);
+                
                 //Fill colour
                 g->set_color(WHITE);
                 g->set_line_width(width);
                 g->draw_line({start.first, start.second}, {end.first, end.second});
+                
+                g->set_line_cap(ezgl::line_cap::butt);
                 
             }
         }
@@ -189,14 +120,20 @@ void drawAllStreets(renderer *g, int width){
             std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
             std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
             
+            
+            
             g->set_color(OUTLINE);
             g->set_line_width(width+2);
             g->draw_line({start.first, start.second}, {end.first, end.second});
+            
+            g->set_line_cap(ezgl::line_cap::round);
             
             g->set_line_width(width);
             g->set_color(ezgl::WHITE);
             g->set_line_dash(ezgl::line_dash::none);
             g->draw_line({start.first, start.second}, {end.first, end.second});
+            
+            g->set_line_cap(ezgl::line_cap::butt);
         }
     }
 }
@@ -243,26 +180,6 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
     }
 }
 
-float x_from_lon(float lon){
-    double latAvg = (max_lat + min_lat)/2;
-    double x = lon*cos(latAvg * 3.1415926535 /180);
-    return x;
-}
-
-float y_from_lat(float lat){
-    return lat;
-}
-
-float lon_from_x(float x){
-    double latAvg = (max_lat + min_lat)/2;
-    double lon = x / cos(latAvg * 3.1415926535 /180);
-    return lon;
-}
-
-float lat_from_y(float y){
-    return y;
-}
-
 void map_bounds(){
     
     intersections.resize(getNumIntersections());
@@ -281,193 +198,3 @@ void map_bounds(){
     }
     
 }
-
-
-//distance in meters
-
-double x_between_2_points(LatLon first, LatLon second) {
-    double LatAvg = (first.lat() + second.lat()) * DEGREE_TO_RADIAN / 2;
-    double x1 = first.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
-    double x2 = second.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
-    return EARTH_RADIUS_METERS * (x2 - x1);
-}
-
-
-
-// Find the distance in the y component of two points using the formula provided in M1 Instructions
-
-double y_between_2_points(LatLon first, LatLon second) {
-    double y1 = first.lat() * DEGREE_TO_RADIAN;
-    double y2 = second.lat() * DEGREE_TO_RADIAN;
-    return EARTH_RADIUS_METERS * (y2 - y1);
-}
-
-void drawFeatures(ezgl::renderer *g) {
-    int numFeatures = getNumFeatures();
-    //584158 features in toronto map
-    //this loop draws all the features
-    
-    g->set_line_width(1);
-
-    rectangle current_map = g->get_visible_world();
-    LatLon top_left(current_map.m_first.y, lon_from_x(current_map.m_first.x));
-    LatLon top_right(current_map.m_first.y, lon_from_x(current_map.m_second.x));
-    LatLon bottom_left(current_map.m_second.y, lon_from_x(current_map.m_first.x));
-    double current_area = abs(x_between_2_points(top_left, top_right)) * abs(y_between_2_points(top_right, bottom_left));
-
-    for (FeatureIndex i = 0; i < numFeatures; i++) {
-        if (find_feature_area(i) > 0.001 * current_area || find_feature_area(i) == 0) {
-            if(getFeatureType(i) == Building){
-                featuresizes.eight.push_back(i);
-            }
-            else if(getFeatureType(i) == Unknown) {
-                    g->set_color(BUILDINGS);
-            }
-            else if (getFeatureType(i) == Park) {
-                g->set_color(GRASS);
-            }
-            else if (getFeatureType(i) == Beach) {
-                g->set_color(GRASS);
-            }
-            else if (getFeatureType(i) == Lake) {
-                g->set_color(WATER);
-            }
-            else if (getFeatureType(i) == River) {
-                g->set_color(WATER);
-            }
-            else if (getFeatureType(i) == Island) {
-                g->set_color(GRASS);
-            }
-            else if (getFeatureType(i) == Building) {
-                g->set_color(BUILDINGS);
-            }
-            else if (getFeatureType(i) == Greenspace) {
-                g->set_color(GRASS);
-            }
-            else if (getFeatureType(i) == Golfcourse) {
-                g->set_color(GRASS);
-            }
-            else if (getFeatureType(i) == Stream) {
-                g->set_color(WATER);
-            }
-            
-            double min_x = x_from_lon(getFeaturePoint(0,i).lon());
-            double min_y = y_from_lat(getFeaturePoint(0,i).lat());
-            double max_x = x_from_lon(getFeaturePoint(0,i).lon());
-            double max_y = y_from_lat(getFeaturePoint(0,i).lat());
-                //this condition checks for closed feature
-            if (getFeaturePoint(0, i).lat() == getFeaturePoint(getFeaturePointCount(i) - 1, i).lat() &&
-                getFeaturePoint(0, i).lon() == getFeaturePoint(getFeaturePointCount(i) - 1, i).lon()) {
-
-                std::vector<ezgl::point2d> points;
-                //put x-y coords of points that make up a closed feature into a vector
-                for (int j = 0; j < getFeaturePointCount(i); j++) {
-                    double x_coords = (double) x_from_lon(getFeaturePoint(j, i).lon());
-                    double y_coords = (double) y_from_lat(getFeaturePoint(j, i).lat());
-                    ezgl::point2d pointIn2D(x_coords, y_coords);
-                    points.push_back(pointIn2D);
-                    if(x_coords > max_x){max_x = x_coords;}
-                    if(x_coords < min_x){min_x = x_coords;}
-                    if(y_coords > max_y){max_y = y_coords;}
-                    if(y_coords < min_y){min_y = y_coords;}
-                }
-                    //use the vector to draw
-                if (points.size() > 1) {
-                    g->fill_poly(points);
-                    if(getFeatureName(i)!="<noname>"){
-                        g->set_color(ezgl::BLACK);
-                        g->draw_text({(min_x + max_x)/2, (min_y + max_y)/2}, getFeatureName(i));
-                    }
-                    
-                }
-            } 
-            else {//open feature
-                    //open features are lines
-                for (int k = 0; k + 1 < getFeaturePointCount(i); k++) {
-                    double start_x = x_from_lon(getFeaturePoint(k, i).lon());
-                    double start_y = y_from_lat(getFeaturePoint(k, i).lat());
-                    double end_x = x_from_lon(getFeaturePoint(k + 1, i).lon());
-                    double end_y = y_from_lat(getFeaturePoint(k + 1, i).lat());
-                    ezgl::point2d start_point(start_x, start_y);
-                    ezgl::point2d end_point(end_x, end_y);
-                    g->set_line_dash(ezgl::line_dash::none);
-                    g->draw_line(start_point, end_point);
-                }
-            }
-        }
-    }
-}
-
-void drawBuildings(std::vector<int> features, ezgl::renderer *g ){
-    
-    g->set_line_width(1);
-    
-    for (int i = 0; i< features.size() ; i++){
-        
-          if (getFeatureType(i) == Unknown) {
-            g->set_color(BUILDINGS);
-        } else if (getFeatureType(i) == Park) {
-            g->set_color(GRASS);
-        } else if (getFeatureType(i) == Beach) {
-            g->set_color(GRASS);
-        } else if (getFeatureType(i) == Lake) {
-            g->set_color(WATER);
-        } else if (getFeatureType(i) == River) {
-            g->set_color(WATER);
-        } else if (getFeatureType(i) == Island) {
-            g->set_color(GRASS);
-        } else if (getFeatureType(i) == Building) {
-            g->set_color(BUILDINGS);
-        } else if (getFeatureType(i) == Greenspace) {
-            g->set_color(GRASS);
-        } else if (getFeatureType(i) == Golfcourse) {
-            g->set_color(GRASS);
-        } else if (getFeatureType(i) == Stream) {
-            g->set_color(WATER);
-        }
-        
-        
-        if (getFeaturePoint(0, i).lat() == getFeaturePoint(getFeaturePointCount(i) - 1, i).lat() &&
-                    getFeaturePoint(0, i).lon() == getFeaturePoint(getFeaturePointCount(i) - 1, i).lon()) {
-
-                std::vector<ezgl::point2d> points;
-                double maxX = x_from_lon(getFeaturePoint(0,i).lon());
-                double minX = x_from_lon(getFeaturePoint(0,i).lon());
-                double maxY = y_from_lat(getFeaturePoint(0,i).lat());
-                double minY = y_from_lat(getFeaturePoint(0,i).lat());
-                //put x-y coords of points that make up a closed feature into a vector
-                for (int j = 0; j < getFeaturePointCount(i); j++) {
-                    double x_coords = (double) x_from_lon(getFeaturePoint(j, i).lon());
-                    double y_coords = (double) y_from_lat(getFeaturePoint(j, i).lat());
-                    ezgl::point2d pointIn2D(x_coords, y_coords);
-                    points.push_back(pointIn2D);
-                    if(x_coords > maxX){maxX = x_coords;}
-                    if(x_coords < minX){minX = x_coords;}
-                    if(y_coords > maxY){maxY = y_coords;}
-                    if(y_coords < maxY){minY = y_coords;}
-                }
-                //use the vector to draw
-                if (points.size() > 1) {
-                    g->fill_poly(points);
-                }
-                if(getFeatureName(i)!="<noname>"){
-                    g->set_color(ezgl::BLACK);
-                    g->draw_text({(maxX + minX)/2, (maxY + minY)/2}, getFeatureName(i));
-                }
-            } else {//open feature
-                //open features are lines
-                for (int k = 0; k + 1 < getFeaturePointCount(i); k++) {
-                    //this process is to connect the lines between each feature point
-                    double start_x = x_from_lon(getFeaturePoint(k, i).lon());
-                    double start_y = y_from_lat(getFeaturePoint(k, i).lat());
-                    double end_x = x_from_lon(getFeaturePoint(k + 1, i).lon());
-                    double end_y = y_from_lat(getFeaturePoint(k + 1, i).lat());
-                    ezgl::point2d start_point(start_x, start_y);
-                    ezgl::point2d end_point(end_x, end_y);
-                    g->set_line_dash(ezgl::line_dash::none);
-                    g->draw_line(start_point, end_point);
-                }
-            }
-    }
-}
-

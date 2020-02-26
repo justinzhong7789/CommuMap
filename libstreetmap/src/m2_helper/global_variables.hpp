@@ -42,6 +42,11 @@ struct StreetData {
     //std::vector<std::vector<LatLon>> node;
 };
 
+struct info{
+    int ID;
+    std::string name;
+};
+
 struct StreetSize {
     std::vector<StreetData> highway;
     std::vector<StreetData> major;
@@ -50,30 +55,48 @@ struct StreetSize {
 };
 
 struct FeatureSize {
-  std::vector<int> eight;
-std::vector<int> seven;
-std::vector<int> six;
-std::vector<int> five;
-std::vector<int> four;
-std::vector<int> three;
-std::vector<int> two;
-std::vector<int> one;
+    std::vector<int> eight;
+    std::vector<int> seven;
+    std::vector<int> six;
+    std::vector<int> five;
+    std::vector<int> four;
+    std::vector<int> three;
+    std::vector<int> two;
+    std::vector<int> one;
 };
 
+struct FeatureClass{
+    
+    std::vector<int> bigparks;
+    std::vector<int> beaches;
+    std::vector<int> lakes;
+    std::vector<int> rivers;
+    std::vector<int> islands;
+    std::vector<int> buildings;
+    std::vector<int> greenspaces;
+    std::vector<int> golfcourses;
+    std::vector<int> streams;
+    std::vector<int> unknownFeatures;
+    
+//    std::vector<info> bigparks;
+//    std::vector<info> beaches;
+//    std::vector<info> lakes;
+//    std::vector<info> rivers;
+//    std::vector<info> islands;
+//    std::vector<info> buildings;
+//    std::vector<info> greenspaces;
+//    std::vector<info> golfcourses;
+//    std::vector<info> streams;
+//    std::vector<info> unknownFeatures;
+    
+};
+
+extern FeatureClass featuretypes;
 extern FeatureSize featuresizes;
 
 extern StreetSize streetsizes;
 
-//std::vector<int> bigparks;
-//std::vector<int> beaches;
-//std::vector<int> lakes;
-//std::vector<int> rivers;
-//std::vector<int> islands;
-//std::vector<int> buildings;
-//std::vector<int> greenspaces;
-//std::vector<int> golfcourses;
-//std::vector<int> streams;
-//std::vector<int> unknownFeatures;
+
 //
 //void sort_features(){
 //    for(FeatureIndex i = 0; i< getNumFeatures(); i++){

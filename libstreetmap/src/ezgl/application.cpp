@@ -244,7 +244,15 @@ void application::register_default_events_callbacks(ezgl::application *applicati
 
   // Connect press_proceed function to the close button of the MainWindow
   g_signal_connect(window, "destroy", G_CALLBACK(press_proceed), application);
+  
+//  GtkWidet* button = application->get_object("myButton")
+//  g_signal_connect(button, "clicked", G_CALLBACK(my_callback), application);
+  
 }
+
+//void my_callback(GtkWidget* button, ezgl::application *application) {
+//    //do something
+//}
 
 void application::register_default_buttons_callbacks(ezgl::application *application)
 {

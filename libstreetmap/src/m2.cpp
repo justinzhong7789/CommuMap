@@ -13,6 +13,7 @@
 #include "m2_helper/mouse_motion.hpp"
 #include "m2_helper/zoom.hpp"
 #include "m2_helper/search.hpp"
+#include "m2_helper/features.hpp"
 #include "m2_helper/m2_global_variables.hpp"
 #include "m2_helper/global_variables.hpp"
 #include "ezgl/application.hpp"
@@ -36,13 +37,18 @@
 using namespace std;
 using namespace ezgl;
 
+double max_lat;
+double min_lat;
+double max_lon;
+double min_lon;
+
 void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool /*new_window*/);//add find button
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
 //Determining the first time drawn
 int numTimesDrawn = 0;
-ezgl::color BACKGROUND(237,237,237);
+//ezgl::color BACKGROUND(237,237,237);
 
 void draw_map() {
     ezgl::application::settings settings;
@@ -62,18 +68,13 @@ void draw_map() {
 
     makeStreetsVector();
     makeStreetSizeTable();
-  //  sortFeatures();
+    sortFeatures();
+    
     
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
-
-
-<<<<<<< HEAD
-    application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
-=======
     application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
->>>>>>> a95b872976621d86af27c9c43971bb2c188859dc
 }
 
 void draw_main_canvas(ezgl::renderer *g) {
@@ -87,12 +88,12 @@ void draw_main_canvas(ezgl::renderer *g) {
         full_map.m_second.y = max_lat;
         
         full_screen = g->world_to_screen(full_map);
-    //    area_full_screen = findArea(full_map.m_first.x, full_map.m_first.y, full_map.m_second.x, full_map.m_second.y);
         numTimesDrawn++;
     }
     
-    drawFeatures(g);
     zoom(g);
+    zoomFeatures(g);
+    zoomStreets(g);
     drawSearchBar(g);
 }
 
