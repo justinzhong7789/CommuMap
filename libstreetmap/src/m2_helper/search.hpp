@@ -22,8 +22,17 @@
 #include "StreetsDatabaseAPI.h"
 #include "OSMDatabaseAPI.h"
 
+#include "gdk/gdkkeysyms.h"
+
 void drawSearchBar(ezgl::renderer *g);
-void act_on_key_press(ezgl::application *app, GdkEventKey* event, char* letter);
+void act_on_key_press(ezgl::application *app, GdkEventKey* key, char* letter);
+
+bool char_pressed;
+//bool char_released = false;
+bool backspace_pressed;
+char* char_print;
+
+std::string typed = "";
 
 void drawSearchBar(ezgl::renderer *g){
     g->set_coordinate_system(ezgl::SCREEN);
@@ -39,10 +48,41 @@ void drawSearchBar(ezgl::renderer *g){
     g->draw_rectangle(start_point, end_point);
     g->set_color(ezgl::WHITE);
     g->fill_rectangle(start_point, end_point);
+    
+    // Sets text box to write from left instead of center
+    // This may need to be moved into main function
+    text_just write_text_left = text_just::left;
+    g->set_horiz_text_just(write_text_left);    
+    
+    if (char_pressed == true){
+        // Convert character to a length one string
+        std::string temp(1, *char_print);
+        typed += temp;
+        
+        ezgl::point2d text_start(start_point.x + offset, start_point.y + search_bar_width * 0.4); 
+        
+        
+        g->set_font_size(14);
+        g->set_color(ezgl::BLACK);
+        g->draw_text(text_start, typed);
+        
+        char_pressed = false;
+    }
+    // Set coordinate system back for safety
     g->set_coordinate_system(ezgl::WORLD);
 }
 
 
-void act_on_key_press(ezgl::application *app, GdkEventKey* event, char* letter){
-    cout << "Key pressed: " << letter << endl;;
+void act_on_key_press(ezgl::application *app, GdkEventKey* key, char* letter){
+
+    cout << "Key pressed: " << letter << endl;
+    char_pressed = true;
+    char_print = letter;
+
+    // If backspace was pressed
+    if (key->keyval == GDK_KEY_BackSpace){
+        backspace_pressed = true;
+        cout << "Backspace pressed" << endl;
+    }
+    app->refresh_drawing();
 }
