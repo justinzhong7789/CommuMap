@@ -59,8 +59,8 @@ void drawSearchBar(ezgl::renderer *g){
         std::string temp(1, *char_print);
         typed += temp;
         
+        // Determine position of text box
         ezgl::point2d text_start(start_point.x + offset, start_point.y + search_bar_width * 0.4); 
-        
         
         g->set_font_size(14);
         g->set_color(ezgl::BLACK);
