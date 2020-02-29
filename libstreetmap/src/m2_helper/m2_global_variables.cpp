@@ -1,14 +1,8 @@
 #include "m2_global_variables.hpp"
 
-// Define big streets as streets with length 1+ km
-////std::vector <streetData> bigStreetsTable;
-
-//std::vector<LatLon> add_nodes(StreetSegmentIndex id);
-
 std::vector <StreetSegmentsData> streetSegments;
 
 std::vector<std::vector<ezgl::point2d>> pointsOfFeatures;
-//std::vector<std::vector<ezgl::point2d>> pointsOfFeatures;
 
 StreetSize streetsizes;
 FeatureClass featuretypes;

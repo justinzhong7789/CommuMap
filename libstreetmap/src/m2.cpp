@@ -47,14 +47,9 @@ void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool /*new_window*/);//add find button
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
-//<<<<<<< HEAD
 void search_bar(GtkWidget *widget, ezgl::application *application);
-//=======
-//string drawFindSearchBar(ezgl::renderer *g);
-//>>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
-//Determining the first time drawn
+void close_M2();
 int numTimesDrawn = 0;
-//ezgl::color BACKGROUND(237,237,237);
 
 void draw_map() {
     std::string map_name;
@@ -87,15 +82,11 @@ void draw_map() {
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
-//<<<<<<< HEAD
-    application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
-//=======
-//
-//
-//    application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
-//    application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
-//    application.destroy_button("find");
-//>>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
+
+    application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
+    application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
+    
+    close_M2();
 }
 
 void draw_main_canvas(ezgl::renderer *g) {
@@ -121,49 +112,38 @@ void draw_main_canvas(ezgl::renderer *g) {
 
 void initial_setup(ezgl::application *application, bool new_window){
           
-  //GObject *searchBar = application->get_object("SearchBar");
-  //g_signal_connect(searchBar, "key_press_event", G_CALLBACK(search_bar), application);
-    // application->create_button("find", 6, find_button);
-
+  application->create_button("find", 6, find_button);
 }
 
-/*void search_bar(GtkWidget *widget, ezgl::application *application){
-    GtkEntry *entry = (GtkEntry *)application->get_object("SearchBar");
-    search_text = gtk_entry_get_text(entry);
-    cout << search_text << endl;
-    // application->refresh_drawing();
-}
-*/
-/*
-void find_button(GtkWidget *widget, ezgl::application *application){
+void find_button(GtkWidget */*widget*/, ezgl::application *application){
     cout<< "find button is pressed."<< endl;
     cout<< "Enter 2 street names below to find an intersection." << endl;
-    ezgl::renderer *g = application->get_renderer();
-    string two_streets[2];
-    int two_streets_id[2];
+    int street_id[2];
     vector<int> intersection_ids;
     
     for(int i=0; i< 2;i++){ //enter 2 street names to find intersection
-        
- //MJ COMMENTED THIS OUT CUZ IT WONT LET ME BUILD       
-//        two_streets[i] = drawFindSearchBar(g);
+        vector <int> street_ids;
+        string str;
+        getline(cin, str);
+        cout<< str<<endl;
+        street_ids = find_street_ids_from_partial_street_name(str);
+        for(int j=0; j< street_ids.size(); j++){
+            cout<<getStreetName(j)<<endl;
+        }
+        while(street_ids.size()!=1){
+            cout <<"The partial street name does not uniquely identify a street." <<endl
+                 <<"Please try again." << endl;
+            getline(cin, str);
+            street_ids = find_street_ids_from_partial_street_name(str);
+        }
+        street_id[i] = street_ids[0];
     }
-<<<<<<< HEAD
     intersection_ids = find_intersections_of_two_streets(make_pair(street_id[0], street_id[1]));
     highlight_intersections(intersection_ids, application->get_renderer());
     
     
-}*/
-//=======
-//    for(int i=0; i< getNumStreets();i++){
-//        if(getStreetName(i)==two_streets[0]){two_streets_id[0]=1;}
-//        else if(getStreetName(i)==two_streets[1]){two_streets_id[1]=i;}
-//    }
-//    intersection_ids = find_intersections_of_two_streets(make_pair(two_streets_id[0], two_streets_id[1]));
-//    highlight_intersections(intersection_ids, g);
-//}
-//>>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
-                                   
+}
+                              
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
     rectangle recover_screen = g->get_visible_screen();
     // this contains the screen when zoom_fit is clicked
@@ -272,4 +252,26 @@ string drawFindSearchBar(ezgl::application *application){
     }
     // Set coordinate system back for safety
     g->set_coordinate_system(ezgl::WORLD);
+    return 0;
 }
+
+void close_M2(){
+    close_map();
+    streetSegments.clear();
+    streetsizes.highway.clear();
+    streetsizes.major.clear();
+    streetsizes.minor.clear();
+    streetsizes.local.clear();
+    pointsOfFeatures.clear();
+    featuretypes.beaches.clear();
+    featuretypes.bigparks.clear();
+    featuretypes.buildings.clear();
+    featuretypes.golfcourses.clear();
+    featuretypes.greenspaces.clear();
+    featuretypes.islands.clear();
+    featuretypes.lakes.clear();
+    featuretypes.rivers.clear();
+    featuretypes.streams.clear();
+    featuretypes.unknownFeatures.clear();
+}
+

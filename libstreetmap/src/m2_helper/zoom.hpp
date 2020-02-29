@@ -30,6 +30,8 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width, ezgl
 void drawAllStreets(ezgl::renderer *g, int width);
 //Draws all the street names
 void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size);
+void nameStreets(ezgl::renderer *g);
+
 //Draws one-way streets
 void drawOneWay(ezgl::renderer *g);
 //Highlights Streets

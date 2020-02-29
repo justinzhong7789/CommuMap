@@ -62,7 +62,7 @@ void zoomStreets(ezgl::renderer *g){
         case 5:
             drawStreets(streetsizes.highway, g, width, ezgl::GREY_75);
            if(zooms.zcase == 3) drawOneWay(g);
-            //drawStreetNames(streetsizes.highway, g, 10);
+            drawStreetNames(streetsizes.highway, g, 10);
             break;
             
         default: 
@@ -145,6 +145,30 @@ void drawOneWay(ezgl::renderer *g){
         }
     }
 }
+
+void nameStreets(ezgl::renderer *g){
+    int width = 10;
+    switch (zooms.zcase){
+        case 0:
+        case 1: //empty case for future purposes
+        case 2:
+        case 3:
+            drawStreetNames(streetsizes.local, g , width);
+        case 4:
+            drawStreetNames(streetsizes.minor, g , width);
+            drawStreetNames(streetsizes.major, g , width);
+            
+        case 5:
+            drawStreetNames(streetsizes.highway, g, width);
+           if(zooms.zcase == 3) drawOneWay(g);
+            break;
+            
+        default: 
+            drawStreetNames(streetsizes.highway, g, width);
+            break;
+    }
+}
+
 
 void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
     double angle = 0;

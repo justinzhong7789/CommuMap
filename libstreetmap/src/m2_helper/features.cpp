@@ -21,38 +21,38 @@ void zoomFeatures(ezgl::renderer *g){
      
     switch (zooms.zcase){
         case 0:
-            drawFeatures(featuretypes.unknownFeatures, g);
+            drawFeatures(featuretypes.unknownFeatures, g,BUILDINGS);
         case 1:
             
         case 2:
-            drawFeatures(featuretypes.buildings, g);
-            drawFeatures(featuretypes.streams, g);    
+            drawFeatures(featuretypes.buildings, g, BUILDINGS);
+            drawFeatures(featuretypes.streams, g, WATER);    
         case 3:
-            drawFeatures(featuretypes.greenspaces, g);
+            drawFeatures(featuretypes.greenspaces, g, WATER);
         case 4:
-            drawFeatures(featuretypes.golfcourses, g);
-            drawFeatures(featuretypes.beaches, g);
+            drawFeatures(featuretypes.golfcourses, g, GRASS);
+            drawFeatures(featuretypes.beaches, g, SAND);
         case 5:
-            drawFeatures(featuretypes.bigparks, g);
+            drawFeatures(featuretypes.bigparks, g, GRASS);
 
-            drawFeatures(featuretypes.lakes, g);
-            drawFeatures(featuretypes.islands, g);
+            drawFeatures(featuretypes.lakes, g, WATER);
+            drawFeatures(featuretypes.islands, g, BACKGROUND);
             break;
         default:
-            drawFeatures(featuretypes.unknownFeatures, g);
-            drawFeatures(featuretypes.buildings, g);
-            drawFeatures(featuretypes.streams, g); 
-            drawFeatures(featuretypes.golfcourses, g);
-            drawFeatures(featuretypes.beaches, g);
-            drawFeatures(featuretypes.islands, g);
-            drawFeatures(featuretypes.lakes, g);
-            drawFeatures(featuretypes.rivers, g);
-            drawFeatures(featuretypes.bigparks, g);
+            drawFeatures(featuretypes.unknownFeatures, g, BUILDINGS);
+            drawFeatures(featuretypes.buildings, g, BUILDINGS);
+            drawFeatures(featuretypes.streams, g, WATER); 
+            drawFeatures(featuretypes.golfcourses, g, GRASS);
+            drawFeatures(featuretypes.beaches, g, SAND);
+            drawFeatures(featuretypes.islands, g, BACKGROUND);
+            drawFeatures(featuretypes.lakes, g, WATER);
+            drawFeatures(featuretypes.rivers, g, WATER);
+            drawFeatures(featuretypes.bigparks, g, GRASS);
             break;
     }
 }
 
-void drawFeatures(std::vector<int> feature, ezgl::renderer *g) {
+void drawFeatures(std::vector<int> feature, ezgl::renderer *g, ezgl::color colour) {
     
 //    rectangle current_map = g->get_visible_world();
     g->set_line_width(1);
@@ -61,8 +61,8 @@ void drawFeatures(std::vector<int> feature, ezgl::renderer *g) {
         
         int feat = feature[i];
         
-        ezgl::color featureColour = getFeatureColour(feat);
-        g->set_color(featureColour);
+        //ezgl::color featureColour = getFeatureColour(feat);
+        g->set_color(colour);
 
         //Closed features
         if (getFeaturePoint(0, feat).lat() == getFeaturePoint(getFeaturePointCount(feat) - 1, feat).lat() &&
@@ -123,9 +123,8 @@ void drawFeatureNames(std::vector<int> vec, ezgl::renderer *g){
     
     for (FeatureIndex i = 0; i < vec.size(); i++){ 
         int feat = vec[i];
-        ezgl::rectangle featSize = findHighLowPoint(feat);    
+        ezgl::rectangle featSize = findHighLowPoint(feat);
         
-
         if ((find_feature_area(feat) > 0.01* zooms.mapArea) && getFeatureName(feat)!="<noname>" ){
             g->set_text_rotation(0);
             g->set_color(FEATURE_NAMES);
@@ -155,7 +154,6 @@ void nameFeatures(ezgl::renderer *g){
             drawFeatureNames(featuretypes.islands, g);
             break;
         default:
-            drawFeatures(featuretypes.bigparks, g);
             break;
     }
 }
