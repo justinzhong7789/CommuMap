@@ -9,7 +9,7 @@ double x_between_2_points(LatLon first, LatLon second) {
     return EARTH_RADIUS_METERS * (x2 - x1);
 }
 
-//Do we need these? if they were made in M1?
+
 
 // Find the distance in the y component of two points using the formula provided in M1 Instructions
 
@@ -62,9 +62,9 @@ void drawFeatures(std::vector<int> feature, ezgl::renderer *g) {
     for (FeatureIndex i = 0; i < feature.size() ; i++) {
         
         int feat = feature[i];
-        ezgl::rectangle featSize = findHighLowPoint(feat);  
+        //ezgl::rectangle featSize = findHighLowPoint(feat);  
         
-        if(zooms.current.contains(featSize.center())){
+        //if(zooms.current.contains(featSize.center())){
             ezgl::color featureColour = getFeatureColour(feat);
             g->set_color(featureColour);
                
@@ -114,8 +114,7 @@ void drawFeatures(std::vector<int> feature, ezgl::renderer *g) {
             }
         }
     }
-    //drawFeatureNames(feature,g);
-}
+
 
 ezgl::color getFeatureColour(int i){
     
@@ -143,6 +142,7 @@ void drawFeatureNames(std::vector<int> vec, ezgl::renderer *g){
         int feat = vec[i];
         ezgl::rectangle featSize = findHighLowPoint(feat);    
         
+        //Might be this one -exclude getFeatureName
         if ((find_feature_area(feat) > 0.01* zooms.mapArea) && getFeatureName(feat)!="<noname>" && zooms.current.contains(featSize.center()) ){
             g->set_text_rotation(0);
             g->set_color(FEATURE_NAMES);
@@ -153,6 +153,7 @@ void drawFeatureNames(std::vector<int> vec, ezgl::renderer *g){
 
 void nameFeatures(ezgl::renderer *g){
      
+    
     switch (zooms.zcase){
         case 0:
             drawFeatureNames(featuretypes.unknownFeatures, g);
@@ -173,6 +174,15 @@ void nameFeatures(ezgl::renderer *g){
             drawFeatureNames(featuretypes.islands, g);
             break;
         default:
+            drawFeatures(featuretypes.unknownFeatures, g);
+            drawFeatures(featuretypes.buildings, g);
+            drawFeatures(featuretypes.streams, g); 
+            drawFeatures(featuretypes.golfcourses, g);
+            drawFeatures(featuretypes.beaches, g);
+            drawFeatures(featuretypes.islands, g);
+            drawFeatures(featuretypes.lakes, g);
+            drawFeatures(featuretypes.rivers, g);
+            drawFeatures(featuretypes.bigparks, g);
             break;
     }
 }

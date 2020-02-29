@@ -33,15 +33,15 @@ extern rectangle full_map;
 //Main zoom function
 void zoom(ezgl::renderer *g);
 void nameStreets(ezgl::renderer *g);
-void drawOneWay(StreetSegmentsData segment, ezgl::renderer *g);
+void drawOneWay(ezgl::renderer *g);
 
 //Draws streets with different widths not including <unknowns>
-void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width); 
+void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width, ezgl::color colour); 
 //Draws all the streets including <unknowns>
 void drawAllStreets(ezgl::renderer *g, int width);
 
 //Draws all the street names
-void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size, int numDrawn);
+void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size);
 void drawStreetNamesTest(ezgl::renderer *g, int streetID, int segID);
 
 void drawFeatures(ezgl::renderer *g );

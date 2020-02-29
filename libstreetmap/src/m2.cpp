@@ -97,11 +97,9 @@ void draw_main_canvas(ezgl::renderer *g) {
     
     zoom(g);
     zoomFeatures(g);
-     
     zoomStreets(g);
-  //  nameStreets(g);
-//    nameFeatures(g);
-    //g->draw_rectangle({0, 0}, {1000, 1000});
+   // nameStreets(g);
+    nameFeatures(g);
     drawSearchBar(g);
 }
 void initial_setup(ezgl::application *application, bool /*new_window*/){
@@ -119,7 +117,9 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     vector<int> intersection_ids;
     
     for(int i=0; i< 2;i++){ //enter 2 street names to find intersection
-        two_streets[i] = drawFindSearchBar(g);
+        
+ //MJ COMMENTED THIS OUT CUZ IT WONT LET ME BUILD       
+//        two_streets[i] = drawFindSearchBar(g);
     }
     for(int i=0; i< getNumStreets();i++){
         if(getStreetName(i)==two_streets[0]){two_streets_id[0]=1;}
