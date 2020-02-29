@@ -126,7 +126,7 @@ void drawFeatureNames(std::vector<int> vec, ezgl::renderer *g){
         ezgl::rectangle featSize = findHighLowPoint(feat);    
         
 
-        if ((find_feature_area(feat) > 0.01* zooms.mapArea) && getFeatureName(feat)!="<noname>" && zooms.current.contains(featSize.center()) ){
+        if ((find_feature_area(feat) > 0.01* zooms.mapArea) && getFeatureName(feat)!="<noname>" ){
             g->set_text_rotation(0);
             g->set_color(FEATURE_NAMES);
             g->draw_text({(featSize.m_first.x + featSize.m_second.x)/2, (featSize.m_first.y + featSize.m_second.y)/2}, getFeatureName(feat));

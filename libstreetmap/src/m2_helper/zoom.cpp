@@ -62,7 +62,7 @@ void zoomStreets(ezgl::renderer *g){
         case 5:
             drawStreets(streetsizes.highway, g, width, ezgl::GREY_75);
            if(zooms.zcase == 3) drawOneWay(g);
-            drawStreetNames(streetsizes.highway, g, 10);
+            //drawStreetNames(streetsizes.highway, g, 10);
             break;
             
         default: 
