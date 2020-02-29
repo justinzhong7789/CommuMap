@@ -42,16 +42,31 @@ double min_lat;
 double max_lon;
 double min_lon;
 
+const char* search_text;
 void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool /*new_window*/);//add find button
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
+<<<<<<< HEAD
+void search_bar(GtkWidget *widget, ezgl::application *application);
+=======
 string drawFindSearchBar(ezgl::renderer *g);
+>>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
 //Determining the first time drawn
 int numTimesDrawn = 0;
 //ezgl::color BACKGROUND(237,237,237);
 
 void draw_map() {
+    std::string map_name;
+    if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
+            map_name == "golden-horseshoe_canada" || map_name == "hamilton_canada" || map_name == "hong-kong_china" ||
+            map_name == "iceland" || map_name == "interlaken_switzerland" || map_name == "london_england" ||
+            map_name == "moscow_russia" || map_name == "new-delhi_india" || map_name == "new-york_usa" ||
+            map_name == "rio-de-janeiro_brazil" || map_name == "saint-helena" || map_name == "singapore" ||
+            map_name == "sydney_australiia" || map_name == "tehran_iran" || map_name == "tokyo_japan" || map_name == "toronto_canada"){
+        load_map(map_name);
+    }
+    
     ezgl::application::settings settings;
 
     // Include headers
@@ -74,11 +89,15 @@ void draw_map() {
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
+<<<<<<< HEAD
+    application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
+=======
 
 
     application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
     application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
     application.destroy_button("find");
+>>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
 }
 
 void draw_main_canvas(ezgl::renderer *g) {
@@ -101,13 +120,24 @@ void draw_main_canvas(ezgl::renderer *g) {
     nameFeatures(g);
     drawSearchBar(g);
 }
-void initial_setup(ezgl::application *application, bool /*new_window*/){
-    
-    application->create_button("find", 6, find_button);
-    
+
+void initial_setup(ezgl::application *application, bool new_window){
+          
+  //GObject *searchBar = application->get_object("SearchBar");
+  //g_signal_connect(searchBar, "key_press_event", G_CALLBACK(search_bar), application);
+    // application->create_button("find", 6, find_button);
+
 }
 
-void find_button(GtkWidget */*widget*/, ezgl::application *application){
+/*void search_bar(GtkWidget *widget, ezgl::application *application){
+    GtkEntry *entry = (GtkEntry *)application->get_object("SearchBar");
+    search_text = gtk_entry_get_text(entry);
+    cout << search_text << endl;
+    // application->refresh_drawing();
+}
+*/
+/*
+void find_button(GtkWidget *widget, ezgl::application *application){
     cout<< "find button is pressed."<< endl;
     cout<< "Enter 2 street names below to find an intersection." << endl;
     ezgl::renderer *g = application->get_renderer();
@@ -120,6 +150,13 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
  //MJ COMMENTED THIS OUT CUZ IT WONT LET ME BUILD       
 //        two_streets[i] = drawFindSearchBar(g);
     }
+<<<<<<< HEAD
+    intersection_ids = find_intersections_of_two_streets(make_pair(street_id[0], street_id[1]));
+    highlight_intersections(intersection_ids, application->get_renderer());
+    
+    
+}*/
+=======
     for(int i=0; i< getNumStreets();i++){
         if(getStreetName(i)==two_streets[0]){two_streets_id[0]=1;}
         else if(getStreetName(i)==two_streets[1]){two_streets_id[1]=i;}
@@ -127,6 +164,7 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     intersection_ids = find_intersections_of_two_streets(make_pair(two_streets_id[0], two_streets_id[1]));
     highlight_intersections(intersection_ids, g);
 }
+>>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
                                    
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
     rectangle recover_screen = g->get_visible_screen();
