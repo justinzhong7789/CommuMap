@@ -18,7 +18,7 @@
 #include <string>
 #include <set>
 
-/* Allows for global variable declarations over a multiple source (cpp) files */
+/*==========================Global variables from Milestone 1 file=============================*/
 double x_distance_between_2_points(LatLon first, LatLon second);
 double y_distance_between_2_points(LatLon first, LatLon second);
 
@@ -33,13 +33,12 @@ extern std::unordered_map<OSMID, const OSMNode*> OSMNodeTable;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
 
+
+
+/*===============StreetSegments, Street, Intersections and Feature Data Structures =============*/
 struct StreetSegmentsData {
-    // node takes the start, end, and curve points (if applicable) of the street segment
     StreetSegmentIndex id;
     std::vector<LatLon> node;
-//    ezgl::point2d midpoint;
-//    ezgl::point2d fromPos;
-//    ezgl::point2d toPos;
     bool oneWay = false;
     LatLon midpoint;
     LatLon fromPos;
@@ -52,25 +51,24 @@ struct StreetData {
     std::string name;
     double length;
     float speed;
-
-    //std::vector<std::vector<LatLon>> node;
-};
-
-//struct info{
-//    int ID;
-//    std::string name;
-//};
-
-struct StreetSize {
-    std::vector<StreetData> highway;
-    std::vector<StreetData> major;
-    std::vector<StreetData> minor;
-    std::vector<StreetData> local;
 };
 
 struct FeatureData {
     bool open;
     std::vector<ezgl::point2d> points;
+};
+
+struct intersectionData {
+    LatLon position;
+    std::string name;
+};
+
+/*==================Structures to sort streets and features =====================*/
+struct StreetSize {
+    std::vector<StreetData> highway;
+    std::vector<StreetData> major;
+    std::vector<StreetData> minor;
+    std::vector<StreetData> local;
 };
 
 struct FeatureClass{
@@ -89,19 +87,19 @@ struct FeatureClass{
 };
 
 struct Zoom{
-    ezgl::rectangle current;
-    double map; //level
-    //ezgl::point2d map_first;
-    //ezgl::point2d map_second;
-    double screen; //level
-    double level;  //joined level of screen and map
-    double mapArea;
-    int zcase;
-    double small = 0.0;
+    ezgl::rectangle current;    //current map rectangle
+    double map;                 //map zoom level (area ratio)
+    double screen;              //screen zoom level (area ratio)
+    double level;               //joined level of screen and map
+    double mapArea;             //current world map area
+    int zcase;                  //level case numbers
+    double small = 0.0;         
 };
 
-extern Zoom zooms;
+/*=======================Global Variables with structs======================*/
 
+extern Zoom zooms;
+extern std::vector <intersectionData> intersections;
 extern FeatureClass featuretypes;
 extern FeatureData feature_data;
 extern StreetSize streetsizes;

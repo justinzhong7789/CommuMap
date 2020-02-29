@@ -14,6 +14,7 @@ StreetSize streetsizes;
 FeatureClass featuretypes;
 
 
+/*===================CONVERSIONS AND CALCULATIONS========================*/
 ezgl::point2d point2d_from_latlon(LatLon number){
     point2d point (x_from_lon(number.lon()),number.lat());
     return point;
@@ -25,6 +26,26 @@ LatLon latlon_from_point2d(ezgl::point2d point){
     return number;
 }
 
+float x_from_lon(float lon){
+    double latAvg = (max_lat + min_lat)/2;
+    double x = lon*cos(latAvg * 3.1415926535 /180);
+    return x;
+}
+
+float y_from_lat(float lat){
+    return lat;
+}
+
+float lon_from_x(float x){
+    double latAvg = (max_lat + min_lat)/2;
+    double lon = x / cos(latAvg * 3.1415926535 /180);
+    return lon;
+}
+
+float lat_from_y(float y){
+    return y;
+}
+
 double findArea(double x1, double y1, double x2, double y2){
     
     double xdiff = x2-x1;
@@ -32,7 +53,8 @@ double findArea(double x1, double y1, double x2, double y2){
     return xdiff*ydiff;
 }
 
-// add all street names length together
+
+//Sorting streets by different types and setting up the datastructure for future uses
 void makeStreetSizeTable(){
     StreetData street_data;
     StreetSize streets;
@@ -74,9 +96,9 @@ void makeStreetSizeTable(){
             streetsizes.local.push_back(street_data);
         }else{
         
-            float speed = getInfoStreetSegment(segmentsOfStreets[i][0]).speedLimit; 
-
-    //        //Identifying highways
+            float speed = getInfoStreetSegment(segmentsOfStreets[i][0]).speedLimit;
+            
+            //Street catagories are dependent on speed limits and lengths
             if(120 > speed && speed > 80 && street_length > 15000) {
                 streetsizes.highway.push_back(street_data);
             }
@@ -145,6 +167,7 @@ void makeStreetsVector(){
     }
 }
 
+//Makes vector of point2ds for each feature
 void makePointsOfFeatures(){
     
     for(int i = 0; i<getNumFeatures(); i++){
@@ -157,50 +180,16 @@ void makePointsOfFeatures(){
     }
 }
 
-float x_from_lon(float lon){
-    double latAvg = (max_lat + min_lat)/2;
-    double x = lon*cos(latAvg * 3.1415926535 /180);
-    return x;
-}
-
-float y_from_lat(float lat){
-    return lat;
-}
-
-float lon_from_x(float x){
-    double latAvg = (max_lat + min_lat)/2;
-    double lon = x / cos(latAvg * 3.1415926535 /180);
-    return lon;
-}
-
-float lat_from_y(float y){
-    return y;
-}
-
-
+//Sorts the features by type
 void sortFeatures() {
     int numFeatures = getNumFeatures();
 
-    
-  //  vector<float> check;
     for (FeatureIndex i = 0; i < numFeatures; i++) {
-        
-//        for(int j = 0; j<getFeaturePointCount(i); j++){
-//            float x_coords = (float) x_from_lon(getFeaturePoint(j, i).lon());
-//            float y_coords = (float) y_from_lat(getFeaturePoint(j, i).lat());
-//            ezgl::point2d pointIn2D(x_coords, y_coords);
-//            pointsOfFeatures[j].push_back(pointIn2D);
-//            cout<<"help me"<<endl;
-//        }
-       
-//        
+
         FeatureType type = getFeatureType(i);
         FeatureType type2;
-        //info featInfo;
         int featInfo;
         featInfo = i;
-        //featInfo.ID = i;
-       // featInfo.name = getFeatureName(i);
         
         int typeCase = 10;
        
@@ -216,7 +205,6 @@ void sortFeatures() {
         switch(typeCase){
             case 0:
                 featuretypes.unknownFeatures.push_back(featInfo);
-                //std::cout<<"Im here"<<endl;
                 break;
             case 1:
                 featuretypes.bigparks.push_back(featInfo);
@@ -248,5 +236,5 @@ void sortFeatures() {
             default:
                 break;
         }
-}
+    }
 }

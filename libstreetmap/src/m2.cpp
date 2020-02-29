@@ -98,7 +98,6 @@ void draw_main_canvas(ezgl::renderer *g) {
     zoom(g);
     zoomFeatures(g);
     zoomStreets(g);
-   // nameStreets(g);
     nameFeatures(g);
     drawSearchBar(g);
 }

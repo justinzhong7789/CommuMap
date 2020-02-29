@@ -1,7 +1,7 @@
 #include "features.hpp"
 
 //distance in meters
-
+// Find the distance in the y component of two points using the formula provided in M1 Instructions
 double x_between_2_points(LatLon first, LatLon second) {
     double LatAvg = (first.lat() + second.lat()) * DEGREE_TO_RADIAN / 2;
     double x1 = first.lon() * DEGREE_TO_RADIAN * cos(LatAvg);
@@ -9,16 +9,14 @@ double x_between_2_points(LatLon first, LatLon second) {
     return EARTH_RADIUS_METERS * (x2 - x1);
 }
 
-
-
 // Find the distance in the y component of two points using the formula provided in M1 Instructions
-
 double y_between_2_points(LatLon first, LatLon second) {
     double y1 = first.lat() * DEGREE_TO_RADIAN;
     double y2 = second.lat() * DEGREE_TO_RADIAN;
     return EARTH_RADIUS_METERS * (y2 - y1);
 }
 
+//When each feature will be drawn depending on the zoom level
 void zoomFeatures(ezgl::renderer *g){
      
     switch (zooms.zcase){
@@ -62,58 +60,43 @@ void drawFeatures(std::vector<int> feature, ezgl::renderer *g) {
     for (FeatureIndex i = 0; i < feature.size() ; i++) {
         
         int feat = feature[i];
-        //ezgl::rectangle featSize = findHighLowPoint(feat);  
         
-        //if(zooms.current.contains(featSize.center())){
-            ezgl::color featureColour = getFeatureColour(feat);
-            g->set_color(featureColour);
-               
-            if (getFeaturePoint(0, feat).lat() == getFeaturePoint(getFeaturePointCount(feat) - 1, feat).lat() &&
-                getFeaturePoint(0, feat).lon() == getFeaturePoint(getFeaturePointCount(feat) - 1, feat).lon()) {
+        ezgl::color featureColour = getFeatureColour(feat);
+        g->set_color(featureColour);
 
-                std::vector<ezgl::point2d> points;
-                //put x-y coords of points that make up a closed feature into a vector
-                for (int j = 0; j < getFeaturePointCount(feat); j++) {
-                    LatLon coor =  getFeaturePoint(j, feat);
-                    ezgl::point2d pointIn2D(point2d_from_latlon(coor));
-                    points.push_back(pointIn2D);
-                    
-                    
-//                     double x_coords = (double) x_from_lon(getFeaturePoint(j, feat).lon());
-//                        double y_coords = (double) y_from_lat(getFeaturePoint(j, feat).lat());
-//                        ezgl::point2d pointIn2D(x_coords, y_coords);
-//                        points.push_back(pointIn2D);
-                }
-                
-                if (points.size() > 1) {
-                    g->fill_poly(points);
-                }
-                
-            } else {//open feature
-                //open features are lines
-                for (int k = 0; k + 1 < getFeaturePointCount(feat); k++) {
+        //Closed features
+        if (getFeaturePoint(0, feat).lat() == getFeaturePoint(getFeaturePointCount(feat) - 1, feat).lat() &&
+            getFeaturePoint(0, feat).lon() == getFeaturePoint(getFeaturePointCount(feat) - 1, feat).lon()) {
 
-                    
-//                    double start_x = x_from_lon(getFeaturePoint(k, feat).lon());
-//                    double start_y = y_from_lat(getFeaturePoint(k, feat).lat());
-//                    double end_x = x_from_lon(getFeaturePoint(k + 1, feat).lon());
-//                    double end_y = y_from_lat(getFeaturePoint(k + 1, feat).lat());
-//                    
-//                    ezgl::point2d start_point(start_x, start_y);
-//                    ezgl::point2d end_point(end_x, end_y);
-                    
-                    LatLon coorStart = getFeaturePoint(k, feat);
-                    LatLon coorEnd = getFeaturePoint(k + 1, feat);
+            std::vector<ezgl::point2d> points;
+            //put x-y coords of points that make up a closed feature into a vector
+            for (int j = 0; j < getFeaturePointCount(feat); j++) {
+                LatLon coor =  getFeaturePoint(j, feat);
+                ezgl::point2d pointIn2D(point2d_from_latlon(coor));
+                points.push_back(pointIn2D);
+            }
 
-                    ezgl::point2d start_point(point2d_from_latlon(coorStart));
-                    ezgl::point2d end_point(point2d_from_latlon(coorEnd));
+            if (points.size() > 1) {
+                g->fill_poly(points);
+            }
+            
+        //Open features are lines
+        } else {
+            
+            for (int k = 0; k + 1 < getFeaturePointCount(feat); k++) {
 
-                    g->set_line_dash(ezgl::line_dash::none);
-                    g->draw_line(start_point, end_point);
-                }
+                LatLon coorStart = getFeaturePoint(k, feat);
+                LatLon coorEnd = getFeaturePoint(k + 1, feat);
+
+                ezgl::point2d start_point(point2d_from_latlon(coorStart));
+                ezgl::point2d end_point(point2d_from_latlon(coorEnd));
+
+                g->set_line_dash(ezgl::line_dash::none);
+                g->draw_line(start_point, end_point);
             }
         }
     }
+}
 
 
 ezgl::color getFeatureColour(int i){
@@ -142,7 +125,7 @@ void drawFeatureNames(std::vector<int> vec, ezgl::renderer *g){
         int feat = vec[i];
         ezgl::rectangle featSize = findHighLowPoint(feat);    
         
-        //Might be this one -exclude getFeatureName
+
         if ((find_feature_area(feat) > 0.01* zooms.mapArea) && getFeatureName(feat)!="<noname>" && zooms.current.contains(featSize.center()) ){
             g->set_text_rotation(0);
             g->set_color(FEATURE_NAMES);
@@ -151,14 +134,12 @@ void drawFeatureNames(std::vector<int> vec, ezgl::renderer *g){
     }
 }
 
+//When to draw the names 
 void nameFeatures(ezgl::renderer *g){
-     
-    
     switch (zooms.zcase){
         case 0:
             drawFeatureNames(featuretypes.unknownFeatures, g);
         case 1:
-            
         case 2:
             drawFeatureNames(featuretypes.buildings, g);
             drawFeatureNames(featuretypes.streams, g);    
@@ -174,14 +155,6 @@ void nameFeatures(ezgl::renderer *g){
             drawFeatureNames(featuretypes.islands, g);
             break;
         default:
-            drawFeatures(featuretypes.unknownFeatures, g);
-            drawFeatures(featuretypes.buildings, g);
-            drawFeatures(featuretypes.streams, g); 
-            drawFeatures(featuretypes.golfcourses, g);
-            drawFeatures(featuretypes.beaches, g);
-            drawFeatures(featuretypes.islands, g);
-            drawFeatures(featuretypes.lakes, g);
-            drawFeatures(featuretypes.rivers, g);
             drawFeatures(featuretypes.bigparks, g);
             break;
     }

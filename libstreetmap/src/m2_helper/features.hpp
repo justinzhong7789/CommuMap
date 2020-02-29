@@ -26,10 +26,11 @@ void makeFeaturesVector();
 void drawFeatures(std::vector<int> feature, ezgl::renderer *g) ;
 void zoomFeatures(ezgl::renderer *g);
 void drawBuildings(std::vector<int> features, ezgl::renderer *g );
-ezgl::rectangle findHighLowPoint(FeatureIndex feat);
-ezgl::color getFeatureColour(int i);
 void drawFeatureNames(std::vector<int>, ezgl::renderer *g);
 void nameFeatures(ezgl::renderer *g);
+
+ezgl::rectangle findHighLowPoint(FeatureIndex feat);
+ezgl::color getFeatureColour(int i);
 
 #endif /* FEATURES_HPP */
 

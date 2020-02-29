@@ -11,21 +11,20 @@ void zoom(ezgl::renderer *g){
     zooms.current = g->get_visible_world();
     rectangle current_screen = g->get_visible_screen();
     
+    //Finding Area
     LatLon first(zooms.current.m_first.x, zooms.current.m_first.y);
     LatLon second(zooms.current.m_second.x, zooms.current.m_second.y);
     double mapX = x_distance_between_2_points(first, second);
     double mapY = y_distance_between_2_points(first,second);
     
+    //Level Calculations for percentage of area shown on map compared to original
     zooms.mapArea = mapX*mapY;
-    zooms.map = area_full_map/findArea(zooms.current.m_first.x, zooms.current.m_first.y, zooms.current.m_second.x, zooms.current.m_second.y);
-    zooms.screen = findArea(current_screen.m_first.x, current_screen.m_first.y, current_screen.m_second.x, current_screen.m_second.y) / area_full_screen;
-    
-    cout << "Current map Area: "<<zooms.mapArea<<endl;
-    
+    zooms.map = area_full_map/zooms.current.area();
+    zooms.screen = current_screen.area()/ area_full_screen;
     zooms.level = zooms.screen*zooms.map*100;
-    
     zooms.zcase = zoomArraySize;
     
+    //Adjustments for window screen size
     for(int i = 0; i < zoomArraySize; i++){
         
         if(zooms.screen > ZOOM_SCREEN_INIT){
@@ -40,17 +39,7 @@ void zoom(ezgl::renderer *g){
                 break;
             }
         }
-       
     }
-    
-    cout << "At level: "<< zooms.zcase << endl;
-//     
-//    cout<< "Screen values = X1: "<< current_screen.m_first.x << "Y1: " << current_screen.m_first.y 
-//            << "// X2: " << current_screen.m_second.x << "Y1: " << current_screen.m_second.y << endl;
-//    cout<< "Zoom Map: "<< zoom_map << endl;
-//    cout<< "Zoom Screen: "<< zoom_screen << endl;
-    cout<< "Zoom Level Full: "<< zooms.level << endl ;
-//    cout<< "Zoom Level Small: "<< zoom_small << endl <<endl;
 }
 
 void zoomStreets(ezgl::renderer *g){
@@ -61,18 +50,21 @@ void zoomStreets(ezgl::renderer *g){
         case 0:
             drawAllStreets(g, width*(zooms.level/ZOOM_ZERO));
             break;
-        case 1:
+        case 1: //empty case for future purposes
         case 2:
         case 3:
             drawStreets(streetsizes.local, g , width-5, WHITE);
+            
         case 4:
             drawStreets(streetsizes.minor, g , width-3, WHITE);
             drawStreets(streetsizes.major, g , width, WHITE);
+            
         case 5:
             drawStreets(streetsizes.highway, g, width, ezgl::GREY_75);
            if(zooms.zcase == 3) drawOneWay(g);
             drawStreetNames(streetsizes.highway, g, 10);
             break;
+            
         default: 
             drawStreets(streetsizes.highway, g, width, WHITE);
             break;
@@ -91,14 +83,14 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width, ezgl:
                 
                 g->set_line_dash(ezgl::line_dash::none);
                 
-                //Outline colour
+                //Draw Outline
                 g->set_color(OUTLINE);
                 g->set_line_width(width+2);
                 g->draw_line({start.first, start.second}, {end.first, end.second});
                 
                 g->set_line_cap(ezgl::line_cap::round);
                 
-                //Fill colour
+                //Draw Fill Colour
                 g->set_color(colour);
                 g->set_line_width(width);
                 g->draw_line({start.first, start.second}, {end.first, end.second});
@@ -157,37 +149,46 @@ void drawOneWay(ezgl::renderer *g){
 void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
     double angle = 0;
     InfoStreetSegment info;
+    
     // Creates a vector of all the names that will be displayed; this checks for duplicates and prevents it from drawing names more than once
-    // De-clutters the map a bit
     std::vector<std::string> check_names; 
     check_names.push_back(streets[0].name);
+    
     // Loop through every street
-    for (size_t i=0; i<streets.size(); i++){
+    for (size_t i=0; i<streets.size(); i=i+2){
         std::string street_name = streets[i].name;
-
-         float last_position = x_from_lon(getIntersectionPosition(getInfoStreetSegment(streets[i].segments[0].id).from).lon())-1;
         
-        for (size_t j=0; j<streets[i].segments.size(); j++){
+        float last_position = x_from_lon(getIntersectionPosition(getInfoStreetSegment(streets[i].segments[0].id).from).lon())-1;
+        
+        for (size_t j=0; j<streets[i].segments.size(); j=j+5){
             
+            //Calculating centre of segment
             info = getInfoStreetSegment(streets[i].segments[j].id);
             std::pair <float, float> start = {x_from_lon((getIntersectionPosition(info.from).lon())), y_from_lat(getIntersectionPosition(info.from).lat())};
             std::pair <float, float> end = {x_from_lon((getIntersectionPosition(info.to).lon())), y_from_lat(getIntersectionPosition(info.to).lat())};
-
             std::pair <float, float> center = {(end.first+start.first)/2, (end.second+start.second)/2};
+            
             if (center.first > last_position + 1){
                 last_position = center.first;
                 angle = atan((end.second - start.second)/(end.first - start.first))*180/M_PI;
-           
-                g->set_font_size(font_size);
-                g->set_color(STREET_NAMES);
-                g->set_text_rotation(angle);
-                g->draw_text({center.first, center.second}, street_name);
-               
-            }
+            
+                for (int k=0; k<check_names.size(); k++){
+
+                    if (check_names[k] == street_name){
+                        break;
+                    } 
+                    else if (k==check_names.size()-1){
+                    g->set_font_size(font_size);
+                    g->set_color(STREET_NAMES);
+                    g->set_text_rotation(angle);
+                    g->draw_text({center.first, center.second}, street_name);
+                    check_names.push_back(street_name);
+                    }
+                }
             }
         }
     }
-
+}
 void map_bounds(){
     
     intersections.resize(getNumIntersections());
