@@ -42,15 +42,27 @@ double min_lat;
 double max_lon;
 double min_lon;
 
+const char* search_text;
 void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool /*new_window*/);//add find button
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
+void search_bar(GtkWidget *widget, ezgl::application *application);
 //Determining the first time drawn
 int numTimesDrawn = 0;
 //ezgl::color BACKGROUND(237,237,237);
 
 void draw_map() {
+    std::string map_name;
+    if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
+            map_name == "golden-horseshoe_canada" || map_name == "hamilton_canada" || map_name == "hong-kong_china" ||
+            map_name == "iceland" || map_name == "interlaken_switzerland" || map_name == "london_england" ||
+            map_name == "moscow_russia" || map_name == "new-delhi_india" || map_name == "new-york_usa" ||
+            map_name == "rio-de-janeiro_brazil" || map_name == "saint-helena" || map_name == "singapore" ||
+            map_name == "sydney_australiia" || map_name == "tehran_iran" || map_name == "tokyo_japan" || map_name == "toronto_canada"){
+        load_map(map_name);
+    }
+    
     ezgl::application::settings settings;
 
     // Include headers
@@ -73,7 +85,7 @@ void draw_map() {
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
-    application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
+    application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
 }
 
 void draw_main_canvas(ezgl::renderer *g) {
@@ -95,13 +107,24 @@ void draw_main_canvas(ezgl::renderer *g) {
     zoomStreets(g);
     drawSearchBar(g);
 }
-void initial_setup(ezgl::application *application, bool /*new_window*/){
-    
-    application->create_button("find", 6, find_button);
-    
+
+void initial_setup(ezgl::application *application, bool new_window){
+          
+  //GObject *searchBar = application->get_object("SearchBar");
+  //g_signal_connect(searchBar, "key_press_event", G_CALLBACK(search_bar), application);
+    // application->create_button("find", 6, find_button);
+
 }
 
-void find_button(GtkWidget */*widget*/, ezgl::application *application){
+/*void search_bar(GtkWidget *widget, ezgl::application *application){
+    GtkEntry *entry = (GtkEntry *)application->get_object("SearchBar");
+    search_text = gtk_entry_get_text(entry);
+    cout << search_text << endl;
+    // application->refresh_drawing();
+}
+*/
+/*
+void find_button(GtkWidget *widget, ezgl::application *application){
     cout<< "find button is pressed."<< endl;
     cout<< "Enter 2 street names below to find an intersection." << endl;
     int street_id[2];
@@ -128,7 +151,7 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     highlight_intersections(intersection_ids, application->get_renderer());
     
     
-}
+}*/
                                    
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
     rectangle recover_screen = g->get_visible_screen();
