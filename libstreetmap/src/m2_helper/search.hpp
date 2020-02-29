@@ -113,7 +113,7 @@ void drawSearchBar(ezgl::renderer *g){
     g->set_coordinate_system(ezgl::WORLD);
 }
 
-void search(ezgl::application *app, StreetIndex streetSearchIndex){
+void search(StreetIndex streetSearchIndex){
     for (std::vector<StreetData>::iterator it = streetsizes.highway.begin(); it < streetsizes.highway.end(); it++){
         if ((*it).id == streetSearchIndex){
             cout << "highway detected" << endl;
