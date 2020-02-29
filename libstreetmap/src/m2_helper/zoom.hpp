@@ -30,6 +30,25 @@ extern rectangle full_map;
 
 //Constants
 
+//Main zoom function
+void zoom(ezgl::renderer *g);
+
+//Draws streets with different widths not including <unknowns>
+void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width); 
+//Draws all the streets including <unknowns>
+void drawAllStreets(ezgl::renderer *g, int width);
+
+//Draws all the street names
+void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size);
+
+void makeFeaturesVector();
+void drawFeatures(ezgl::renderer *g );
+void drawBuildings(std::vector<int> features, ezgl::renderer *g );
+double x_between_2_points(LatLon first, LatLon second);
+double y_between_2_points(LatLon first, LatLon second);
+
+double findArea(double x1, double y1, double x2, double y2);
+void highlightStreet(ezgl::renderer* g, int street_id);
 const int ZOOM_ONE   = 1;
 const int ZOOM_TWO   = 190;
 const int ZOOM_THREE = 534;

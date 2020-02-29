@@ -73,6 +73,9 @@ void draw_map() {
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
+
+
+    application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
     application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
 }
 
