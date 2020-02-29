@@ -39,6 +39,7 @@ struct streetSegmentsData {
 };
 
 struct StreetData {
+    StreetIndex id;
     std::vector<streetSegmentsData> segments;
     std::string name;
     double length;

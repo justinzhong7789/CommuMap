@@ -105,9 +105,16 @@ void drawSearchBar(ezgl::renderer *g){
             g->set_font_size(14);
             g->set_color(ezgl::BLACK);
             g->draw_text(text_start, typed);
-        
-            char_pressed = false;
+            vector<int> results = find_street_ids_from_partial_street_name(typed);
+            int results_num = results.size();
+                for (int i = 0; i < std::max(5, results_num); i++){
+                    g->set_color(ezgl::WHITE);
+                    g->fill_rectangle({start_point.x, start_point.y+15*(i+1)}, {end_point.x, end_point.y+15*(i+1)});
+                    g->set_color(ezgl::BLACK);
+                    g->draw_text({text_start.x, text_start.y+15*(i+1)}, getStreetName(results[i]));
+                }
         }
+        char_pressed = false;
     }
     // Set coordinate system back for safety
     g->set_coordinate_system(ezgl::WORLD);
@@ -148,7 +155,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey* key, char* letter){
         enter_pressed = true;
         cout << "Enter pressed" << endl;
     }
-    else if (key->keyval == GDK_KEY_KP_Space){
+    else if (key->keyval == GDK_KEY_space){
         space_pressed = true;
         cout << "Space pressed" << endl;
     }
