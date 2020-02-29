@@ -31,6 +31,7 @@ void makeStreetSizeTable(){
             street_segment_data.node = add_nodes(id);
             street_data.segments.push_back(street_segment_data);
         }
+        street_data.id = i;
         street_data.name = getStreetName(i);
         street_data.length = street_length;
         
