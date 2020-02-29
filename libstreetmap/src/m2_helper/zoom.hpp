@@ -32,6 +32,8 @@ extern rectangle full_map;
 
 //Main zoom function
 void zoom(ezgl::renderer *g);
+void nameStreets(ezgl::renderer *g);
+void drawOneWay(StreetSegmentsData segment, ezgl::renderer *g);
 
 //Draws streets with different widths not including <unknowns>
 void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width); 
@@ -39,7 +41,8 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width);
 void drawAllStreets(ezgl::renderer *g, int width);
 
 //Draws all the street names
-void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size);
+void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size, int numDrawn);
+void drawStreetNamesTest(ezgl::renderer *g, int streetID, int segID);
 
 void drawFeatures(ezgl::renderer *g );
 
@@ -63,7 +66,9 @@ const ezgl::color HIGHWAY(131,133,134);
 const ezgl::color OUTLINE(197,197,197);
 const ezgl::color BUILDINGS(224,224,224);
 const ezgl::color BACKGROUND(237,237,237);
-const ezgl::color FEATURENAMES(60,63,65);
+const ezgl::color FEATURE_NAMES(120,126,131);
+const ezgl::color STREET_NAMES(88,94,97);
+const double RADIAN_TO_DEGREE = 1.0 / DEGREE_TO_RADIAN;
 
 const double area_full_screen = 1831656;
 //const double area_full_screen = 360000;

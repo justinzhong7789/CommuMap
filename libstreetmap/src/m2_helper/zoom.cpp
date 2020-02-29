@@ -8,16 +8,18 @@ std::vector <intersectionData> intersections;
 Zoom zooms;
 
 void zoom(ezgl::renderer *g){
-    rectangle current_map = g->get_visible_world();
+    zooms.current = g->get_visible_world();
     rectangle current_screen = g->get_visible_screen();
+//    auto zooms.map_first = current_map.m_first;
+//    auto zooms.map_second = current_map.m_second;
     
-    LatLon first(current_map.m_first.x, current_map.m_first.y);
-    LatLon second(current_map.m_second.x, current_map.m_second.y);
+    LatLon first(zooms.current.m_first.x, zooms.current.m_first.y);
+    LatLon second(zooms.current.m_second.x, zooms.current.m_second.y);
     double mapX = x_distance_between_2_points(first, second);
     double mapY = y_distance_between_2_points(first,second);
     
     zooms.mapArea = mapX*mapY;
-    zooms.map = area_full_map/findArea(current_map.m_first.x, current_map.m_first.y, current_map.m_second.x, current_map.m_second.y);
+    zooms.map = area_full_map/findArea(zooms.current.m_first.x, zooms.current.m_first.y, zooms.current.m_second.x, zooms.current.m_second.y);
     zooms.screen = findArea(current_screen.m_first.x, current_screen.m_first.y, current_screen.m_second.x, current_screen.m_second.y) / area_full_screen;
     
     cout << "Current map Area: "<<zooms.mapArea<<endl;
@@ -76,6 +78,7 @@ void zoomStreets(ezgl::renderer *g){
             break;
         default: 
             drawStreets(streetsizes.highway, g, width);
+             
             break;
     }
 }
@@ -106,6 +109,9 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width ){
                 
                 g->set_line_cap(ezgl::line_cap::butt);
                 
+                if(streets[i].segments[j].oneWay){
+                    drawOneWay(streets[i].segments[j], g);
+                }    
             }
         }
     }
@@ -133,7 +139,77 @@ void drawAllStreets(renderer *g, int width){
     }
 }
 
-void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
+
+void drawOneWay(StreetSegmentsData seg, ezgl::renderer *g){
+    
+    std::string arrow = "   ->   ";
+    g->set_color(ezgl::BLACK);
+    g->set_text_rotation(atan((seg.toPos.lat() - seg.fromPos.lat())/(x_from_lon(seg.toPos.lon()) - x_from_lon(seg.fromPos.lon())))*180/M_PI);
+    g->draw_text(point2d_from_latlon(seg.midpoint), arrow);
+}
+
+void nameStreets(ezgl::renderer *g){
+        drawStreetNames(streetsizes.local, g,10,0 );
+}
+
+//void drawStreetNamesTest(ezgl::renderer *g, int streetID, int seg){
+//    
+//    double streetSegLength = find_street_segment_length(seg);
+//    
+//     if (streetSegLength > 1 ) {
+//        InfoStreetSegment segInfo = getInfoStreetSegment(seg);
+//        LatLon fromLatLon = getIntersectionPosition(segInfo.from);
+//        LatLon toLatLon = getIntersectionPosition(segInfo.to);
+//        point2d fromPoint(point2d_from_latlon(fromLatLon));
+//        point2d toPoint(point2d_from_latlon(toLatLon));
+//        
+//        rectangle rectSeg(fromPoint,toPoint);
+//        point2d midpoint = rectSeg.center();
+//        if (zooms.current.contains(midpoint)) {
+//            std::string name = getStreetName(streetID);
+//
+//            ezgl::point2d from = point2d_from_latlon(fromLatLon);
+//            ezgl::point2d to = point2d_from_latlon(toLatLon);
+//
+//            double xDistance = from.x - to.x;
+//            double yDistance = from.y - to.y;
+//
+//            double textRotationAngle = atan(yDistance / xDistance) * RADIAN_TO_DEGREE;
+//           
+//            g->set_text_rotation(textRotationAngle);
+////            g->set_text_rotation(0);
+//
+//            ezgl::point2d textLocation = {(from.x + to.x) / 2, (from.y + to.y) / 2};
+//            g->draw_text(textLocation, name);
+//        }
+//    }
+//    
+//}
+
+//void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int numdrawn){
+//    double angle = 0;
+//    InfoStreetSegment info;
+//    
+//    for (size_t i=0; i<streets.size(); i++){
+//        std::string street_name = streets[i].name; 
+//        for (size_t j=0; j<streets[i].segments.size(); j++){
+//            
+//            StreetSegmentsData seg = streets[i].segments[j];
+//            point2d midpoint = point2d_from_latlon(seg.midpoint);
+//            
+//            if(zooms.current.contains(midpoint)){
+//                angle = atan((seg.toPos.lat() - seg.fromPos.lat())/(x_from_lon(seg.toPos.lon()) - x_from_lon(seg.fromPos.lon())))*180/M_PI;
+//                g->set_font_size(font_size);
+//                g->set_color(STREET_NAMES);
+//                g->set_text_rotation(angle);
+//                g->draw_text(midpoint, street_name);
+//                
+//            }
+//        }
+//    }
+//}
+
+void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int numDrawn){
     double angle = 0;
     InfoStreetSegment info;
     // Creates a vector of all the names that will be displayed; this checks for duplicates and prevents it from drawing names more than once
@@ -143,9 +219,11 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
     // Loop through every street
     for (size_t i=0; i<streets.size(); i=i+2){
         std::string street_name = streets[i].name;
+        
+        //Why is it -1
         float last_position = x_from_lon(getIntersectionPosition(getInfoStreetSegment(streets[i].segments[0].id).from).lon())-1;
         
-        for (size_t j=0; j<streets[i].segments.size(); j++){
+        for (size_t j=0; j<streets[i].segments.size(); j=j+5){
             
             info = getInfoStreetSegment(streets[i].segments[j].id);
             std::pair <float, float> start = {x_from_lon((getIntersectionPosition(info.from).lon())), y_from_lat(getIntersectionPosition(info.from).lat())};
@@ -162,7 +240,7 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
                 } 
                 else if (k==check_names.size()-1){
                 g->set_font_size(font_size);
-                g->set_color(ezgl::GREY_75);
+                g->set_color(STREET_NAMES);
                 g->set_text_rotation(angle);
             //g->draw_text({center.first, center.second}, street_name);
             //g->draw_text({start.first, start.second}, street_name, 100, 100);

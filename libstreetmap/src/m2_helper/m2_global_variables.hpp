@@ -16,7 +16,7 @@ using namespace ezgl;
 
 extern std::vector<LatLon> add_nodes(StreetSegmentIndex id);
 
-extern std::vector <streetSegmentsData> streetSegments;
+extern std::vector <StreetSegmentsData> streetSegments;
 
 extern StreetSize streetsizes;
 
@@ -29,6 +29,9 @@ float y_from_lat(float lat);
 float x_from_lon(float lon);
 float lat_from_y(float lat);
 float lon_from_x(float lon);
+
+ezgl:: point2d point2d_from_latlon(LatLon number);
+LatLon latlon_from_point2d(ezgl::point2d point);
 
 const int HIGHWAY_LENGTH = 15000;
 const int MAJOR_LENGTH = 3000;

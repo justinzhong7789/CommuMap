@@ -5,14 +5,25 @@
 
 //std::vector<LatLon> add_nodes(StreetSegmentIndex id);
 
-std::vector <streetSegmentsData> streetSegments;
+std::vector <StreetSegmentsData> streetSegments;
 
 std::vector<std::vector<ezgl::point2d>> pointsOfFeatures;
 //std::vector<std::vector<ezgl::point2d>> pointsOfFeatures;
 
 StreetSize streetsizes;
 FeatureClass featuretypes;
-FeatureSize featuresizes;
+
+
+ezgl::point2d point2d_from_latlon(LatLon number){
+    point2d point (x_from_lon(number.lon()),number.lat());
+    return point;
+}
+
+LatLon latlon_from_point2d(ezgl::point2d point){
+    
+    LatLon number((float) lon_from_x(point.x),(float) point.y);
+    return number;
+}
 
 double findArea(double x1, double y1, double x2, double y2){
     
@@ -25,7 +36,7 @@ double findArea(double x1, double y1, double x2, double y2){
 void makeStreetSizeTable(){
     StreetData street_data;
     StreetSize streets;
-    streetSegmentsData street_segment_data;
+    StreetSegmentsData street_segment_data;
 
     
     //Starts at 1 so it doesn't include the <unknown> street
@@ -35,15 +46,29 @@ void makeStreetSizeTable(){
         
         for (int j=0; j<segmentsOfStreets[i].size(); j++){
             StreetSegmentIndex id = segmentsOfStreets[i][j];
-            street_segment_data.id = id;
-            
+            //street_segment_data.id = id;
             street_length += find_street_segment_length(id);
             street_segment_data.node = add_nodes(id);
+            street_segment_data.oneWay = getInfoStreetSegment(id).oneWay;
+            
+            
+            street_segment_data.fromPos = getIntersectionPosition(getInfoStreetSegment(id).from);
+            street_segment_data.toPos= getIntersectionPosition(getInfoStreetSegment(id).to);
+            
+            point2d fromPoint(point2d_from_latlon(street_segment_data.fromPos));
+            point2d toPoint(point2d_from_latlon(street_segment_data.fromPos));
+            
+            rectangle rectSeg(fromPoint,toPoint);
+            street_segment_data.midpoint = latlon_from_point2d(rectSeg.center());
+            
             street_data.segments.push_back(street_segment_data);
         }
+        
+        
         street_data.id = i;
         street_data.name = getStreetName(i);
         street_data.length = street_length;
+        
         
         if( i == 0){
             streetsizes.local.push_back(street_data);
@@ -156,6 +181,7 @@ float lat_from_y(float y){
 void sortFeatures() {
     int numFeatures = getNumFeatures();
 
+    
   //  vector<float> check;
     for (FeatureIndex i = 0; i < numFeatures; i++) {
         
@@ -163,9 +189,10 @@ void sortFeatures() {
 //            float x_coords = (float) x_from_lon(getFeaturePoint(j, i).lon());
 //            float y_coords = (float) y_from_lat(getFeaturePoint(j, i).lat());
 //            ezgl::point2d pointIn2D(x_coords, y_coords);
-//            check.push_back(x_coords);
+//            pointsOfFeatures[j].push_back(pointIn2D);
 //            cout<<"help me"<<endl;
 //        }
+       
 //        
         FeatureType type = getFeatureType(i);
         FeatureType type2;
@@ -176,13 +203,7 @@ void sortFeatures() {
        // featInfo.name = getFeatureName(i);
         
         int typeCase = 10;
-        
-//        for(int k = 0 ; k<10 ; k++){
-//            if(type == featureTypeList[i]){
-//                typeCase = i;
-//                break;
-//            }
-//        }
+       
         
         for(int k = 0 ; k<10 ; k++){
             type2 = featureTypeList[k];

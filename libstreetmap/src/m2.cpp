@@ -77,10 +77,11 @@ void draw_map() {
 
     application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
     application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
+    application.destroy_button("find");
 }
 
 void draw_main_canvas(ezgl::renderer *g) {
-
+    
     if (numTimesDrawn == 0) {
 
         full_map.m_first.x = x_from_lon(min_lon);
@@ -95,8 +96,11 @@ void draw_main_canvas(ezgl::renderer *g) {
     
     zoom(g);
     zoomFeatures(g);
+     
     zoomStreets(g);
-    nameFeatures(g);
+  //  nameStreets(g);
+//    nameFeatures(g);
+    //g->draw_rectangle({0, 0}, {1000, 1000});
     drawSearchBar(g);
 }
 void initial_setup(ezgl::application *application, bool /*new_window*/){
