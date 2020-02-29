@@ -12,6 +12,7 @@
 //HEADER FILES
 #include "m2_helper/mouse_motion.hpp"
 #include "m2_helper/zoom.hpp"
+#include "m2_helper/search.hpp"
 #include "m2_helper/m2_global_variables.hpp"
 #include "m2_helper/global_variables.hpp"
 #include "ezgl/application.hpp"
@@ -68,7 +69,11 @@ void draw_map() {
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
 
 
+<<<<<<< HEAD
     application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
+=======
+    application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
+>>>>>>> a95b872976621d86af27c9c43971bb2c188859dc
 }
 
 void draw_main_canvas(ezgl::renderer *g) {
@@ -88,7 +93,7 @@ void draw_main_canvas(ezgl::renderer *g) {
     
     drawFeatures(g);
     zoom(g);
-
+    drawSearchBar(g);
 }
 
 void initial_setup(ezgl::application *application, bool /*new_window*/){
