@@ -68,6 +68,7 @@ const ezgl::color HIGHWAY(131,133,134);
 const ezgl::color OUTLINE(197,197,197);
 const ezgl::color BUILDINGS(224,224,224);
 const ezgl::color BACKGROUND(237,237,237);
+const ezgl::color FEATURENAMES(60,63,65);
 
 const double area_full_screen = 1831656;
 //const double area_full_screen = 360000;

@@ -11,8 +11,16 @@ void zoom(ezgl::renderer *g){
     rectangle current_map = g->get_visible_world();
     rectangle current_screen = g->get_visible_screen();
     
-    zooms.map = area_full_map/ findArea(current_map.m_first.x, current_map.m_first.y, current_map.m_second.x, current_map.m_second.y);
+    LatLon first(current_map.m_first.x, current_map.m_first.y);
+    LatLon second(current_map.m_second.x, current_map.m_second.y);
+    double mapX = x_distance_between_2_points(first, second);
+    double mapY = y_distance_between_2_points(first,second);
+    
+    zooms.mapArea = mapX*mapY;
+    zooms.map = area_full_map/findArea(current_map.m_first.x, current_map.m_first.y, current_map.m_second.x, current_map.m_second.y);
     zooms.screen = findArea(current_screen.m_first.x, current_screen.m_first.y, current_screen.m_second.x, current_screen.m_second.y) / area_full_screen;
+    
+    cout << "Current map Area: "<<zooms.mapArea<<endl;
     
     zooms.level = zooms.screen*zooms.map*100;
     
@@ -47,7 +55,7 @@ void zoom(ezgl::renderer *g){
 
 void zoomStreets(ezgl::renderer *g){
     
-    int width = 12;
+    int width = 10; //Used to be 12
     
     switch (zooms.zcase){
         case 0:
@@ -109,8 +117,6 @@ void drawAllStreets(renderer *g, int width){
             std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
             std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
             
-            
-            
             g->set_color(OUTLINE);
             g->set_line_width(width+2);
             g->draw_line({start.first, start.second}, {end.first, end.second});
@@ -148,7 +154,7 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
             std::pair <float, float> center = {(end.first+start.first)/2, (end.second+start.second)/2};
             if (center.first > last_position + 1){
                 last_position = center.first;
-            angle = atan((end.second - start.second)/(end.first - start.first))*180/M_PI;
+                angle = atan((end.second - start.second)/(end.first - start.first))*180/M_PI;
             
             for (int k=0; k<check_names.size(); k++){
                 if (check_names[k] == street_name){
@@ -156,7 +162,7 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
                 } 
                 else if (k==check_names.size()-1){
                 g->set_font_size(font_size);
-                g->set_color(ezgl::BLACK);
+                g->set_color(ezgl::GREY_75);
                 g->set_text_rotation(angle);
             //g->draw_text({center.first, center.second}, street_name);
             //g->draw_text({start.first, start.second}, street_name, 100, 100);

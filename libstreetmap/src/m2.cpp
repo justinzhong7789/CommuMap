@@ -96,6 +96,7 @@ void draw_main_canvas(ezgl::renderer *g) {
     zoom(g);
     zoomFeatures(g);
     zoomStreets(g);
+    nameFeatures(g);
     drawSearchBar(g);
 }
 void initial_setup(ezgl::application *application, bool /*new_window*/){

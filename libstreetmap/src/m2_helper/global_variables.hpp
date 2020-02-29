@@ -19,7 +19,8 @@
 #include <set>
 
 /* Allows for global variable declarations over a multiple source (cpp) files */
-
+double x_distance_between_2_points(LatLon first, LatLon second);
+double y_distance_between_2_points(LatLon first, LatLon second);
 
 extern std::vector<std::pair<double, double>> tableOfDivisors;
 extern std::multimap<std::string, StreetIndex> capitalizedStreetNamesTable;
@@ -100,6 +101,7 @@ struct Zoom{
     double map;
     double screen;
     double level;
+    double mapArea;
     int zcase;
     double small = 0.0;
 };

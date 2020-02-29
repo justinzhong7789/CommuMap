@@ -74,8 +74,8 @@ void makeSegmentsOfIntersections();
 void makeOSMWayTable();
 void makeOSMNodeTable();
 
-double x_distance_between_2_points(LatLon first, LatLon second);
-double y_distance_between_2_points(LatLon first, LatLon second);
+//double x_distance_between_2_points(LatLon first, LatLon second);
+//double y_distance_between_2_points(LatLon first, LatLon second);
 void remove_dups_in_vecs(std::vector<int> &vectorA);
 
 /*==================== GLOBAL FUNCTION IMPLEMENTATION ====================*/

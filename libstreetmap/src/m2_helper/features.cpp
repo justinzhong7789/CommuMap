@@ -76,13 +76,13 @@ ezgl::rectangle findHighLowPoint(FeatureIndex feat){
         high_lon = std::max(high_lon, getFeaturePoint(i, feat).lon());
         low_lon = std::min(low_lon, getFeaturePoint(i, feat).lon());
     }
-    ezgl::rectangle rect({low_lon, low_lat},{high_lon,high_lat});
+    ezgl::rectangle rect({x_from_lon(low_lon), low_lat},{x_from_lon(high_lon),high_lat});
     return rect;
 }
 
 void drawFeatures(std::vector<int> feature, ezgl::renderer *g) {
     
-     rectangle current_map = g->get_visible_world();
+    rectangle current_map = g->get_visible_world();
     g->set_line_width(1);
     
     for (FeatureIndex i = 0; i < feature.size() ; i++) {
@@ -91,12 +91,14 @@ void drawFeatures(std::vector<int> feature, ezgl::renderer *g) {
         ezgl::color featureColour = getFeatureColour(feat);
         g->set_color(featureColour);
         
-        //cout << "feature x:" << 
-        if (findHighLowPoint(feat).m_first.x > current_map.m_first.x || findHighLowPoint(feat).m_second.x < current_map.m_second.x){ 
+  //      if (findHighLowPoint(feat).m_first.x > current_map.m_first.x && findHighLowPoint(feat).m_second.x < current_map.m_second.x){ 
+        
         //this condition checks for closed feature
+//            cout<<"feature x1: "<<findHighLowPoint(feat).m_first.x<<"feature x2: "<<findHighLowPoint(feat).m_second.x<<endl; 
+//            cout<<"Map x1: "<<current_map.m_first.x<<"Map y1: "<<current_map.m_second.x<<endl<<endl; 
             
             if (getFeaturePoint(0, feat).lat() == getFeaturePoint(getFeaturePointCount(feat) - 1, feat).lat() &&
-                    getFeaturePoint(0, feat).lon() == getFeaturePoint(getFeaturePointCount(feat) - 1, feat).lon()) {
+                getFeaturePoint(0, feat).lon() == getFeaturePoint(getFeaturePointCount(feat) - 1, feat).lon()) {
 
                 std::vector<ezgl::point2d> points;
                 //put x-y coords of points that make up a closed feature into a vector
@@ -110,7 +112,7 @@ void drawFeatures(std::vector<int> feature, ezgl::renderer *g) {
                 if (points.size() > 1) {
                     g->fill_poly(points);
                 }
-
+                
             } else {//open feature
                 //open features are lines
                 for (int k = 0; k + 1 < getFeaturePointCount(feat); k++) {
@@ -127,7 +129,7 @@ void drawFeatures(std::vector<int> feature, ezgl::renderer *g) {
                     g->draw_line(start_point, end_point);
                 }
             }
-        }
+       // }
     }
 }
 
@@ -151,84 +153,65 @@ ezgl::color getFeatureColour(int i){
     return featureColour;
 }
 
-//void zoomFeatures(ezgl::renderer *g) {
-//    int numFeatures = getNumFeatures();
-//    //584158 features in toronto map
-//    //this loop draws all the features
+void drawFeatureNames(std::vector<int> vec, ezgl::renderer *g){
+    
+    for (FeatureIndex i = 0; i < vec.size(); i++){ 
+        int feat = vec[i];
+        ezgl::rectangle featSize = findHighLowPoint(feat);    
+        
+        if ((find_feature_area(feat) > 0.01* zooms.mapArea) && getFeatureName(feat)!="<noname>"){
+            //cout << "feature Area: "<<find_feature_area(feat)<<endl;
+            g->set_color(FEATURENAMES);
+            g->draw_text({(featSize.m_first.x + featSize.m_second.x)/2, (featSize.m_first.y + featSize.m_second.y)/2}, getFeatureName(feat));
+        }
+    }
+}
+
+void nameFeatures(ezgl::renderer *g){
+
+     
+    switch (zooms.zcase){
+        case 0:
+            drawFeatureNames(featuretypes.unknownFeatures, g);
+        case 1:
+            
+        case 2:
+            drawFeatureNames(featuretypes.buildings, g);
+            drawFeatureNames(featuretypes.streams, g);    
+        case 3:
+            drawFeatureNames(featuretypes.greenspaces, g);
+        case 4:
+            drawFeatureNames(featuretypes.golfcourses, g);
+            drawFeatureNames(featuretypes.beaches, g);
+        case 5:
+            drawFeatureNames(featuretypes.bigparks, g);
+
+            drawFeatureNames(featuretypes.lakes, g);
+            drawFeatureNames(featuretypes.islands, g);
+            break;
+        default:
+            drawFeatures(featuretypes.unknownFeatures, g);
+            drawFeatures(featuretypes.buildings, g);
+            drawFeatures(featuretypes.streams, g); 
+            drawFeatures(featuretypes.golfcourses, g);
+            drawFeatures(featuretypes.beaches, g);
+            drawFeatures(featuretypes.islands, g);
+            drawFeatures(featuretypes.lakes, g);
+            drawFeatures(featuretypes.rivers, g);
+            drawFeatures(featuretypes.bigparks, g);
+            break;
+    }
+}
+
+//void drawFeatureNames1( ezgl::renderer *g){
 //    
-//    g->set_line_width(1);
-//
-//    rectangle current_map = g->get_visible_world();
-//    LatLon top_left(current_map.m_first.y, lon_from_x(current_map.m_first.x));
-//    LatLon top_right(current_map.m_first.y, lon_from_x(current_map.m_second.x));
-//    LatLon bottom_left(current_map.m_second.y, lon_from_x(current_map.m_first.x));
-//    double current_area = abs(x_between_2_points(top_left, top_right)) * abs(y_between_2_points(top_right, bottom_left));
-//
-//    for(FeatureIndex i=0; i< featuretypes.lakes.size(); i++){
-//    //for (FeatureIndex i = 0; i < numFeatures; i++) {
+//    for (FeatureIndex feat = 0; feat < vec.size(); feat++){ 
 //        
-////        if(getFeatureType(i) == Building){
-////            featuresizes.eight.push_back(i);
-////        }else{
-////            
-////
-////            if (getFeatureType(i) == Unknown) {
-////                g->set_color(BUILDINGS);
-////            } else if (getFeatureType(i) == Park) {
-////                g->set_color(GRASS);
-////            } else if (getFeatureType(i) == Beach) {
-////                g->set_color(GRASS);
-////            } else if (getFeatureType(i) == Lake) {
-////                g->set_color(WATER);
-////            } else if (getFeatureType(i) == River) {
-////                g->set_color(WATER);
-////            } else if (getFeatureType(i) == Island) {
-////                g->set_color(GRASS);
-////            } else if (getFeatureType(i) == Building) {
-////                g->set_color(BUILDINGS);
-////            } else if (getFeatureType(i) == Greenspace) {
-////                g->set_color(GRASS);
-////            } else if (getFeatureType(i) == Golfcourse) {
-////                g->set_color(GRASS);
-////            } else if (getFeatureType(i) == Stream) {
-////                g->set_color(WATER);
-////            }
-//
-//            int lake = featuretypes.lakes[i];
-//            FeatureType type = getFeatureType(lake);
-//            if (find_feature_area(lake) > 0.001 * current_area || find_feature_area(lake) == 0) {
-//                //this condition checks for closed feature
+//        ezgl::rectangle featSize = findHighLowPoint(feat);    
 //        
-//        
-//                if (getFeaturePoint(0, lake).lat() == getFeaturePoint(getFeaturePointCount(lake) - 1, lake).lat() &&
-//                        getFeaturePoint(0, lake).lon() == getFeaturePoint(getFeaturePointCount(lake) - 1, lake).lon()) {
-//
-//                    std::vector<ezgl::point2d> points;
-//                    //put x-y coords of points that make up a closed feature into a vector
-//                    for (int j = 0; j < getFeaturePointCount(lake); j++) {
-//                        double x_coords = (double) x_from_lon(getFeaturePoint(j, lake).lon());
-//                        double y_coords = (double) y_from_lat(getFeaturePoint(j, lake).lat());
-//                        ezgl::point2d pointIn2D(x_coords, y_coords);
-//                        points.push_back(pointIn2D);
-//                    }
-//                    //use the vector to draw
-//                    if (points.size() > 1) {
-//                        g->fill_poly(points);
-//                    }
-//                } else {//open feature
-//                    //open features are lines
-//                    for (int k = 0; k + 1 < getFeaturePointCount(lake); k++) {
-//                        double start_x = x_from_lon(getFeaturePoint(k, lake).lon());
-//                        double start_y = y_from_lat(getFeaturePoint(k, lake).lat());
-//                        double end_x = x_from_lon(getFeaturePoint(k + 1, lake).lon());
-//                        double end_y = y_from_lat(getFeaturePoint(k + 1, lake).lat());
-//                        ezgl::point2d start_point(start_x, start_y);
-//                        ezgl::point2d end_point(end_x, end_y);
-//                        g->set_line_dash(ezgl::line_dash::none);
-//                        g->draw_line(start_point, end_point);
-//                    }
-//                }
-//            }
-//        
+//        if ((find_feature_area(feat) > 10000* zooms.map || find_feature_area(feat) == 0) && getFeatureName(feat)!="<noname>"){
+//            g->set_color(ezgl::GREY_75);
+//            g->draw_text({(featSize.m_first.x + featSize.m_second.x)/2, (featSize.m_first.y + featSize.m_second.y)/2}, getFeatureName(feat));
+//        }
 //    }
 //}
