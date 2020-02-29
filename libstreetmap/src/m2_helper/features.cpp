@@ -82,7 +82,7 @@ ezgl::rectangle findHighLowPoint(FeatureIndex feat){
 
 void drawFeatures(std::vector<int> feature, ezgl::renderer *g) {
     
-    rectangle current_map = g->get_visible_world();
+//    rectangle current_map = g->get_visible_world();
     g->set_line_width(1);
     
     for (FeatureIndex i = 0; i < feature.size() ; i++) {
