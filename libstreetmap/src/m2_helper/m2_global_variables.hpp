@@ -58,3 +58,4 @@ void makePointsOfFeatures();
 void makeStreetSizeTable();
 void makeStreetsVector();
 
+extern const char* search_text;
