@@ -47,11 +47,11 @@ void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool /*new_window*/);//add find button
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
-<<<<<<< HEAD
+//<<<<<<< HEAD
 void search_bar(GtkWidget *widget, ezgl::application *application);
-=======
-string drawFindSearchBar(ezgl::renderer *g);
->>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
+//=======
+//string drawFindSearchBar(ezgl::renderer *g);
+//>>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
 //Determining the first time drawn
 int numTimesDrawn = 0;
 //ezgl::color BACKGROUND(237,237,237);
@@ -79,8 +79,6 @@ void draw_map() {
     intersections.resize(getNumIntersections());
 
     map_bounds();
-    cout << "minLon: " << min_lon << " maxLon: " << max_lon << endl;
-    cout << "minLat: " << min_lat << " maxLat: " << max_lat << endl;
 
     makeStreetsVector();
     makeStreetSizeTable();
@@ -89,15 +87,15 @@ void draw_map() {
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
-<<<<<<< HEAD
+//<<<<<<< HEAD
     application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
-=======
-
-
-    application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
-    application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
-    application.destroy_button("find");
->>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
+//=======
+//
+//
+//    application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
+//    application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
+//    application.destroy_button("find");
+//>>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
 }
 
 void draw_main_canvas(ezgl::renderer *g) {
@@ -156,15 +154,15 @@ void find_button(GtkWidget *widget, ezgl::application *application){
     
     
 }*/
-=======
-    for(int i=0; i< getNumStreets();i++){
-        if(getStreetName(i)==two_streets[0]){two_streets_id[0]=1;}
-        else if(getStreetName(i)==two_streets[1]){two_streets_id[1]=i;}
-    }
-    intersection_ids = find_intersections_of_two_streets(make_pair(two_streets_id[0], two_streets_id[1]));
-    highlight_intersections(intersection_ids, g);
-}
->>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
+//=======
+//    for(int i=0; i< getNumStreets();i++){
+//        if(getStreetName(i)==two_streets[0]){two_streets_id[0]=1;}
+//        else if(getStreetName(i)==two_streets[1]){two_streets_id[1]=i;}
+//    }
+//    intersection_ids = find_intersections_of_two_streets(make_pair(two_streets_id[0], two_streets_id[1]));
+//    highlight_intersections(intersection_ids, g);
+//}
+//>>>>>>> 4efb4071071d2d9c0a9fbe2c3cb893fec509e927
                                    
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
     rectangle recover_screen = g->get_visible_screen();
@@ -183,7 +181,7 @@ void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
         cout<<"********************************************************"<< endl;
     }
     char YOrN;
-    cout<<"Done browing? y/n"<<endl;       
+    cout<<"Done browsing? y/n"<<endl;       
     while(YOrN!='y'){
         cin>> YOrN;
     }
