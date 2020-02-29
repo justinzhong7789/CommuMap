@@ -24,7 +24,9 @@ double y_between_2_points(LatLon first, LatLon second);
 
 void makeFeaturesVector();
 void drawFeatures(std::vector<int> feature, ezgl::renderer *g) ;
+void zoomFeatures(ezgl::renderer *g);
 void drawBuildings(std::vector<int> features, ezgl::renderer *g );
+ezgl::rectangle findHighLowPoint(FeatureIndex feat);
 ezgl::color getFeatureColour(int i);
 
 #endif /* FEATURES_HPP */

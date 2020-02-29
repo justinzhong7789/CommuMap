@@ -8,6 +8,7 @@
 std::vector <streetSegmentsData> streetSegments;
 
 std::vector<std::vector<ezgl::point2d>> pointsOfFeatures;
+//std::vector<std::vector<ezgl::point2d>> pointsOfFeatures;
 
 StreetSize streetsizes;
 FeatureClass featuretypes;
@@ -121,8 +122,6 @@ void makeStreetsVector(){
 
 void makePointsOfFeatures(){
     
-    pointsOfFeatures.resize(getNumFeatures());
-    
     for(int i = 0; i<getNumFeatures(); i++){
         for(int j = 0; j<getFeaturePointCount(i); j++){
             double x_coords = (double) x_from_lon(getFeaturePoint(j, i).lon());
@@ -157,16 +156,19 @@ float lat_from_y(float y){
 void sortFeatures() {
     int numFeatures = getNumFeatures();
 
+  //  vector<float> check;
     for (FeatureIndex i = 0; i < numFeatures; i++) {
         
-        for(int j = 0; j<getFeaturePointCount(i); j++){
-            double x_coords = (double) x_from_lon(getFeaturePoint(j, i).lon());
-            double y_coords = (double) y_from_lat(getFeaturePoint(j, i).lat());
-            ezgl::point2d pointIn2D(x_coords, y_coords);
-            pointsOfFeatures[i].push_back(pointIn2D);
-        }
-        
+//        for(int j = 0; j<getFeaturePointCount(i); j++){
+//            float x_coords = (float) x_from_lon(getFeaturePoint(j, i).lon());
+//            float y_coords = (float) y_from_lat(getFeaturePoint(j, i).lat());
+//            ezgl::point2d pointIn2D(x_coords, y_coords);
+//            check.push_back(x_coords);
+//            cout<<"help me"<<endl;
+//        }
+//        
         FeatureType type = getFeatureType(i);
+        FeatureType type2;
         //info featInfo;
         int featInfo;
         featInfo = i;
@@ -175,9 +177,17 @@ void sortFeatures() {
         
         int typeCase = 10;
         
+//        for(int k = 0 ; k<10 ; k++){
+//            if(type == featureTypeList[i]){
+//                typeCase = i;
+//                break;
+//            }
+//        }
+        
         for(int k = 0 ; k<10 ; k++){
-            if(type == featureTypeList[i]){
-                typeCase = i;
+            type2 = featureTypeList[k];
+            if(type == type2){
+                typeCase = k;
                 break;
             }
         }
@@ -185,6 +195,7 @@ void sortFeatures() {
         switch(typeCase){
             case 0:
                 featuretypes.unknownFeatures.push_back(featInfo);
+                //std::cout<<"Im here"<<endl;
                 break;
             case 1:
                 featuretypes.bigparks.push_back(featInfo);

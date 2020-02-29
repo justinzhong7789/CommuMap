@@ -24,33 +24,11 @@ struct intersectionData {
 
 extern std::vector <intersectionData> intersections;
 
-//extern double max_lat;
-//extern double min_lat;
-//extern double max_lon;
-//extern double min_lon;
-
-void map_bounds();
-
-//x and y conversions
-//float y_from_lat(float lat);
-//float x_from_lon(float lon);
-//float lat_from_y(float lat);
-//float lon_from_x(float lon);
-
 //Zoom level variables
 extern rectangle full_screen; 
 extern rectangle full_map;
 
-//Main zoom function
-void zoom(ezgl::renderer *g);
-
-//Draws streets with different widths not including <unknowns>
-void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width); 
-//Draws all the streets including <unknowns>
-void drawAllStreets(ezgl::renderer *g, int width);
-
-//Draws all the street names
-void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size);
+//Constants
 
 const int ZOOM_ONE   = 1;
 const int ZOOM_TWO   = 190;
@@ -105,4 +83,19 @@ const int zoomLevel[zoomArraySize] = {
 //    534,    //level major -3
     300,    //level major -4
     1 //level highway  -5
-};  
+};
+
+
+//Main zoom function
+void map_bounds();
+void zoom(ezgl::renderer *g);
+void zoomStreets(ezgl::renderer *g);
+
+
+//Draws streets with different widths not including <unknowns>
+void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width); 
+//Draws all the streets including <unknowns>
+void drawAllStreets(ezgl::renderer *g, int width);
+
+//Draws all the street names
+void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size);

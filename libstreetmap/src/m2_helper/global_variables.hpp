@@ -4,6 +4,10 @@
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
 #include "OSMDatabaseAPI.h"
+
+#include "ezgl/application.hpp"
+#include "ezgl/graphics.hpp"
+
 #include <map>
 #include <list>
 #include <unordered_map>
@@ -91,36 +95,20 @@ struct FeatureClass{
     
 };
 
+struct Zoom{
+    double map;
+    double screen;
+    double level;
+    int zcase;
+    double small = 0.0;
+};
+
+extern Zoom zooms;
+
 extern FeatureClass featuretypes;
 extern FeatureSize featuresizes;
 
 extern StreetSize streetsizes;
 
 
-//
-//void sort_features(){
-//    for(FeatureIndex i = 0; i< getNumFeatures(); i++){
-//       if (getFeatureType(i) == Unknown) {
-//           unknownFeatures.push_back(i)
-//        } else if (getFeatureType(i) == Park) {
-//            parks.push_back(i);
-//        } else if (getFeatureType(i) == Beach) {
-//            beaches.push_back(i)
-//        } else if (getFeatureType(i) == Lake) {
-//            lakes.push_back(i);
-//        } else if (getFeatureType(i) == River) {
-//            rivers.push_back(i)
-//        } else if (getFeatureType(i) == Island) {
-//            islands.push_back(i);
-//        } else if (getFeatureType(i) == Building) {
-//            buildings.push_back(i);
-//        } else if (getFeatureType(i) == Greenspace) {
-//            greenspaces.push_back(i);
-//        } else if (getFeatureType(i) == Golfcourse) {
-//            g->set_color(GRASS);
-//        } else if (getFeatureType(i) == Stream) {
-//            g->set_color(WATER);
-//        }
-//    }
-//}
-    
+

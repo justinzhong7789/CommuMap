@@ -14,20 +14,11 @@
 using namespace std;
 using namespace ezgl; 
 
-void makeStreetSizeTable();
-void makeStreetsVector();
-
 extern std::vector<LatLon> add_nodes(StreetSegmentIndex id);
 
 extern std::vector <streetSegmentsData> streetSegments;
 
 extern StreetSize streetsizes;
-
-void sortFeatures();
-
-void makePointsOfFeatures();
-
-extern std::vector<std::vector<ezgl::point2d>> pointsOfFeatures;
 
 extern double max_lat;
 extern double min_lat;
@@ -47,4 +38,23 @@ const int LOCAL_LENGTH = 100;
 
 double findArea(double x1, double y1, double x2, double y2);
 
-const FeatureType featureTypeList[10] = {Unknown, Park, Beach, Lake, River, Island, Building, Greenspace, Golfcourse, Stream};
+const FeatureType featureTypeList[10] = {
+    Unknown, 
+    Park, 
+    Beach, 
+    Lake, 
+    River, 
+    Island, 
+    Building, 
+    Greenspace, 
+    Golfcourse, 
+    Stream
+};
+
+extern std::vector<std::vector<ezgl::point2d>> pointsOfFeatures;
+
+void sortFeatures();
+void makePointsOfFeatures();
+void makeStreetSizeTable();
+void makeStreetsVector();
+

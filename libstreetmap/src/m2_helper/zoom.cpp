@@ -5,82 +5,71 @@ rectangle full_screen;
 
 std::vector <intersectionData> intersections;
 
-void zoom(ezgl::renderer *g){
+Zoom zooms;
 
+void zoom(ezgl::renderer *g){
     rectangle current_map = g->get_visible_world();
     rectangle current_screen = g->get_visible_screen();
-
-    double zoom_map = area_full_map/ findArea(current_map.m_first.x, current_map.m_first.y, current_map.m_second.x, current_map.m_second.y);
-    double zoom_screen = findArea(current_screen.m_first.x, current_screen.m_first.y, current_screen.m_second.x, current_screen.m_second.y) / area_full_screen;
     
-    double zoom_level = zoom_screen*zoom_map*100;
-    //check when zoom is close to 0
-    //int width = ceil(zoom_level*pow(2,1/zoom_level));
+    zooms.map = area_full_map/ findArea(current_map.m_first.x, current_map.m_first.y, current_map.m_second.x, current_map.m_second.y);
+    zooms.screen = findArea(current_screen.m_first.x, current_screen.m_first.y, current_screen.m_second.x, current_screen.m_second.y) / area_full_screen;
     
-    double zoom_small = 0.0;
+    zooms.level = zooms.screen*zooms.map*100;
     
-    int width = 12;
-    
-    int zoomCase = zoomArraySize;
+    zooms.zcase = zoomArraySize;
     
     for(int i = 0; i < zoomArraySize; i++){
         
-        if(zoom_screen > ZOOM_SCREEN_INIT){
-            zoom_small = 0.9*pow(2,zoom_level);
-            if(zoomLevel[i] < zoom_small){
-                zoomCase = i;
+        if(zooms.screen > ZOOM_SCREEN_INIT){
+            zooms.small = 0.9*pow(2,zooms.level);
+            if(zoomLevel[i] < zooms.small){
+                zooms.zcase = i;
                 break;
             }
         }else{
-            if(zoomLevel[i] < zoom_level){
-                zoomCase = i;
+            if(zoomLevel[i] < zooms.level){
+                zooms.zcase = i;
                 break;
             }
         }
        
     }
     
-     cout << "At level: "<< zoomCase << endl;
-     
-     cout<< "Screen values = X1: "<< current_screen.m_first.x << "Y1: " << current_screen.m_first.y 
-            << "// X2: " << current_screen.m_second.x << "Y1: " << current_screen.m_second.y << endl;
-    cout<< "Zoom Map: "<< zoom_map << endl;
-    cout<< "Zoom Screen: "<< zoom_screen << endl;
-    cout<< "Zoom Level Full: "<< zoom_level << endl ;
-    cout<< "Zoom Level Small: "<< zoom_small << endl <<endl;
-     
-    switch (zoomCase){
+    cout << "At level: "<< zooms.zcase << endl;
+//     
+//    cout<< "Screen values = X1: "<< current_screen.m_first.x << "Y1: " << current_screen.m_first.y 
+//            << "// X2: " << current_screen.m_second.x << "Y1: " << current_screen.m_second.y << endl;
+//    cout<< "Zoom Map: "<< zoom_map << endl;
+//    cout<< "Zoom Screen: "<< zoom_screen << endl;
+    cout<< "Zoom Level Full: "<< zooms.level << endl ;
+//    cout<< "Zoom Level Small: "<< zoom_small << endl <<endl;
+}
+
+void zoomStreets(ezgl::renderer *g){
+    
+    int width = 12;
+    
+    switch (zooms.zcase){
         case 0:
-            drawFeatures(featuretypes.unknownFeatures, g);
-            //drawAllStreets(g, width*(zoom_level/ZOOM_ZERO));
-            
+            drawAllStreets(g, width*(zooms.level/ZOOM_ZERO));
             break;
         case 1:
-            drawFeatures(featuretypes.buildings, g);
-            //drawAllStreets(g, width*(zoom_level/ZOOM_ONE));
-            
+            //drawAllStreets(g, width);
         case 2:
-            drawFeatures(featuretypes.streams, g);
-            //drawStreets(streetsizes.local, g , width);
-            
+//            drawStreets(streetsizes.local, g , width);
         case 3:
+            drawStreets(streetsizes.local, g , width-5);
             //drawStreets(streetsizes.minor, g , width);
         case 4:
-            drawFeatures(featuretypes.golfcourses, g);
-            drawFeatures(featuretypes.beaches, g);
-            //drawStreets(streetsizes.major, g , width);
+            drawStreets(streetsizes.minor, g , width-3);
+            drawStreets(streetsizes.major, g , width);
         case 5:
-            drawFeatures(featuretypes.islands, g);
-            drawFeatures(featuretypes.lakes, g);
-            drawFeatures(featuretypes.rivers, g);
-            drawFeatures(featuretypes.bigparks, g);
-            //drawStreets(streetsizes.highway, g, width);
+            drawStreets(streetsizes.highway, g, width);
             break;
         default: 
-            //drawStreets(streetsizes.highway, g, width);
+            drawStreets(streetsizes.highway, g, width);
             break;
     }
-    
 }
 
 void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width ){

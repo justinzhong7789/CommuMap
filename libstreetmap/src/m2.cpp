@@ -68,8 +68,13 @@ void draw_map() {
 
     makeStreetsVector();
     makeStreetSizeTable();
+<<<<<<< HEAD
     sortFeatures();
     
+=======
+//    makePointsOfFeatures();
+    sortFeatures();
+>>>>>>> Made Features zoom in just like mine
     
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
 
@@ -92,10 +97,16 @@ void draw_main_canvas(ezgl::renderer *g) {
     }
     
     zoom(g);
+<<<<<<< HEAD
     zoomFeatures(g);
     zoomStreets(g);
     drawSearchBar(g);
 }
+=======
+ //   drawFeatures(featuretypes.lakes, g);
+    zoomFeatures(g);
+    zoomStreets(g);
+>>>>>>> Made Features zoom in just like mine
 
 void initial_setup(ezgl::application *application, bool /*new_window*/){
     
