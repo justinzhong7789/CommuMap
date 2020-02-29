@@ -44,10 +44,11 @@ double min_lon;
 
 const char* search_text;
 void draw_main_canvas(ezgl::renderer *g);
-void initial_setup(ezgl::application *application, bool /*new_window*/);//add find button
+void initial_setup(ezgl::application *application, bool new_window);//add find button
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
 void search_bar(GtkWidget *widget, ezgl::application *application);
+string drawFindSearchBar(ezgl::application *application);
 void close_M2();
 int numTimesDrawn = 0;
 
