@@ -1,16 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   search.h
- * Author: dengpris
- *
- * Created on February 24, 2020, 3:41 PM
- */
-
 #pragma once 
 
 #include "m1.h"
@@ -37,15 +24,6 @@ bool search_bar_clicked;
 char* char_print;
 
 std::string typed = "";
-
-/*
-struct find_id : std::unary_function <StreetData, bool> {
-    StreetIndex index;
-    find_id(StreetIndex id):index(id){}
-    bool operator()(StreetData const& s) const {
-        return s.id == index;
-    }
-};*/
 
 void drawSearchBar(ezgl::renderer *g){
     g->set_coordinate_system(ezgl::SCREEN);
@@ -143,11 +121,6 @@ void search(StreetIndex streetSearchIndex){
     for (std::vector<StreetData>::iterator it = streetsizes.highway.begin(); it < streetsizes.highway.end(); it++){
         if ((*it).id == streetSearchIndex){
             cout << "highway detected" << endl;
-            // Pseudo code:
-            // Set zoom to highway zoom level
-            // NEED HELP
-            // Pan map to highway center 
-            // Highlight
         }
     }
 }
