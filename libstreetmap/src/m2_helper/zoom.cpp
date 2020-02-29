@@ -8,11 +8,19 @@ std::vector <intersectionData> intersections;
 Zoom zooms;
 
 void zoom(ezgl::renderer *g){
-    rectangle current_map = g->get_visible_world();
+    zooms.current = g->get_visible_world();
     rectangle current_screen = g->get_visible_screen();
     
-    zooms.map = area_full_map/ findArea(current_map.m_first.x, current_map.m_first.y, current_map.m_second.x, current_map.m_second.y);
+    LatLon first(zooms.current.m_first.x, zooms.current.m_first.y);
+    LatLon second(zooms.current.m_second.x, zooms.current.m_second.y);
+    double mapX = x_distance_between_2_points(first, second);
+    double mapY = y_distance_between_2_points(first,second);
+    
+    zooms.mapArea = mapX*mapY;
+    zooms.map = area_full_map/findArea(zooms.current.m_first.x, zooms.current.m_first.y, zooms.current.m_second.x, zooms.current.m_second.y);
     zooms.screen = findArea(current_screen.m_first.x, current_screen.m_first.y, current_screen.m_second.x, current_screen.m_second.y) / area_full_screen;
+    
+    cout << "Current map Area: "<<zooms.mapArea<<endl;
     
     zooms.level = zooms.screen*zooms.map*100;
     
@@ -47,32 +55,31 @@ void zoom(ezgl::renderer *g){
 
 void zoomStreets(ezgl::renderer *g){
     
-    int width = 12;
+    int width = 10; //Used to be 12
     
     switch (zooms.zcase){
         case 0:
             drawAllStreets(g, width*(zooms.level/ZOOM_ZERO));
             break;
         case 1:
-            //drawAllStreets(g, width);
         case 2:
-//            drawStreets(streetsizes.local, g , width);
         case 3:
-            drawStreets(streetsizes.local, g , width-5);
-            //drawStreets(streetsizes.minor, g , width);
+            drawStreets(streetsizes.local, g , width-5, WHITE);
         case 4:
-            drawStreets(streetsizes.minor, g , width-3);
-            drawStreets(streetsizes.major, g , width);
+            drawStreets(streetsizes.minor, g , width-3, WHITE);
+            drawStreets(streetsizes.major, g , width, WHITE);
         case 5:
-            drawStreets(streetsizes.highway, g, width);
+            drawStreets(streetsizes.highway, g, width, ezgl::GREY_75);
+           if(zooms.zcase == 3) drawOneWay(g);
+            drawStreetNames(streetsizes.highway, g, 10);
             break;
         default: 
-            drawStreets(streetsizes.highway, g, width);
+            drawStreets(streetsizes.highway, g, width, WHITE);
             break;
     }
 }
 
-void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width ){
+void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width, ezgl::color colour ){
     
     for (int i=0; i<streets.size(); i++){
         // Iterate through every street segment in the street
@@ -92,7 +99,7 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width ){
                 g->set_line_cap(ezgl::line_cap::round);
                 
                 //Fill colour
-                g->set_color(WHITE);
+                g->set_color(colour);
                 g->set_line_width(width);
                 g->draw_line({start.first, start.second}, {end.first, end.second});
                 
@@ -108,8 +115,6 @@ void drawAllStreets(renderer *g, int width){
         for (size_t j=1; j<streetSegments[i].node.size(); j++){
             std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
             std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
-            
-            
             
             g->set_color(OUTLINE);
             g->set_line_width(width+2);
@@ -127,6 +132,28 @@ void drawAllStreets(renderer *g, int width){
     }
 }
 
+
+void drawOneWay(ezgl::renderer *g){
+    
+    std::string arrow = "   ->   ";
+    for( int i = 0; i<getNumStreetSegments(); i++){
+        int seg = i;
+        if(getInfoStreetSegment(i).oneWay){
+            
+            auto info = getInfoStreetSegment(seg);
+            std::pair <float, float> start = {x_from_lon((getIntersectionPosition(info.from).lon())), y_from_lat(getIntersectionPosition(info.from).lat())};
+            std::pair <float, float> end = {x_from_lon((getIntersectionPosition(info.to).lon())), y_from_lat(getIntersectionPosition(info.to).lat())};
+
+            std::pair <float, float> center = {(end.first+start.first)/2, (end.second+start.second)/2};
+            auto angle = atan((end.second - start.second)/(end.first - start.first))*180/M_PI;
+            g->set_font_size(10);
+            g->set_color(ezgl::BLACK);
+            g->set_text_rotation(angle);
+            g->draw_text({center.first, center.second}, arrow);
+        }
+    }
+}
+
 void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
     double angle = 0;
     InfoStreetSegment info;
@@ -135,9 +162,10 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
     std::vector<std::string> check_names; 
     check_names.push_back(streets[0].name);
     // Loop through every street
-    for (size_t i=0; i<streets.size(); i=i+2){
+    for (size_t i=0; i<streets.size(); i++){
         std::string street_name = streets[i].name;
-        float last_position = x_from_lon(getIntersectionPosition(getInfoStreetSegment(streets[i].segments[0].id).from).lon())-1;
+
+         float last_position = x_from_lon(getIntersectionPosition(getInfoStreetSegment(streets[i].segments[0].id).from).lon())-1;
         
         for (size_t j=0; j<streets[i].segments.size(); j++){
             
@@ -148,26 +176,17 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
             std::pair <float, float> center = {(end.first+start.first)/2, (end.second+start.second)/2};
             if (center.first > last_position + 1){
                 last_position = center.first;
-            angle = atan((end.second - start.second)/(end.first - start.first))*180/M_PI;
-            
-            for (int k=0; k<check_names.size(); k++){
-                if (check_names[k] == street_name){
-                    break;
-                } 
-                else if (k==check_names.size()-1){
+                angle = atan((end.second - start.second)/(end.first - start.first))*180/M_PI;
+           
                 g->set_font_size(font_size);
-                g->set_color(ezgl::BLACK);
+                g->set_color(STREET_NAMES);
                 g->set_text_rotation(angle);
-            //g->draw_text({center.first, center.second}, street_name);
-            //g->draw_text({start.first, start.second}, street_name, 100, 100);
                 g->draw_text({center.first, center.second}, street_name);
-                check_names.push_back(street_name);
-                }
+               
             }
             }
         }
     }
-}
 
 void map_bounds(){
     
@@ -185,5 +204,20 @@ void map_bounds(){
         max_lon = std::max(max_lon, intersections[id].position.lon());
         min_lon = std::min(min_lon, intersections[id].position.lon());
     }
-    
+}
+
+void highlightStreet(ezgl::renderer* g, int street_id){
+    vector<int> street_seg_ids = find_street_segments_of_street(street_id);
+    for(int i=0;i < street_seg_ids.size(); i++){
+        for(int j=i+1; j< street_seg_ids.size(); j++){
+            g->set_color(ezgl::YELLOW);
+            g->set_line_width(12);
+            if(are_directly_connected(make_pair(i,j))){    
+                ezgl::point2d start(x_from_lon(getIntersectionPosition(i).lon()), y_from_lat(getIntersectionPosition(i).lat()));
+                ezgl::point2d end(x_from_lon(getIntersectionPosition(j).lon()), y_from_lat(getIntersectionPosition(j).lat()));
+                
+                g->draw_line(start, end);
+            }
+        }
+    }
 }
