@@ -62,7 +62,7 @@ void zoomStreets(ezgl::renderer *g){
         case 5:
             drawStreets(streetsizes.highway, g, width, ezgl::GREY_75);
            if(zooms.zcase == 3) drawOneWay(g);
-            drawStreetNames(streetsizes.highway, g, 10);
+    //       drawStreetNames(streetsizes.highway, g, 10);
             break;
             
         default: 
@@ -173,42 +173,47 @@ void nameStreets(ezgl::renderer *g){
 void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size){
     double angle = 0;
     InfoStreetSegment info;
-    
-    // Creates a vector of all the names that will be displayed; this checks for duplicates and prevents it from drawing names more than once
-    std::vector<std::string> check_names; 
-    check_names.push_back(streets[0].name);
-    
+
+//    auto centre = zooms.current.center();
+//            g->set_font_size(font_size);
+//            g->set_color(STREET_NAMES);
+//            g->set_text_rotation(angle);
+//            g->draw_text(centre, "test");
     // Loop through every street
-    for (size_t i=0; i<streets.size(); i=i+2){
-        std::string street_name = streets[i].name;
-        
-        float last_position = x_from_lon(getIntersectionPosition(getInfoStreetSegment(streets[i].segments[0].id).from).lon())-1;
+    
+    for (size_t i=0; i<streets.size(); i++){
         
         for (size_t j=0; j<streets[i].segments.size(); j=j+5){
             
-            //Calculating centre of segment
-            info = getInfoStreetSegment(streets[i].segments[j].id);
-            std::pair <float, float> start = {x_from_lon((getIntersectionPosition(info.from).lon())), y_from_lat(getIntersectionPosition(info.from).lat())};
-            std::pair <float, float> end = {x_from_lon((getIntersectionPosition(info.to).lon())), y_from_lat(getIntersectionPosition(info.to).lat())};
-            std::pair <float, float> center = {(end.first+start.first)/2, (end.second+start.second)/2};
             
-            if (center.first > last_position + 1){
-                last_position = center.first;
-                angle = atan((end.second - start.second)/(end.first - start.first))*180/M_PI;
+            StreetSegmentsData segData = streets[i].segments[j];
+            string street_name = streets[i].name;
+            //auto segInfo = segData.id;
+//            auto lat1 = segData.fromPos.lat();
+//            auto lat2 = segData.toPos.lat();
+//            auto lon1 = x_from_lon(segData.fromPos.lon());
+//            auto lon2 = x_from_lon(segData.toPos.lon());
+//            
+//            point2d fromPoint(lon1, lat1);
+//            point2d toPoint(lon2,lat2); //lon is at x
+//            rectangle rectSeg;
+//            rectSeg.m_first = fromPoint;
+//            rectSeg.m_second = toPoint;
+//            
+//            point2d rectCentre = rectSeg.center();
             
-                for (int k=0; k<check_names.size(); k++){
-
-                    if (check_names[k] == street_name){
-                        break;
-                    } 
-                    else if (k==check_names.size()-1){
-                    g->set_font_size(font_size);
-                    g->set_color(STREET_NAMES);
-                    g->set_text_rotation(angle);
-                    g->draw_text({center.first, center.second}, street_name);
-                    check_names.push_back(street_name);
-                    }
-                }
+            if ((segData.fromPos.lat() != segData.toPos.lat() )&& (segData.fromPos.lon() != segData.toPos.lon())){
+                
+                auto lonM = streets[i].segments[j].midpoint.lon();
+                auto latM = streets[i].segments[j].midpoint.lat();
+                point2d segmentMid(lonM, latM);
+                //point2d centre = zooms.current.center();
+//                auto rect1 = zooms.full.bottom_left();
+//                auto rect2 = zooms.full.top_right();
+                g->set_font_size(font_size);
+                g->set_color(STREET_NAMES);
+                g->set_text_rotation(angle);
+                g->draw_text(segmentMid, street_name);
             }
         }
     }

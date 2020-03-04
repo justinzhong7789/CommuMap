@@ -88,6 +88,7 @@ struct FeatureClass{
 
 struct Zoom{
     ezgl::rectangle current;    //current map rectangle
+    ezgl::rectangle full;       //full map rectangle
     double map;                 //map zoom level (area ratio)
     double screen;              //screen zoom level (area ratio)
     double level;               //joined level of screen and map

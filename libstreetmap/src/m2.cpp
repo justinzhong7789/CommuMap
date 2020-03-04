@@ -85,9 +85,9 @@ void draw_map() {
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
 
     application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
-    application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
+//    application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
     
-    close_M2();
+  //  close_M2();
 }
 
 void draw_main_canvas(ezgl::renderer *g) {
@@ -96,10 +96,13 @@ void draw_main_canvas(ezgl::renderer *g) {
 
         full_map.m_first.x = x_from_lon(min_lon);
         full_map.m_first.y = min_lat;
-        
         full_map.m_second.x = x_from_lon(max_lon);
         full_map.m_second.y = max_lat;
         
+        point2d botL (x_from_lon(min_lon), min_lat);
+        point2d topR (x_from_lon(max_lon), max_lat);
+        zooms.full.m_first = botL;
+        zooms.full.m_second = topR;
         full_screen = g->world_to_screen(full_map);
         numTimesDrawn++;
     }
@@ -107,6 +110,7 @@ void draw_main_canvas(ezgl::renderer *g) {
     zoom(g);
     zoomFeatures(g);
     zoomStreets(g);
+    drawStreetNames(streetsizes.highway, g, 10);
     nameFeatures(g);
     drawSearchBar(g);
 }

@@ -71,11 +71,20 @@ void makeStreetSizeTable(){
             street_segment_data.fromPos = getIntersectionPosition(getInfoStreetSegment(id).from);
             street_segment_data.toPos= getIntersectionPosition(getInfoStreetSegment(id).to);
             
-            point2d fromPoint(point2d_from_latlon(street_segment_data.fromPos));
-            point2d toPoint(point2d_from_latlon(street_segment_data.fromPos));
+            auto lat1 = street_segment_data.fromPos.lat();
+            auto lat2 = street_segment_data.toPos.lat();
+            auto lon1 = x_from_lon(street_segment_data.fromPos.lon());
+            auto lon2 = x_from_lon(street_segment_data.toPos.lon());
             
-            rectangle rectSeg(fromPoint,toPoint);
-            street_segment_data.midpoint = latlon_from_point2d(rectSeg.center());
+            
+            point2d fromPoint(lon1, lat1);
+            point2d toPoint(lon2,lat2); //lon is at x
+            rectangle rectSeg;
+            rectSeg.m_first = fromPoint;
+            rectSeg.m_second = toPoint;
+            
+            LatLon number((float) rectSeg.center().y,(float) rectSeg.center().x);
+            street_segment_data.midpoint = number;
             
             street_data.segments.push_back(street_segment_data);
         }
