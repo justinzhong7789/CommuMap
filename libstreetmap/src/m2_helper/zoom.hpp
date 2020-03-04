@@ -29,7 +29,7 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g,  int width, ezgl
 //Draws all the streets including <unknowns>
 void drawAllStreets(ezgl::renderer *g, int width);
 //Draws all the street names
-void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size);
+void drawStreetNames(vector<StreetData> streets, ezgl::renderer *g, int font_size, int distance);
 void nameStreets(ezgl::renderer *g);
 
 //Draws one-way streets
@@ -74,7 +74,8 @@ const ezgl::color BUILDINGS(224,224,224);
 const ezgl::color BACKGROUND(237,237,237);
 const ezgl::color FEATURE_NAMES(120,126,131);
 const ezgl::color STREET_NAMES(88,94,97);
-const double RADIAN_TO_DEGREE = 1.0 / DEGREE_TO_RADIAN;
+const ezgl::color ONE_WAY(157,157,157);
+
 
 
 //Main zoom function

@@ -33,16 +33,17 @@ extern std::unordered_map<OSMID, const OSMNode*> OSMNodeTable;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
 
-
+const double RADIAN_TO_DEGREE = 5.29577951326093;
 
 /*===============StreetSegments, Street, Intersections and Feature Data Structures =============*/
 struct StreetSegmentsData {
     StreetSegmentIndex id;
     std::vector<LatLon> node;
     bool oneWay = false;
-    LatLon midpoint;
+    LatLon midpoint; //individual values are in x and y not latlon
     LatLon fromPos;
     LatLon toPos;
+    int angle;
 };
 
 struct StreetData {

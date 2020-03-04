@@ -62,7 +62,7 @@ void makeStreetSizeTable(){
         
         for (int j=0; j<segmentsOfStreets[i].size(); j++){
             StreetSegmentIndex id = segmentsOfStreets[i][j];
-            //street_segment_data.id = id;
+            street_segment_data.id = id;
             street_length += find_street_segment_length(id);
             street_segment_data.node = add_nodes(id);
             street_segment_data.oneWay = getInfoStreetSegment(id).oneWay;
@@ -75,17 +75,20 @@ void makeStreetSizeTable(){
             auto lat2 = street_segment_data.toPos.lat();
             auto lon1 = x_from_lon(street_segment_data.fromPos.lon());
             auto lon2 = x_from_lon(street_segment_data.toPos.lon());
-            
-            
             point2d fromPoint(lon1, lat1);
             point2d toPoint(lon2,lat2); //lon is at x
             rectangle rectSeg;
             rectSeg.m_first = fromPoint;
             rectSeg.m_second = toPoint;
+            //LatLon constructor has the lat first and the lon second unlike usual convention
+            LatLon center((float) rectSeg.center().y,(float) rectSeg.center().x);
             
-            LatLon number((float) rectSeg.center().y,(float) rectSeg.center().x);
-            street_segment_data.midpoint = number;
+            double xDistance = street_segment_data.toPos.lon() - street_segment_data.fromPos.lon();
+            double yDistance = street_segment_data.toPos.lat() - street_segment_data.fromPos.lat();
+            int angle = atan(yDistance / xDistance) * RADIAN_TO_DEGREE;
             
+            street_segment_data.angle = angle;
+            street_segment_data.midpoint = center;
             street_data.segments.push_back(street_segment_data);
         }
         
