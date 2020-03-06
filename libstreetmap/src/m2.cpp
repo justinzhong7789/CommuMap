@@ -80,14 +80,14 @@ bool night;
 
 void draw_map() {
 
-//    if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
-//            map_name == "golden-horseshoe_canada" || map_name == "hamilton_canada" || map_name == "hong-kong_china" ||
-//            map_name == "iceland" || map_name == "interlaken_switzerland" || map_name == "london_england" ||
-//            map_name == "moscow_russia" || map_name == "new-delhi_india" || map_name == "new-york_usa" ||
-//            map_name == "rio-de-janeiro_brazil" || map_name == "saint-helena" || map_name == "singapore" ||
-//            map_name == "sydney_australiia" || map_name == "tehran_iran" || map_name == "tokyo_japan" || map_name == "toronto_canada"){
-//        load_map(map_name);
-//    }
+    if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
+            map_name == "golden-horseshoe_canada" || map_name == "hamilton_canada" || map_name == "hong-kong_china" ||
+            map_name == "iceland" || map_name == "interlaken_switzerland" || map_name == "london_england" ||
+            map_name == "moscow_russia" || map_name == "new-delhi_india" || map_name == "new-york_usa" ||
+            map_name == "rio-de-janeiro_brazil" || map_name == "saint-helena" || map_name == "singapore" ||
+            map_name == "sydney_australiia" || map_name == "tehran_iran" || map_name == "tokyo_japan" || map_name == "toronto_canada"){
+        load_map(map_name);
+    }
 
     setLight();   
     

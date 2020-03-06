@@ -35,12 +35,17 @@ std::string map_path;
 
 int main(int argc, char** argv) {
     //std::string map_path;
+    std::string mapType;
+    std::cout<<"Type in the type of map: "<<std::endl;
+    //std::cin<<argv[1];
+    std::cin>>mapType;
     if(argc == 1) {
         //Use a default map
         map_path = default_map_path;
     } else if (argc == 2) {
         //Get the map from the command line
-        map_path = argv[1];
+        //map_path = argv[1];
+        map_path = mapType;
     } else {
         //Invalid arguments
         std::cerr << "Usage: " << argv[0] << " [map_file_path]\n";
