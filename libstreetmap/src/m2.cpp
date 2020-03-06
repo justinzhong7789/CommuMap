@@ -48,16 +48,16 @@ void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool new_window);//add find button
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
-void search_bar(GtkWidget *widget, ezgl::application *application);
+void search_button(GtkWidget */*widget*/, ezgl::application *application);
 void nightMode_button(GtkWidget *widget, ezgl::application *application);
 string drawFindSearchBar(ezgl::application *application);
 void close_M2();
 //Determining the first time drawn
 int numTimesDrawn = 0;
-StreetIndex search_street_highlight = 0;
+// StreetIndex search_street_highlight = 0;
 
-void draw_map() {
-    if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
+void draw_map(){
+/*    if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
             map_name == "golden-horseshoe_canada" || map_name == "hamilton_canada" || map_name == "hong-kong_china" ||
             map_name == "iceland" || map_name == "interlaken_switzerland" || map_name == "london_england" ||
             map_name == "moscow_russia" || map_name == "new-delhi_india" || map_name == "new-york_usa" ||
@@ -65,9 +65,8 @@ void draw_map() {
             map_name == "sydney_australiia" || map_name == "tehran_iran" || map_name == "tokyo_japan" || map_name == "toronto_canada"){
         load_map(map_name);
     }
-    
+*/    
     ezgl::application::settings settings;
-
     // Include headers
     settings.main_ui_resource = "libstreetmap/resources/main.ui";
     settings.window_identifier = "MainWindow";
@@ -86,9 +85,7 @@ void draw_map() {
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
-
     application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
-//    application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
     
   //  close_M2();
 }
@@ -116,9 +113,9 @@ void draw_main_canvas(ezgl::renderer *g) {
   //  drawStreetNames(streetsizes.highway, g, 10);
     nameStreets(g);
     nameFeatures(g);
-    drawSearchBar(g);
+    //drawSearchBar(g);
 }
-void search_button(GtkWidget */*widget*/, ezgl::application *application);
+
 void initial_setup(ezgl::application *application, bool new_window){  
 
 //  application->create_button("find", 6, find_button);
@@ -200,7 +197,7 @@ void search_button(GtkWidget */*widget*/, ezgl::application *application){
     // Get Object
     GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
     // Get string from search bar
-    search_text = gtk_entry_get_text(textEntry);
+    const char* search_text = gtk_entry_get_text(textEntry);
     std::vector<StreetIndex> street_index = find_street_ids_from_partial_street_name(search_text);
     // check if there are valid results
     if (street_index.size() == 0){
@@ -209,26 +206,37 @@ void search_button(GtkWidget */*widget*/, ezgl::application *application){
     else {
         // Make map go to zoom fit mode
         renderer *g = application->get_renderer();
-        g->set_visible_world(ezgl::rectangle({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)}));
-        application->refresh_drawing();
+        //g->set_visible_world(ezgl::rectangle({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)}));
+        //application->refresh_drawing();
+        
         // Highlight street of first function
         StreetIndex street_id = street_index[0];
-        // std::string found_street = getStreetName(search_street_highlight);
         vector<int> street_seg_ids = find_street_segments_of_street(street_id);
-//        g->set_color(ezgl::YELLOW);
-//        g->set_line_width(12);
-//        g->draw_line({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
+        int seg_ids_size = street_seg_ids.size();
+        
+        InfoStreetSegment seg_info_begin = getInfoStreetSegment(street_seg_ids[0]);
+        InfoStreetSegment seg_info_stop = getInfoStreetSegment(street_seg_ids[seg_ids_size-1]);
+        
+        point2d beginning_of_street(x_from_lon(getIntersectionPosition(seg_info_begin.from).lon()), y_from_lat(getIntersectionPosition(seg_info_begin.from).lat()));
+        point2d end_of_street(x_from_lon(getIntersectionPosition(seg_info_stop.to).lon()), y_from_lat(getIntersectionPosition(seg_info_stop.to).lat()));
+        g->set_visible_world(rectangle(beginning_of_street, end_of_street));
+        application->refresh_drawing();
+        
         for(int i=0;i < street_seg_ids.size(); i++){
-            for(int j=i+1; j< street_seg_ids.size(); j++){
+            //for(int j=i+1; j< street_seg_ids.size(); j++){
+                InfoStreetSegment seg_info_start = getInfoStreetSegment(street_seg_ids[i]);
+            //    InfoStreetSegment seg_info_end = getInfoStreetSegment(street_seg_ids[j]);
                 g->set_color(ezgl::YELLOW);
                 g->set_line_width(12);
-                if(are_directly_connected(make_pair(i,j))){    
-                    ezgl::point2d start(x_from_lon(getIntersectionPosition(i).lon()), y_from_lat(getIntersectionPosition(i).lat()));
-                    ezgl::point2d end(x_from_lon(getIntersectionPosition(j).lon()), y_from_lat(getIntersectionPosition(j).lat()));
-                
-                g->draw_line(start, end);
-                }
-            }
+                //if(are_directly_connected(make_pair(i,j))){    
+                //    ezgl::point2d start(x_from_lon(getIntersectionPosition(seg_info_start.from).lon()), y_from_lat(getIntersectionPosition(street_seg_ids[i]).lat()));
+                //    ezgl::point2d end(x_from_lon(getIntersectionPosition(street_seg_ids[j]).lon()), y_from_lat(getIntersectionPosition(street_seg_ids[j]).lat()));
+                point2d from(x_from_lon(getIntersectionPosition(seg_info_start.from).lon()), y_from_lat(getIntersectionPosition(seg_info_start.from).lat()));
+                point2d to(x_from_lon(getIntersectionPosition(seg_info_start.to).lon()), y_from_lat(getIntersectionPosition(seg_info_start.to).lat()));
+                g->draw_line(from, to);
+                //g->draw_line(start, end);
+                //}
+            //}
         }
     }
 }
@@ -336,4 +344,5 @@ void close_M2(){
     featuretypes.streams.clear();
     featuretypes.unknownFeatures.clear();
 }
+
 
