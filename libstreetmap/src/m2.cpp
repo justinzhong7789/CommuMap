@@ -121,9 +121,17 @@ void draw_main_canvas(ezgl::renderer *g) {
 void search_button(GtkWidget */*widget*/, ezgl::application *application);
 void initial_setup(ezgl::application *application, bool new_window){  
   application->create_button("find", 6, find_button);
-  
   GObject *SearchButton = application->get_object("SearchButton");
   g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
+
+  GObject * test_Button = application->get_object("test_button");
+  
+  g_signal_connect(test_Button, "clicked", G_CALL_BACK(test_button),application);
+}
+
+void test_button(GtkWidget *widget, ezgl::application *application){
+    \
+    cout<<"LOOK THE TEST BUTTON IS HERE"<<endl;
 }
 
 void find_button(GtkWidget */*widget*/, ezgl::application *application){
