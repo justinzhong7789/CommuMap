@@ -59,14 +59,12 @@ string map_name;
 void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool new_window);//add find button
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
-//void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
 void search_button(GtkWidget */*widget*/, ezgl::application *application);
 void nightMode_button(GtkWidget *widget, ezgl::application *application);
 vector<string> POItypesTable;
 //const char* search_text;
 
 void highlight_intersections(vector<int> intersection_ids, ezgl::application *application);
-//void search_bar(GtkWidget *widget, ezgl::application *application);
 string drawFindSearchBar(ezgl::application *application);
 void setNight();
 void setLight();
@@ -117,12 +115,7 @@ void draw_map() {
 }
 
 void draw_main_canvas(ezgl::renderer *g) {
-    
-//    g->fill_rectangle(zooms.current.m_first, zooms.current.m_second);
-//     g->set_color(ezgl::BLACK);
-  //g->fill_rectangle({0,0}, {1000,1000});
-    
-//    
+      
     if (numTimesDrawn == 0) {
 
         full_map.m_first.x = x_from_lon(min_lon);
@@ -146,7 +139,7 @@ void draw_main_canvas(ezgl::renderer *g) {
     //drawSearchBar(g);
 }
 
-void initial_setup(ezgl::application *application, bool new_window){  
+void initial_setup(ezgl::application *application, bool /*new_window*/){  
 //  application->create_button("find", 6, find_button);
   application->create_button("find", 6, find_button);
   application->create_button("draw POI", 7, drawPOI);
@@ -159,7 +152,7 @@ void initial_setup(ezgl::application *application, bool new_window){
   g_signal_connect(NightMode, "clicked", G_CALLBACK(nightMode_button),application);
 }
 
-void nightMode_button(GtkWidget *widget, ezgl::application *application){
+void nightMode_button(GtkWidget */*widget*/, ezgl::application *application){
     
     if(!night){
         setNight();
@@ -211,8 +204,7 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     vector<int> street1_search_result, street2_search_result, found_intersections;
     getline(ss, street1, ',');
     getline(ss, street2);
-    //ss>>street2;
-    cout<< street1<<endl<<street2;
+   
     street1_search_result = find_street_ids_from_partial_street_name(street1);
     street2_search_result = find_street_ids_from_partial_street_name(street2);
     /*

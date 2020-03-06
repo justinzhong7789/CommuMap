@@ -506,7 +506,6 @@ void renderer::draw_text(point2d point, std::string const &text)
 //GETS SCALED WIDTH IN WORLD COORDINATES-MJ
 double renderer::textWidth(point2d point, std::string const &text){
      // the center point of the text
-  point2d center = point;
 
   // get the width and height of the drawn text
   cairo_text_extents_t text_extents{0,0,0,0,0,0};

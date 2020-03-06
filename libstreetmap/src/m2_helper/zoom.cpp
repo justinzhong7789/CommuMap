@@ -90,10 +90,7 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width, ezgl:
                 g->set_line_dash(ezgl::line_dash::none);
                 
                 //Draw Outline
-//                g->set_color(OUTLINE);
-//                g->set_line_width(width+2);
-//                g->draw_line({start.first, start.second}, {end.first, end.second});
-//                
+                
                 g->set_line_cap(ezgl::line_cap::round);
                 
                 //Draw Fill Colour
@@ -101,7 +98,6 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width, ezgl:
                 g->set_line_width(width);
                 g->draw_line({start.first, start.second}, {end.first, end.second});
                 
-//                g->set_line_cap(ezgl::line_cap::butt);
                 
             }
         }
@@ -113,10 +109,6 @@ void drawAllStreets(renderer *g, int width){
         for (size_t j=1; j<streetSegments[i].node.size(); j++){
             std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
             std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
-            
-//            g->set_color(OUTLINE);
-//            g->set_line_width(width+2);
-//            g->draw_line({start.first, start.second}, {end.first, end.second});
             
             g->set_line_cap(ezgl::line_cap::round);
             
@@ -232,18 +224,6 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
                     
             if(textWidth<length){
                 
-//                auto lonM2 = segDataNext.midpoint.lon(); //already in point 2d
-//                auto latM2 = segDataNext.midpoint.lat();
-//                point2d segmentMid2(lonM2, latM2);
-//                rectangle rectSeg (segmentMid, segmentMid2);
-//               segmentMid = rectSeg.center();
-                
-//                if((lonM2 - lonM) != 0.0){
-//                    angle = atan((latM2 - latM)/(lonM2 - lonM))*180/M_PI;
-//                }
-                
-//                cout<< "textWidth: "<<textWidth<<endl;
-//                cout<< "length: "<<length<<endl<<endl;
                 drawSegmentName(segData, g, font_size, street_name, angle, segmentMid);
                 drawn++;
             }
