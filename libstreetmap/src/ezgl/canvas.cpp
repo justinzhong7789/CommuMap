@@ -287,6 +287,10 @@ void canvas::initialize(GtkWidget *drawing_area)
   g_info("canvas::initialize successful.");
 }
 
+void canvas::change_background(color bg_colour){
+    m_background_color = bg_colour;
+}
+
 void canvas::redraw()
 {
   // Clear the screen and set the background color

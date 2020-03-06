@@ -36,7 +36,6 @@ struct color {
       : red(0), green(0), blue(0), alpha(255)
   {
   }
-
   /**
    * Create a color.
    *
@@ -53,6 +52,11 @@ struct color {
   {
   }
 
+  void color_change(ezgl::color copy_colour){
+      red = copy_colour.red;
+      green = copy_colour.green;
+      blue = copy_colour.blue;
+  }
   /**
    * A red component of the color, between 0 and 255.
    */

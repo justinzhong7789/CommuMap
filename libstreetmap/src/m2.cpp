@@ -42,8 +42,19 @@ double min_lat;
 double max_lon;
 double min_lon;
 
+ezgl::color GRASS;
+ezgl::color SAND;
+ezgl::color WATER;
+ezgl::color HIGHWAY;
+ezgl::color STREETS;
+ezgl::color OUTLINE;
+ezgl::color BUILDINGS;
+ezgl::color BACKGROUND;
+ezgl::color FEATURE_NAMES;
+ezgl::color STREET_NAMES;
+ezgl::color ONE_WAY;
+
 string map_name;
-const char* search_text;
 void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool new_window);//add find button
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
@@ -51,13 +62,15 @@ void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
 void search_button(GtkWidget */*widget*/, ezgl::application *application);
 void nightMode_button(GtkWidget *widget, ezgl::application *application);
 string drawFindSearchBar(ezgl::application *application);
+void setNight();
+void setLight();
 void close_M2();
 //Determining the first time drawn
 int numTimesDrawn = 0;
-// StreetIndex search_street_highlight = 0;
+bool night;
 
-void draw_map(){
-/*    if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
+void draw_map() {      
+    if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
             map_name == "golden-horseshoe_canada" || map_name == "hamilton_canada" || map_name == "hong-kong_china" ||
             map_name == "iceland" || map_name == "interlaken_switzerland" || map_name == "london_england" ||
             map_name == "moscow_russia" || map_name == "new-delhi_india" || map_name == "new-york_usa" ||
@@ -65,7 +78,9 @@ void draw_map(){
             map_name == "sydney_australiia" || map_name == "tehran_iran" || map_name == "tokyo_japan" || map_name == "toronto_canada"){
         load_map(map_name);
     }
-*/    
+    
+    setLight();   
+    
     ezgl::application::settings settings;
     // Include headers
     settings.main_ui_resource = "libstreetmap/resources/main.ui";
@@ -83,7 +98,7 @@ void draw_map(){
     sortFeatures();
     
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
-
+    cout<<"Drawing here"<< endl;
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
     application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
     
@@ -92,6 +107,11 @@ void draw_map(){
 
 void draw_main_canvas(ezgl::renderer *g) {
     
+//    g->fill_rectangle(zooms.current.m_first, zooms.current.m_second);
+//     g->set_color(ezgl::BLACK);
+  //g->fill_rectangle({0,0}, {1000,1000});
+    
+//    
     if (numTimesDrawn == 0) {
 
         full_map.m_first.x = x_from_lon(min_lon);
@@ -110,7 +130,6 @@ void draw_main_canvas(ezgl::renderer *g) {
     zoom(g);
     zoomFeatures(g);
     zoomStreets(g);
-  //  drawStreetNames(streetsizes.highway, g, 10);
     nameStreets(g);
     nameFeatures(g);
     //drawSearchBar(g);
@@ -129,7 +148,43 @@ void initial_setup(ezgl::application *application, bool new_window){
 }
 
 void nightMode_button(GtkWidget *widget, ezgl::application *application){
-    cout<<"LOOK THE TEST BUTTON IS HERE"<<endl;
+    
+    if(!night){
+        setNight();
+    }
+    else{
+        setLight();
+    }
+    application->refresh_drawing();
+}
+
+void setNight(){
+    GRASS.color_change(D_GRASS);
+    SAND.color_change(D_SAND);
+    WATER.color_change(D_WATER);
+    HIGHWAY.color_change(D_HIGHWAY);
+    STREETS.color_change(GREY_55);
+    OUTLINE.color_change(D_OUTLINE);
+    BUILDINGS.color_change(D_BUILDINGS);
+    BACKGROUND.color_change(D_BACKGROUND);
+    FEATURE_NAMES.color_change(D_FEATURE_NAMES);
+    STREET_NAMES.color_change(WHITE);
+    ONE_WAY.color_change(D_ONE_WAY);
+    night = true;
+}
+void setLight(){
+    GRASS.color_change(L_GRASS);
+    SAND.color_change(L_SAND);
+    WATER.color_change(L_WATER);
+    HIGHWAY.color_change(L_HIGHWAY);
+    STREETS.color_change(WHITE);
+    OUTLINE.color_change(L_OUTLINE);
+    BUILDINGS.color_change(L_BUILDINGS);
+    BACKGROUND.color_change(L_BACKGROUND);
+    FEATURE_NAMES.color_change(L_FEATURE_NAMES);
+    STREET_NAMES.color_change(L_STREET_NAMES);
+    ONE_WAY.color_change(L_ONE_WAY);
+    night = false;
 }
 /*
 void find_button(GtkWidget *widget, ezgl::application *application){
