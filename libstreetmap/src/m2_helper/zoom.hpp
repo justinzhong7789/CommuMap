@@ -65,25 +65,25 @@ const double area_full_screen = 1831656;
 const double area_full_map = 0.34959285;
 
 //Constants for colour
-const ezgl::color GRASS(192,211,192);
-const ezgl::color SAND(254,227,225);
-const ezgl::color WATER(182,196,201);
-const ezgl::color HIGHWAY(131,133,134);
-const ezgl::color OUTLINE(197,197,197);
-const ezgl::color BUILDINGS(224,224,224);
-const ezgl::color BACKGROUND(237,237,237);
-const ezgl::color FEATURE_NAMES(120,126,131);
-const ezgl::color STREET_NAMES(88,94,97);
-const ezgl::color ONE_WAY(157,157,157);
+const ezgl::color L_GRASS(192,211,192);
+const ezgl::color L_SAND(254,227,225);
+const ezgl::color L_WATER(182,196,201);
+const ezgl::color L_HIGHWAY(131,133,134);
+const ezgl::color L_OUTLINE(197,197,197);
+const ezgl::color L_BUILDINGS(224,224,224);
+const ezgl::color L_BACKGROUND(237,237,237);
+const ezgl::color L_FEATURE_NAMES(120,126,131);
+const ezgl::color L_STREET_NAMES(88,94,97);
+const ezgl::color L_ONE_WAY(157,157,157);
 
-const ezgl::color D_GRASS(35,49,48); //
+const ezgl::color D_GRASS(64,85,70); //
 const ezgl::color D_SAND(53,48,42);//
 const ezgl::color D_WATER(45,58,91);//
 const ezgl::color D_HIGHWAY(61,63,65);//
 const ezgl::color D_OUTLINE(197,197,197);
 const ezgl::color D_BUILDINGS(52,54,55); //
 const ezgl::color D_BACKGROUND(43,45,46); //
-const ezgl::color D_FEATURE_NAMES(96,100,102);//
+const ezgl::color D_FEATURE_NAMES(150,151,152);//
 const ezgl::color D_STREET_NAMES(128,132,134);//
 const ezgl::color D_ONE_WAY(114,118,120);//
 

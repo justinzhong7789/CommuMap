@@ -40,11 +40,15 @@ void zoom(ezgl::renderer *g){
             }
         }
     }
+    
+     g->set_color(BACKGROUND);
+     g->fill_rectangle(zooms.current.m_first, zooms.current.m_second);
+     
 }
 
 void zoomStreets(ezgl::renderer *g){
     
-    int width = 10; //Used to be 12
+    int width = 6; //Used to be 10
     
     switch (zooms.zcase){
         case 0:
@@ -53,11 +57,11 @@ void zoomStreets(ezgl::renderer *g){
         case 1: //empty case for future purposes
         case 2:
         case 3:
-            drawStreets(streetsizes.local, g , width-5, WHITE);
+            drawStreets(streetsizes.local, g , width-5, STREETS);
             
         case 4:
-            drawStreets(streetsizes.minor, g , width-3, WHITE);
-            drawStreets(streetsizes.major, g , width, WHITE);
+            drawStreets(streetsizes.minor, g , width-3, STREETS);
+            drawStreets(streetsizes.major, g , width, STREETS);
             
         case 5:
             drawStreets(streetsizes.highway, g, width, ezgl::GREY_75);
@@ -66,7 +70,7 @@ void zoomStreets(ezgl::renderer *g){
             break;
             
         default: 
-            drawStreets(streetsizes.highway, g, width, WHITE);
+            drawStreets(streetsizes.highway, g, width, STREETS);
             break;
     }
 }
@@ -84,10 +88,10 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width, ezgl:
                 g->set_line_dash(ezgl::line_dash::none);
                 
                 //Draw Outline
-                g->set_color(OUTLINE);
-                g->set_line_width(width+2);
-                g->draw_line({start.first, start.second}, {end.first, end.second});
-                
+//                g->set_color(OUTLINE);
+//                g->set_line_width(width+2);
+//                g->draw_line({start.first, start.second}, {end.first, end.second});
+//                
                 g->set_line_cap(ezgl::line_cap::round);
                 
                 //Draw Fill Colour
@@ -115,7 +119,7 @@ void drawAllStreets(renderer *g, int width){
             g->set_line_cap(ezgl::line_cap::round);
             
             g->set_line_width(width);
-            g->set_color(ezgl::WHITE);
+            g->set_color(STREETS);
             g->set_line_dash(ezgl::line_dash::none);
             g->draw_line({start.first, start.second}, {end.first, end.second});
             

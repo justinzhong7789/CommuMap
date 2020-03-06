@@ -82,6 +82,12 @@ public:
    * This will invoke the ezgl::draw_canvas_fn callback and queue a redraw of the GtkWidget.
    */
   void redraw();
+  
+    /**
+     * Changes the background colour
+     * Made by MJ
+     */  
+  void change_background(color bg_colour);
 
   /**
    * Get an immutable reference to this canvas' camera.

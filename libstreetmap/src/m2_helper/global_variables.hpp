@@ -33,6 +33,18 @@ extern std::unordered_map<OSMID, const OSMNode*> OSMNodeTable;
 typedef std::multimap<int, int>::iterator StreetsIt;
 typedef std::vector<int>::iterator VectorIt;
 
+extern ezgl::color GRASS;
+extern ezgl::color SAND;
+extern ezgl::color WATER;
+extern ezgl::color HIGHWAY;
+extern ezgl::color STREETS;
+extern ezgl::color OUTLINE;
+extern ezgl::color BUILDINGS;
+extern ezgl::color BACKGROUND;
+extern ezgl::color FEATURE_NAMES;
+extern ezgl::color STREET_NAMES;
+extern ezgl::color ONE_WAY;
+
 const double RADIAN_TO_DEGREE = 5.29577951326093;
 
 /*===============StreetSegments, Street, Intersections and Feature Data Structures =============*/
