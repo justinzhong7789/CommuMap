@@ -42,6 +42,7 @@ double min_lat;
 double max_lon;
 double min_lon;
 
+string map_name;
 const char* search_text;
 void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool new_window);//add find button
@@ -50,13 +51,11 @@ void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
 void search_bar(GtkWidget *widget, ezgl::application *application);
 string drawFindSearchBar(ezgl::application *application);
 void close_M2();
-string drawFindSearchBar(ezgl::application *application);
 //Determining the first time drawn
 int numTimesDrawn = 0;
 StreetIndex search_street_highlight = 0;
 
 void draw_map() {
-    std::string map_name;
     if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
             map_name == "golden-horseshoe_canada" || map_name == "hamilton_canada" || map_name == "hong-kong_china" ||
             map_name == "iceland" || map_name == "interlaken_switzerland" || map_name == "london_england" ||
@@ -87,7 +86,7 @@ void draw_map() {
 
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
 
-    application.run(initial_setup, act_on_mouse_click, nullptr, nullptr);
+    application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
 //    application.run(nullptr, act_on_mouse_click, nullptr, act_on_key_press);
     
   //  close_M2();
@@ -120,13 +119,13 @@ void draw_main_canvas(ezgl::renderer *g) {
 }
 void search_button(GtkWidget */*widget*/, ezgl::application *application);
 void initial_setup(ezgl::application *application, bool new_window){  
-  application->create_button("find", 6, find_button);
+//  application->create_button("find", 6, find_button);
   
   GObject *SearchButton = application->get_object("SearchButton");
   g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
 }
-
-void find_button(GtkWidget */*widget*/, ezgl::application *application){
+/*
+void find_button(GtkWidget *widget, ezgl::application *application){
     cout<< "find button is pressed."<< endl;
     cout<< "Enter 2 street names below to find an intersection." << endl;
     int street_id[2];
@@ -185,21 +184,42 @@ void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
     if(YOrN =='Y'){
         g->set_visible_world(recover_screen);
     }
-}
+}*/
 void search_button(GtkWidget */*widget*/, ezgl::application *application){
     // Get Object
     GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
     // Get string from search bar
-    std::string search_text = gtk_entry_get_text(textEntry);
+    search_text = gtk_entry_get_text(textEntry);
     std::vector<StreetIndex> street_index = find_street_ids_from_partial_street_name(search_text);
     // check if there are valid results
     if (street_index.size() == 0){
         cout << "No results found" << endl;
     }
     else {
+        // Make map go to zoom fit mode
+        renderer *g = application->get_renderer();
+        g->set_visible_world(ezgl::rectangle({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)}));
         // Highlight street of first function
-        search_street_highlight = street_index[0];
+        StreetIndex street_id = street_index[0];
+        // std::string found_street = getStreetName(search_street_highlight);
+        vector<int> street_seg_ids = find_street_segments_of_street(street_id);
+        g->set_color(ezgl::YELLOW);
+        g->set_line_width(12);
+        g->draw_line({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
+        for(int i=0;i < street_seg_ids.size(); i++){
+            for(int j=i+1; j< street_seg_ids.size(); j++){
+                g->set_color(ezgl::YELLOW);
+                g->set_line_width(12);
+                if(are_directly_connected(make_pair(i,j))){    
+                    ezgl::point2d start(x_from_lon(getIntersectionPosition(i).lon()), y_from_lat(getIntersectionPosition(i).lat()));
+                    ezgl::point2d end(x_from_lon(getIntersectionPosition(j).lon()), y_from_lat(getIntersectionPosition(j).lat()));
+                
+                g->draw_line(start, end);
+                }
+            }
+        }
     }
+        application->refresh_drawing();
 }
 /*string drawFindSearchBar(ezgl::application *application){
     ezgl::renderer *g = application->get_renderer();
