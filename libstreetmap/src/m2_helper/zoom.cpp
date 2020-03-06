@@ -160,7 +160,7 @@ void drawOneWay(ezgl::renderer *g){
 }
 
 void nameStreets(ezgl::renderer *g){
-    int width = 10;
+    int width = 8;
     switch (zooms.zcase){
         case 0:
         case 1: //empty case for future purposes

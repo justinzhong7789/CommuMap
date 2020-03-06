@@ -55,25 +55,6 @@ void act_on_key_press(ezgl::application *app, GdkEventKey* /*key*/, char* /*lett
         g->fill_rectangle({start_point.x, start_point.y+30*(i)+3}, {end_point.x, end_point.y+30*(i)+3});
         g->set_color(ezgl::BLACK);
         g->draw_text({text_start.x, text_start.y+30*(i)+3}, getStreetName(results[i]));
-//    char_pressed = true;
-//    char_print = letter;
-//    // ignore characters that are not a-z
-//
-//    // If backspace was pressed
-//    if (key->keyval == GDK_KEY_BackSpace){
-//        backspace_pressed = true;
-//    }
-//    else if (key->keyval == GDK_KEY_Return){
-//        enter_pressed = true;
-//    }
-//    else if (key->keyval == GDK_KEY_space){
-//        space_pressed = true;
-//    }
-//    else if (isupper(*char_print)){
-//        char_pressed = false;
-//        return;
-//    }
-    // Set coordinate system back for safety
     }
     g->set_coordinate_system(ezgl::WORLD);
 }
