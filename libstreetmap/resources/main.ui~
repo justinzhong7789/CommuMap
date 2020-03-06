@@ -15,14 +15,13 @@
         <child>
           <object class="GtkDrawingArea" id="MainCanvas">
             <property name="visible">True</property>
-            <property name="sensitive">False</property>
             <property name="can_focus">False</property>
             <property name="hexpand">True</property>
             <property name="vexpand">True</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
+            <property name="top_attach">1</property>
           </packing>
         </child>
         <child>
@@ -167,6 +166,28 @@
             <child>
               <placeholder/>
             </child>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="top_attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="SearchBar">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="SearchButton">
+            <property name="label" translatable="yes">button</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
           </object>
           <packing>
             <property name="left_attach">1</property>

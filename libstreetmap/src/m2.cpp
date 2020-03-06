@@ -51,6 +51,7 @@ void search_bar(GtkWidget *widget, ezgl::application *application);
 string drawFindSearchBar(ezgl::application *application);
 void close_M2();
 int numTimesDrawn = 0;
+StreetIndex search_street_highlight = 0;
 
 void draw_map() {
     std::string map_name;
@@ -115,10 +116,12 @@ void draw_main_canvas(ezgl::renderer *g) {
     nameFeatures(g);
     drawSearchBar(g);
 }
-
-void initial_setup(ezgl::application *application, bool new_window){
-          
+void search_button(GtkWidget */*widget*/, ezgl::application *application);
+void initial_setup(ezgl::application *application, bool new_window){  
   application->create_button("find", 6, find_button);
+  
+  GObject *SearchButton = application->get_object("SearchButton");
+  g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
 }
 
 void find_button(GtkWidget */*widget*/, ezgl::application *application){
@@ -175,8 +178,22 @@ void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
         g->set_visible_world(recover_screen);
     }
 }
-
-string drawFindSearchBar(ezgl::application *application){
+void search_button(GtkWidget */*widget*/, ezgl::application *application){
+    // Get Object
+    GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
+    // Get string from search bar
+    std::string search_text = gtk_entry_get_text(textEntry);
+    std::vector<StreetIndex> street_index = find_street_ids_from_partial_street_name(search_text);
+    // check if there are valid results
+    if (street_index.size() == 0){
+        cout << "No results found" << endl;
+    }
+    else {
+        // Highlight street of first function
+        search_street_highlight = street_index[0];
+    }
+}
+/*string drawFindSearchBar(ezgl::application *application){
     ezgl::renderer *g = application->get_renderer();
     string find_typed = "";
     g->set_coordinate_system(ezgl::SCREEN);
@@ -259,7 +276,7 @@ string drawFindSearchBar(ezgl::application *application){
     // Set coordinate system back for safety
     g->set_coordinate_system(ezgl::WORLD);
     return 0;
-}
+}*/
 
 void close_M2(){
     close_map();
