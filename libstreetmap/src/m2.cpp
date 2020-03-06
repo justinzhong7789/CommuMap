@@ -50,6 +50,8 @@ void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
 void search_bar(GtkWidget *widget, ezgl::application *application);
 string drawFindSearchBar(ezgl::application *application);
 void close_M2();
+string drawFindSearchBar(ezgl::application *application);
+//Determining the first time drawn
 int numTimesDrawn = 0;
 StreetIndex search_street_highlight = 0;
 
@@ -146,6 +148,12 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
             street_ids = find_street_ids_from_partial_street_name(str);
         }
         street_id[i] = street_ids[0];
+        getline(cin, two_streets[i]);
+        while(find_street_ids_from_partial_street_name(two_streets[i]).size()!=1){
+            cout<< "Your input does not uniquely identify a street."<<endl<<"Please try again"<<endl;
+            getline(cin, two_streets[i]);
+        }
+        two_streets_id[i] = find_street_ids_from_partial_street_name(two_streets[i])[0];
     }
     intersection_ids = find_intersections_of_two_streets(make_pair(street_id[0], street_id[1]));
     highlight_intersections(intersection_ids, application->get_renderer());
@@ -154,8 +162,8 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
 }
                               
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
-    rectangle recover_screen = g->get_visible_screen();
     // this contains the screen when zoom_fit is clicked
+    g->set_coordinate_system(ezgl::SCREEN);
     g->set_color(YELLOW);
     for(int i=0; i< intersection_ids.size(); i++){
         LatLon intersection_position = getIntersectionPosition(intersection_ids[i]);

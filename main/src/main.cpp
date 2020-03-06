@@ -33,8 +33,6 @@ constexpr int BAD_ARGUMENTS_EXIT_CODE = 2;  //Invalid command-line usage
 std::string default_map_path = "/cad2/ece297s/public/maps/toronto_canada.streets.bin";
 
 int main(int argc, char** argv) {
-
-    std::string map_path;
     if(argc == 1) {
         //Use a default map
         map_path = default_map_path;
