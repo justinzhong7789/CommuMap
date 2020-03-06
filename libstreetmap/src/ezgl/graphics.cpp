@@ -503,6 +503,26 @@ void renderer::draw_text(point2d point, std::string const &text)
   draw_text(point, text, DBL_MAX, DBL_MAX);
 }
 
+//GETS SCALED WIDTH IN WORLD COORDINATES-MJ
+double renderer::textWidth(point2d point, std::string const &text){
+     // the center point of the text
+  point2d center = point;
+
+  // get the width and height of the drawn text
+  cairo_text_extents_t text_extents{0,0,0,0,0,0};
+  cairo_text_extents(m_cairo, text.c_str(), &text_extents);
+
+  // get more information about the font used
+  cairo_font_extents_t font_extents{0,0,0,0,0};
+  cairo_font_extents(m_cairo, &font_extents);
+
+  // get text width and height in world coordinates (text width and height are constant in widget coordinates)
+  double scaled_width = text_extents.width * m_camera->get_world_scale_factor().x;
+  //double scaled_height = text_extents.height * m_camera->get_world_scale_factor().y;
+  
+  return scaled_width;
+}
+
 void renderer::draw_text(point2d point, std::string const &text, double bound_x, double bound_y)
 {
   // the center point of the text

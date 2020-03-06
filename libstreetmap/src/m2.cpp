@@ -59,16 +59,14 @@ string map_name;
 void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool new_window);//add find button
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
-void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
+//void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
 void search_button(GtkWidget */*widget*/, ezgl::application *application);
 void nightMode_button(GtkWidget *widget, ezgl::application *application);
 vector<string> POItypesTable;
 //const char* search_text;
-void draw_main_canvas(ezgl::renderer *g);
-void initial_setup(ezgl::application *application, bool new_window);//add find button
-void find_button(GtkWidget */*widget*/, ezgl::application *application);
+
 void highlight_intersections(vector<int> intersection_ids, ezgl::application *application);
-void search_bar(GtkWidget *widget, ezgl::application *application);
+//void search_bar(GtkWidget *widget, ezgl::application *application);
 string drawFindSearchBar(ezgl::application *application);
 void setNight();
 void setLight();

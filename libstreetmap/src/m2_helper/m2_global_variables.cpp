@@ -73,6 +73,8 @@ void makeStreetSizeTable(){
             
             auto lat1 = street_segment_data.fromPos.lat();
             auto lat2 = street_segment_data.toPos.lat();
+            
+            //LON HAS BEEN CHANGED TO POINT2D BUT IS STILL CALLED 
             auto lon1 = x_from_lon(street_segment_data.fromPos.lon());
             auto lon2 = x_from_lon(street_segment_data.toPos.lon());
             point2d fromPoint(lon1, lat1);
@@ -80,6 +82,7 @@ void makeStreetSizeTable(){
             rectangle rectSeg;
             rectSeg.m_first = fromPoint;
             rectSeg.m_second = toPoint;
+            
             //LatLon constructor has the lat first and the lon second unlike usual convention
             LatLon center((float) rectSeg.center().y,(float) rectSeg.center().x);
             
@@ -110,7 +113,7 @@ void makeStreetSizeTable(){
             }
             else if (80 >= speed && speed >= 60 && street_length > 2000){          
                 streetsizes.major.push_back(street_data);
-
+           //     majorStreets.push_back(street_data.id);
             }
             else if (60 >= speed && speed >= 50 && street_length > 500){
                 streetsizes.minor.push_back(street_data);
@@ -244,3 +247,61 @@ void sortFeatures() {
         }
     }
 }
+
+////Must be made after streetsizes.major is finished initializing
+//void makeMajorIntersectionsOfStreets(){
+//    
+//    majorIntersectionsOfStreets.resize(getNumIntersections());
+//    
+//    for(int i = 0; i<streetsizes.major.size(); i++){
+//        int streetID = streetsizes.major[i].id;
+//        
+//        vector<int> intersections = intersectionsOfStreets[streetID];
+//        
+//        for(int j = 0; j< intersections.size(); j++){
+//            int intersectionID = intersections[j];
+//            vector<int> segments = segmentsOfIntersections[intersectionID];
+//            
+//            for(int k=0; k<segments.size(); k++){
+//                int segID = segments[k];
+//                int segStreetID = getInfoStreetSegment(segID).streetID;
+//                auto checkForFind = std::find(majorStreets.begin(), majorStreets.end(), segStreetID);
+//                if(checkForFind != majorStreets.end()){
+//                    majorIntersectionsOfStreets[streetID].push_back(intersectionID);
+//                    break;
+//                }
+//            }
+//        }
+//    }
+//}
+//
+////check that inter 2 is apart of streetID before inputting it here.
+//double countSegmentDistance(IntersectionIndex inter1, IntersectionIndex inter2, StreetIndex streetID, int count ){
+//    if(inter1 == inter2){
+//        return count;
+//    }
+//    
+//    for(StreetSegmentIndex seg = 0; seg< segmentsOfIntersections[inter1].size(); seg++){
+//        StreetSegmentIndex segID = segmentsOfIntersections[inter1][seg];
+//         StreetIndex segStreetID = getInfoStreetSegment(segID).streetID;
+//        //InfoStreetSegment infoSeg = getInfoStreetSegment(segID);
+//        if(segStreetID == streetID){
+//           
+//            IntersectionIndex from = getInfoStreetSegment(segID).from;
+//            IntersectionIndex to = getInfoStreetSegment(segID).to;
+//            IntersectionIndex interCheck = to;
+//            if(to == inter1){
+//                interCheck = from;
+//            }
+//            
+//            if(are_directly_connected({inter1, interCheck})){
+//                inter1 = interCheck;
+//                int recursCount = countSegmentDistance(inter1, inter2, streetID, count);
+//                count = recursCount +1;
+//                
+//            }
+//        }
+//        
+//    }
+//    return count;
+//}

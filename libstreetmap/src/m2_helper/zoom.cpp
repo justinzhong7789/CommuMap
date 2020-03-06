@@ -101,7 +101,7 @@ void drawStreets(vector<StreetData> streets, ezgl::renderer *g, int width, ezgl:
                 g->set_line_width(width);
                 g->draw_line({start.first, start.second}, {end.first, end.second});
                 
-                g->set_line_cap(ezgl::line_cap::butt);
+//                g->set_line_cap(ezgl::line_cap::butt);
                 
             }
         }
@@ -125,7 +125,7 @@ void drawAllStreets(renderer *g, int width){
             g->set_line_dash(ezgl::line_dash::none);
             g->draw_line({start.first, start.second}, {end.first, end.second});
             
-            g->set_line_cap(ezgl::line_cap::butt);
+//            g->set_line_cap(ezgl::line_cap::butt);
         }
     }
 }
@@ -136,9 +136,10 @@ void drawOneWay(ezgl::renderer *g){
     std::string arrow = "   ->   ";
     for( int i = 0; i<getNumStreetSegments(); i++){
         int seg = i;
-        if(getInfoStreetSegment(i).oneWay){
-            
-            auto info = getInfoStreetSegment(seg);
+         
+        auto info = getInfoStreetSegment(seg);
+        if(info.oneWay){
+           
             std::pair <float, float> start = {x_from_lon((getIntersectionPosition(info.from).lon())), y_from_lat(getIntersectionPosition(info.from).lat())};
             std::pair <float, float> end = {x_from_lon((getIntersectionPosition(info.to).lon())), y_from_lat(getIntersectionPosition(info.to).lat())};
 
@@ -146,10 +147,22 @@ void drawOneWay(ezgl::renderer *g){
             if((end.first - start.first) != 0.0){
                 angle = atan((end.second - start.second)/(end.first - start.first))*180/M_PI;
             }
-            g->set_font_size(10);
-            g->set_color(ONE_WAY);
-            g->set_text_rotation(angle);
-            g->draw_text({center.first, center.second}, arrow);
+            
+              
+            double length;
+            double textWidth = g->textWidth({center.first,center.second}, arrow);
+            
+            if((angle != 0)||(angle != 180) ||(angle != 360)){
+            length = (getIntersectionPosition(info.to).lat()- getIntersectionPosition(info.from).lat())/sin(angle);
+            }
+                    
+            if((textWidth<length)&& (length > 0.0007)){
+            
+                g->set_font_size(10);
+                g->set_color(ONE_WAY);
+                g->set_text_rotation(angle);
+                g->draw_text({center.first, center.second}, arrow);
+            }
         }
     }
 }
@@ -178,46 +191,76 @@ void nameStreets(ezgl::renderer *g){
 
 
 void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int distance){
-    float angle = 0;
-    InfoStreetSegment info;
+    
+
     
     for (size_t i=0; i<streets.size(); i++){
-        
+        int drawn = 0;
         string street_name = streets[i].name;
         if(street_name == "<unknown>"){
             break;
         }
-        
-        for (size_t j=i; j<streets[i].segments.size(); j=j+distance){
+        int j, next;
+        for (j=0, next = 0; (j<streets[i].segments.size()) && (drawn <1) &&( next<streets[i].segments.size()); j=j++, next = next+2){//used to be 10
             
             
             StreetSegmentsData segData = streets[i].segments[j];
+            //ASSUMING THAT THE SEGDATA IS IN ORDER
             
-//            if(segmentsOfIntersections[segData.fromPos]
+            StreetSegmentsData segDataNext = streets[i].segments[next];
             
-            //Works
-            int from = getInfoStreetSegment(streets[i].segments[j].id).from;
-            int to = getInfoStreetSegment(streets[i].segments[j].id).to;
-            
+            int angle = 0;
+            int from = getInfoStreetSegment(segData.id).from;
+            int to = getInfoStreetSegment(segData.id).to;
+
             std::pair <float, float> start = {x_from_lon((getIntersectionPosition(from).lon())), y_from_lat(getIntersectionPosition(from).lat())};
             std::pair <float, float> end = {x_from_lon((getIntersectionPosition(to).lon())), y_from_lat(getIntersectionPosition(to).lat())};
-            
+
             if((end.first - start.first) != 0.0){
                 angle = atan((end.second - start.second)/(end.first - start.first))*180/M_PI;
             }
+            auto lonM = segData.midpoint.lon(); //already in point 2d
+            auto latM = segData.midpoint.lat();
+            point2d segmentMid(lonM, latM);
             
-            if ((segData.fromPos.lat() != segData.toPos.lat() )&& (segData.fromPos.lon() != segData.toPos.lon())){
+            double length;
+            double textWidth = g->textWidth(segmentMid, street_name);
+            
+            if((angle != 0)||(angle != 180) ||(angle != 360)){
+                length = (segDataNext.toPos.lat() - segData.fromPos.lat())/sin(angle);
+            }
+                    
+            if(textWidth<length){
                 
-                auto lonM = streets[i].segments[j].midpoint.lon();
-                auto latM = streets[i].segments[j].midpoint.lat();
-                point2d segmentMid(lonM, latM);
+//                auto lonM2 = segDataNext.midpoint.lon(); //already in point 2d
+//                auto latM2 = segDataNext.midpoint.lat();
+//                point2d segmentMid2(lonM2, latM2);
+//                rectangle rectSeg (segmentMid, segmentMid2);
+//               segmentMid = rectSeg.center();
                 
-                g->set_font_size(font_size);
-                g->set_color(STREET_NAMES);
-                g->set_text_rotation(angle);
-                g->draw_text(segmentMid, street_name);
+//                if((lonM2 - lonM) != 0.0){
+//                    angle = atan((latM2 - latM)/(lonM2 - lonM))*180/M_PI;
+//                }
+                
+//                cout<< "textWidth: "<<textWidth<<endl;
+//                cout<< "length: "<<length<<endl<<endl;
+                drawSegmentName(segData, g, font_size, street_name, angle, segmentMid);
+                drawn++;
             }
         }
+    }
+}
+
+void drawSegmentName(StreetSegmentsData segData, renderer *g, int font_size, string street_name, int angle, point2d segmentMid){
+
+    
+    
+    if ((segData.fromPos.lat() != segData.toPos.lat() )&& (segData.fromPos.lon() != segData.toPos.lon())){
+        
+        g->set_font_size(font_size);
+        g->set_color(STREET_NAMES);
+        g->set_text_rotation(angle);
+        g->draw_text(segmentMid, street_name);
     }
 }
 void map_bounds(){
