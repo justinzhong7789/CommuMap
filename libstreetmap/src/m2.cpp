@@ -210,16 +210,23 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     string street1, street2;
     vector<int> street1_search_result, street2_search_result, found_intersections;
     getline(ss, street1, ',');
-    ss>>street2;
+    getline(ss, street2);
+    //ss>>street2;
+    cout<< street1<<endl<<street2;
     street1_search_result = find_street_ids_from_partial_street_name(street1);
     street2_search_result = find_street_ids_from_partial_street_name(street2);
+    /*
+    for(int j=0; j< street1_search_result.size();j++){
+        cout<<getStreetName()
+    }
+    */
     if(street1_search_result.size()==0 || street2_search_result.size()==0 ){
         if(street1_search_result.size()==0){cout<<"cannot find matching street for input 1"<<endl;}
         if(street2_search_result.size()==0){cout<<"cannot find matching street for input 2"<<endl;}
     }
     else if(street1_search_result.size()>1 || street2_search_result.size()>1){
-        if(street1_search_result.size()>1){cout<<"cannot find matching street for input 1"<<endl;}
-        if(street2_search_result.size()>10){cout<<"cannot find matching street for input 2"<<endl;}
+        if(street1_search_result.size()>1){cout<<"input 1 does not uniquely identify a street"<<endl;}
+        if(street2_search_result.size()>1){cout<<"input 2 does not uniquely identify a street"<<endl;}
     }
     else {
         found_intersections = find_intersections_of_two_streets(make_pair(street1_search_result[0], street2_search_result[0]));
