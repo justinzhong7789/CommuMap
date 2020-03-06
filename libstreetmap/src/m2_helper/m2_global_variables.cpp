@@ -115,7 +115,7 @@ void makeStreetSizeTable(){
             else if (60 >= speed && speed >= 50 && street_length > 500){
                 streetsizes.minor.push_back(street_data);
             }
-            else if ( street_length > 80 && street_length > 100){
+            else {
                 streetsizes.local.push_back(street_data);
             }
         }

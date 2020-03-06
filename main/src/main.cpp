@@ -34,7 +34,7 @@ std::string default_map_path = "/cad2/ece297s/public/maps/toronto_canada.streets
 std::string map_path;
 
 int main(int argc, char** argv) {
-    std::string map_path;
+    //std::string map_path;
     if(argc == 1) {
         //Use a default map
         map_path = default_map_path;

@@ -41,6 +41,8 @@ void zoom(ezgl::renderer *g){
         }
     }
     
+    cout<<"The zoom level: "<< zooms.level << endl ;
+    
      g->set_color(BACKGROUND);
      g->fill_rectangle(zooms.current.m_first, zooms.current.m_second);
      
@@ -52,7 +54,7 @@ void zoomStreets(ezgl::renderer *g){
     
     switch (zooms.zcase){
         case 0:
-            drawAllStreets(g, width*(zooms.level/ZOOM_ZERO));
+            drawStreets(streetsizes.local, g , width*(zooms.level/ZOOM_ZERO), STREETS);
             break;
         case 1: //empty case for future purposes
         case 2:
@@ -112,9 +114,9 @@ void drawAllStreets(renderer *g, int width){
             std::pair <float, float> start = {x_from_lon(streetSegments[i].node[j-1].lon()), y_from_lat(streetSegments[i].node[j-1].lat())};
             std::pair <float, float> end = {x_from_lon(streetSegments[i].node[j].lon()), y_from_lat(streetSegments[i].node[j].lat())};
             
-            g->set_color(OUTLINE);
-            g->set_line_width(width+2);
-            g->draw_line({start.first, start.second}, {end.first, end.second});
+//            g->set_color(OUTLINE);
+//            g->set_line_width(width+2);
+//            g->draw_line({start.first, start.second}, {end.first, end.second});
             
             g->set_line_cap(ezgl::line_cap::round);
             
@@ -159,18 +161,17 @@ void nameStreets(ezgl::renderer *g){
         case 1: //empty case for future purposes
         case 2:
         case 3:
-            drawStreetNames(streetsizes.local, g , width,5);
+            drawStreetNames(streetsizes.local, g , width,10);
         case 4:
-            drawStreetNames(streetsizes.minor, g , width,20);
-            drawStreetNames(streetsizes.major, g , width,50);
+            drawStreetNames(streetsizes.minor, g , width,40);
+            drawStreetNames(streetsizes.major, g , width,60);
             
         case 5:
-            drawStreetNames(streetsizes.highway, g, width,80);
-           if(zooms.zcase == 3) drawOneWay(g);
+            drawStreetNames(streetsizes.highway, g, width,100);
             break;
             
         default: 
-            drawStreetNames(streetsizes.highway, g, width, 80);
+            drawStreetNames(streetsizes.highway, g, width, 100);
             break;
     }
 }
@@ -189,7 +190,10 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
         
         for (size_t j=i; j<streets[i].segments.size(); j=j+distance){
             
+            
             StreetSegmentsData segData = streets[i].segments[j];
+            
+//            if(segmentsOfIntersections[segData.fromPos]
             
             //Works
             int from = getInfoStreetSegment(streets[i].segments[j].id).from;

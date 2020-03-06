@@ -57,6 +57,8 @@ const int zoomLevel[zoomArraySize] = {
     38000,  //level 2 
     4500,   //level 3
     300,    //level 4
+//   200, //Major should be seen
+//   10, //words cannot be written
     1       //level 5
 };
 
