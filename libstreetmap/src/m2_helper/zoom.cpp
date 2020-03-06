@@ -232,6 +232,9 @@ void map_bounds(){
 
 void highlightStreet(ezgl::renderer* g, int street_id){
     vector<int> street_seg_ids = find_street_segments_of_street(street_id);
+    g->set_color(ezgl::YELLOW);
+    g->set_line_width(12);
+    g->draw_line({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
     for(int i=0;i < street_seg_ids.size(); i++){
         for(int j=i+1; j< street_seg_ids.size(); j++){
             g->set_color(ezgl::YELLOW);
