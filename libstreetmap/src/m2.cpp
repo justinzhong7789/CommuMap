@@ -203,15 +203,14 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     string street1, street2;
     vector<int> street1_search_result, street2_search_result, found_intersections;
     getline(ss, street1, ',');
+    ss.ignore(5,' ');
     getline(ss, street2);
+<<<<<<< HEAD
    
+=======
+>>>>>>> trivial change
     street1_search_result = find_street_ids_from_partial_street_name(street1);
     street2_search_result = find_street_ids_from_partial_street_name(street2);
-    /*
-    for(int j=0; j< street1_search_result.size();j++){
-        cout<<getStreetName()
-    }
-    */
     if(street1_search_result.size()==0 || street2_search_result.size()==0 ){
         if(street1_search_result.size()==0){cout<<"cannot find matching street for input 1"<<endl;}
         if(street2_search_result.size()==0){cout<<"cannot find matching street for input 2"<<endl;}
