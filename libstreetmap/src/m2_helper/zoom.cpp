@@ -182,7 +182,7 @@ void nameStreets(ezgl::renderer *g){
 }
 
 
-void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int distance){
+void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int /*distance*/){
     
 
     
@@ -193,7 +193,7 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
             break;
         }
         int j, next;
-        for (j=0, next = 0; (j<streets[i].segments.size()) && (drawn <1) &&( next<streets[i].segments.size()); j=j++, next = next+2){//used to be 10
+        for (j=0, next = 0; (j<streets[i].segments.size()) && (drawn <1) &&( next<streets[i].segments.size()); j++, next = next+2){//used to be 10
             
             
             StreetSegmentsData segData = streets[i].segments[j];
