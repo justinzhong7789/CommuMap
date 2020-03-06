@@ -62,4 +62,3 @@ void sortFeatures();
 void makePointsOfFeatures();
 void makeStreetSizeTable();
 void makeStreetsVector();
-
