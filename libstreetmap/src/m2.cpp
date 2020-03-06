@@ -199,13 +199,14 @@ void search_button(GtkWidget */*widget*/, ezgl::application *application){
         // Make map go to zoom fit mode
         renderer *g = application->get_renderer();
         g->set_visible_world(ezgl::rectangle({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)}));
+        application->refresh_drawing();
         // Highlight street of first function
         StreetIndex street_id = street_index[0];
         // std::string found_street = getStreetName(search_street_highlight);
         vector<int> street_seg_ids = find_street_segments_of_street(street_id);
-        g->set_color(ezgl::YELLOW);
-        g->set_line_width(12);
-        g->draw_line({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
+//        g->set_color(ezgl::YELLOW);
+//        g->set_line_width(12);
+//        g->draw_line({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
         for(int i=0;i < street_seg_ids.size(); i++){
             for(int j=i+1; j< street_seg_ids.size(); j++){
                 g->set_color(ezgl::YELLOW);
@@ -219,7 +220,6 @@ void search_button(GtkWidget */*widget*/, ezgl::application *application){
             }
         }
     }
-        application->refresh_drawing();
 }
 /*string drawFindSearchBar(ezgl::application *application){
     ezgl::renderer *g = application->get_renderer();
