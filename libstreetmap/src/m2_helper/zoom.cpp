@@ -187,7 +187,6 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
             
             StreetSegmentsData segData = streets[i].segments[j];
             
-            
             //Works
             int from = getInfoStreetSegment(streets[i].segments[j].id).from;
             int to = getInfoStreetSegment(streets[i].segments[j].id).to;

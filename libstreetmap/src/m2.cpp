@@ -49,6 +49,7 @@ void initial_setup(ezgl::application *application, bool new_window);//add find b
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer* g);
 void search_bar(GtkWidget *widget, ezgl::application *application);
+void nightMode_button(GtkWidget *widget, ezgl::application *application);
 string drawFindSearchBar(ezgl::application *application);
 void close_M2();
 //Determining the first time drawn
@@ -119,10 +120,19 @@ void draw_main_canvas(ezgl::renderer *g) {
 }
 void search_button(GtkWidget */*widget*/, ezgl::application *application);
 void initial_setup(ezgl::application *application, bool new_window){  
+
 //  application->create_button("find", 6, find_button);
   
   GObject *SearchButton = application->get_object("SearchButton");
   g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
+
+  GObject * NightMode = application->get_object("NightMode");
+  
+  g_signal_connect(NightMode, "clicked", G_CALLBACK(nightMode_button),application);
+}
+
+void nightMode_button(GtkWidget *widget, ezgl::application *application){
+    cout<<"LOOK THE TEST BUTTON IS HERE"<<endl;
 }
 /*
 void find_button(GtkWidget *widget, ezgl::application *application){
@@ -147,7 +157,8 @@ void find_button(GtkWidget *widget, ezgl::application *application){
             street_ids = find_street_ids_from_partial_street_name(str);
         }
         street_id[i] = street_ids[0];
-        getline(cin, two_streets[i]);
+       //MJ commented this out because its been causing errors
+         getline(cin, two_streets[i]);
         while(find_street_ids_from_partial_street_name(two_streets[i]).size()!=1){
             cout<< "Your input does not uniquely identify a street."<<endl<<"Please try again"<<endl;
             getline(cin, two_streets[i]);

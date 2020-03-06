@@ -76,6 +76,16 @@ const ezgl::color FEATURE_NAMES(120,126,131);
 const ezgl::color STREET_NAMES(88,94,97);
 const ezgl::color ONE_WAY(157,157,157);
 
+const ezgl::color D_GRASS(35,49,48); //
+const ezgl::color D_SAND(53,48,42);//
+const ezgl::color D_WATER(45,58,91);//
+const ezgl::color D_HIGHWAY(61,63,65);//
+const ezgl::color D_OUTLINE(197,197,197);
+const ezgl::color D_BUILDINGS(52,54,55); //
+const ezgl::color D_BACKGROUND(43,45,46); //
+const ezgl::color D_FEATURE_NAMES(96,100,102);//
+const ezgl::color D_STREET_NAMES(128,132,134);//
+const ezgl::color D_ONE_WAY(114,118,120);//
 
 
 //Main zoom function

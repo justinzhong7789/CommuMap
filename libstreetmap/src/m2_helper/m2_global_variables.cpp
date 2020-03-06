@@ -16,7 +16,7 @@ ezgl::point2d point2d_from_latlon(LatLon number){
 
 LatLon latlon_from_point2d(ezgl::point2d point){
     
-    LatLon number((float) lon_from_x(point.x),(float) point.y);
+    LatLon number((float)point.y,(float) lon_from_x(point.x));
     return number;
 }
 
