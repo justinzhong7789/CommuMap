@@ -137,7 +137,7 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
 //  application->create_button("find", 6, find_button);
   application->create_button("find", 6, find_button);
   application->create_button("draw POI", 7, drawPOI);
-  application->create_button("load map",8,Load_Map);
+//  application->create_button("load map",8,Load_Map);
   GObject *SearchButton = application->get_object("SearchButton");
   g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
 
@@ -149,13 +149,13 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   
 }
 
-void Load_Map(GtkWidget */*widget*/, ezgl::application *application){
-    
-    GtkEntry *textSearch = (GtkEntry *)application->get_object("SearchBar");
-    std::string map_path = gtk_entry_get_text(textSearch);
-    
-    closeMap();
-}
+//void Load_Map(GtkWidget */*widget*/, ezgl::application *application){
+//    
+//    GtkEntry *textSearch = (GtkEntry *)application->get_object("SearchBar");
+//    std::string map_path = gtk_entry_get_text(textSearch);
+//    
+//    closeMap();
+//}
 
 void nightMode_button(GtkWidget */*widget*/, ezgl::application *application){
     
@@ -210,10 +210,7 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     getline(ss, street1, ',');
     ss.ignore(5,' ');
     getline(ss, street2);
-<<<<<<< HEAD
-
-=======
->>>>>>> merge issue
+    
     street1_search_result = find_street_ids_from_partial_street_name(street1);
     street2_search_result = find_street_ids_from_partial_street_name(street2);
     if(street1_search_result.size()==0 || street2_search_result.size()==0 ){
