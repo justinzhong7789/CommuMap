@@ -137,13 +137,24 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
 //  application->create_button("find", 6, find_button);
   application->create_button("find", 6, find_button);
   application->create_button("draw POI", 7, drawPOI);
-  
+  application->create_button("load map",8,Load_Map);
   GObject *SearchButton = application->get_object("SearchButton");
   g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
 
   GObject * NightMode = application->get_object("NightMode");
-  
   g_signal_connect(NightMode, "clicked", G_CALLBACK(nightMode_button),application);
+  
+//  GObject *LoadMap = application->get_object("LoadMap");
+//  g_signal_connect(LadMap, "clicked", G_CALLBACK(Load_Map), application);
+  
+}
+
+void Load_Map(GtkWidget */*widget*/, ezgl::application *application){
+    
+    GtkEntry *textSearch = (GtkEntry *)application->get_object("SearchBar");
+    std::string map_path = gtk_entry_get_text(textSearch);
+    
+    closeMap();
 }
 
 void nightMode_button(GtkWidget */*widget*/, ezgl::application *application){
@@ -167,7 +178,7 @@ void setNight(){
     BUILDINGS.color_change(D_BUILDINGS);
     BACKGROUND.color_change(D_BACKGROUND);
     FEATURE_NAMES.color_change(D_FEATURE_NAMES);
-    STREET_NAMES.color_change(WHITE);
+    STREET_NAMES.color_change(D_STREET_NAMES);
     ONE_WAY.color_change(D_ONE_WAY);
     night = true;
 }
