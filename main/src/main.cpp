@@ -26,7 +26,7 @@
 #include "m3.h"
 
 //Program exit codes
-constexpr int SUCCESS_EXIT_CODE = 0;        //Everyting went OK
+constexpr int SUCCESS_EXIT_CODE = 0;        //Everything went OK
 constexpr int ERROR_EXIT_CODE = 1;          //An error occured
 constexpr int BAD_ARGUMENTS_EXIT_CODE = 2;  //Invalid command-line usage
 
@@ -65,7 +65,6 @@ int main(int argc, char** argv) {
 
     //You can now do something with the map data
     draw_map();
-
     //Clean-up the map data and related data structures
     std::cout << "Closing map\n";
     close_map(); 

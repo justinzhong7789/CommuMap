@@ -4,37 +4,64 @@
  * and open the template in the editor.
  */
 
-//#pragma once
 
-//#include "StreetsDatabaseAPI.h"
+#include "StreetsDatabaseAPI.h"
+#include "m1.h"
+#include "m2.h"
+#include "m3.h"
+
+#include <vector>
+#include <string>
+#include <iostream>
+
+const int V = getNumIntersections(); //vertices
+using namespace std;
+
+vector<vector<double>> weighted_graph_of_intersections;
+
+void create_weighted_graph_of_intersections();
+
+
+double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path,
+        const double turn_penalty);
+
+std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start,
+        const IntersectionIndex intersect_id_end, const double turn_penalty);
 //
-//#include <vector>
-//#include <string>
-//#include <iostream>
-//
-//const V = getNumIntersections(); //vertices
-////#define V getNumIntersections();
-//
-//double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path,
-//        const double turn_penalty);
-//
-//std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start,
-//        const IntersectionIndex intersect_id_end, const double turn_penalty);
-//
-//double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
-//        const double walking_speed, const double turn_penalty);
-//
-//std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
-//        const IntersectionIndex start_intersection,
-//        const IntersectionIndex end_intersection,
-//        const double turn_penalty,
-//        const double walking_speed,
-//        const double walking_time_limit);
-//
-///***************/
-//
-//std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start,
-//        const IntersectionIndex intersect_id_end, const double turn_penalty){
+double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
+        const double walking_speed, const double turn_penalty);
+
+std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
+        const IntersectionIndex start_intersection,
+        const IntersectionIndex end_intersection,
+        const double turn_penalty,
+        const double walking_speed,
+        const double walking_time_limit);
+
+/***************/
+double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path,
+        const double turn_penalty){
+    return 0;
+}
+double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
+        const double walking_speed, const double turn_penalty){
+    return 0;
+}
+
+std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
+        const IntersectionIndex start_intersection,
+        const IntersectionIndex end_intersection,
+        const double turn_penalty,
+        const double walking_speed,
+        const double walking_time_limit){
+    return {{NULL}, {NULL}};
+}
+std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start,
+        const IntersectionIndex intersect_id_end, const double turn_penalty){
+    create_weighted_graph_of_intersections();
+    weighted_graph_of_intersections.clear();
+    return {NULL};
+}
 //    
 //    // If size==0
 //    if (intersect_id_start == intersect_id_end){
@@ -83,20 +110,40 @@
 //        }
 //    }
 //}
-//
-//// Creates weighted graph connecting all intersections
-//// Weight represents time to traverse between intersections
-//// Weight will be negative for one-way streets that cannot be traversed (?)
-//void create_weighted_graph_for_intersections(){
-//    // Initialize graph
-//    std::vector<std::vector<IntersectionIndex>[getNumIntersections()]> weighted_graph_for_intersections;
-//    weighted_graph_for_intersections.resize(getNumIntersections());
-//    
-//    for (int i=0; i<getNumIntersections(); i++){
-//        for (int j=0; j<getNumIntersections(); j++){
-//            if (i==j){
-//                weighted_graph_for_intersections[i][j] = 0;
-//            }
-//        }
-//    }
-//}
+
+// Creates weighted graph connecting all intersections
+// Weight represents time to traverse between intersections
+// Weight will be negative for one-way streets that cannot be traversed (?)
+void create_weighted_graph_of_intersections(){
+    const int total_intersections = getNumIntersections();
+    
+    // Initialize size of inner vectors
+    vector<double> initialize_zero(total_intersections, 0);
+
+    // Add inner vectors into outer vector
+    for (int i=0; i<total_intersections; i++){
+        weighted_graph_of_intersections.push_back(initialize_zero);
+    }
+    initialize_zero.clear();
+    
+    // Row
+    for (int i=0; i<getNumIntersections(); i++){
+        int seg_total = getIntersectionStreetSegmentCount(i);
+        for (int seg_count=0; seg_count < seg_total; seg_count++){
+            // ASSUME THAT CORRESPONDING INFO WILL RETURN THE ORIGINAL INTERSECTION HAS STREETSEGMENT.TO
+            StreetSegmentIndex seg_id = getIntersectionStreetSegment(i, seg_count); 
+            InfoStreetSegment seg_info = getInfoStreetSegment(seg_id);     
+            // LOGIC CHECKING; TO BE DELETED
+            if (seg_info.to == i){
+                cout << "Good" << endl;
+            } else {
+                cout << "Bad" << endl;
+            }
+            // Assign weight to edge if street is NOT one-way
+            if (seg_info.oneWay == false){    
+                IntersectionIndex j = seg_info.to;
+                weighted_graph_of_intersections[i][j] = 0;
+            }
+        }
+    }
+}
