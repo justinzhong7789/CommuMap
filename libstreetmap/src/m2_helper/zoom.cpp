@@ -41,7 +41,7 @@ void zoom(ezgl::renderer *g){
         }
     }
     
-    cout<<"The zoom level: "<< zooms.level << endl ;
+ //   cout<<"The zoom level: "<< zooms.level << endl ;
     
      g->set_color(BACKGROUND);
      g->fill_rectangle(zooms.current.m_first, zooms.current.m_second);
@@ -166,8 +166,9 @@ void nameStreets(ezgl::renderer *g){
         case 1: //empty case for future purposes
         case 2:
         case 3:
-            drawStreetNames(streetsizes.local, g , width,10);
+          //  drawStreetNames(streetsizes.local, g , width,10);
         case 4:
+            drawStreetNames(streetsizes.local, g , width,10);
             drawStreetNames(streetsizes.minor, g , width,40);
             drawStreetNames(streetsizes.major, g , width,60);
             

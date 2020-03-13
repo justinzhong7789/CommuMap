@@ -55,6 +55,7 @@ void initial_setup(ezgl::application *application, bool new_window);//add find b
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
 void search_button(GtkWidget */*widget*/, ezgl::application *application);
 void nightMode_button(GtkWidget *widget, ezgl::application *application);
+void Load_Map(GtkWidget */*widget*/, ezgl::application *application);
 vector<string> POItypesTable;
 //const char* search_text;
 
@@ -71,15 +72,6 @@ int numTimesDrawn = 0;
 bool night;
 
 void draw_map() {
-
-    if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
-            map_name == "golden-horseshoe_canada" || map_name == "hamilton_canada" || map_name == "hong-kong_china" ||
-            map_name == "iceland" || map_name == "interlaken_switzerland" || map_name == "london_england" ||
-            map_name == "moscow_russia" || map_name == "new-delhi_india" || map_name == "new-york_usa" ||
-            map_name == "rio-de-janeiro_brazil" || map_name == "saint-helena" || map_name == "singapore" ||
-            map_name == "sydney_australiia" || map_name == "tehran_iran" || map_name == "tokyo_japan" || map_name == "toronto_canada"){
-        load_map(map_name);
-    }
 
     setLight();   
     
@@ -137,13 +129,60 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
 //  application->create_button("find", 6, find_button);
   application->create_button("find", 6, find_button);
   application->create_button("draw POI", 7, drawPOI);
-  
+  application->create_button("load map",8,Load_Map);
   GObject *SearchButton = application->get_object("SearchButton");
   g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
 
   GObject * NightMode = application->get_object("NightMode");
-  
   g_signal_connect(NightMode, "clicked", G_CALLBACK(nightMode_button),application);
+  
+//  GObject *LoadMap = application->get_object("LoadMap");
+//  g_signal_connect(LadMap, "clicked", G_CALLBACK(Load_Map), application);
+  
+}
+
+void Load_Map(GtkWidget */*widget*/, ezgl::application *application){
+    
+    GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
+    // Get string from search bar
+    std::string map_path = gtk_entry_get_text(textEntry);
+
+        cout<<"load_map was clicked"<<endl;
+        close_M2();
+        load_success = load_map(map_path);
+        
+        if(load_success){
+            std::cout << "Successfully loaded map '" << map_path << "'\n";
+        }else{
+            std::cerr << "Usage: " << map_path << " [map_file_path]\n";
+            std::cerr << "  If no map_file_path is provided a default map is loaded.\n";
+            load_success = load_map("/cad2/ece297s/public/maps/toronto_canada.streets.bin");
+            
+            if(load_success) std::cout << "Successfully loaded map '" << map_path << "'\n";
+        }
+    
+    intersections.resize(getNumIntersections());
+              
+    map_bounds();
+
+    makeStreetsVector();
+    makeStreetSizeTable();
+    sortFeatures();
+    makePOITypesTable();
+
+    ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
+    application->change_canvas_world_coordinates("MainCanvas", initial_world);
+    application->refresh_drawing();
+    cout<<"Done reLoading"<<endl;
+//      if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
+//            map_name == "golden-horseshoe_canada" || map_name == "hamilton_canada" || map_name == "hong-kong_china" ||
+//            map_name == "iceland" || map_name == "interlaken_switzerland" || map_name == "london_england" ||
+//            map_name == "moscow_russia" || map_name == "new-delhi_india" || map_name == "new-york_usa" ||
+//            map_name == "rio-de-janeiro_brazil" || map_name == "saint-helena" || map_name == "singapore" ||
+//            map_name == "sydney_australiia" || map_name == "tehran_iran" || map_name == "tokyo_japan" || map_name == "toronto_canada"){
+//        load_map(map_name);
+//    }
+    
 }
 
 void nightMode_button(GtkWidget */*widget*/, ezgl::application *application){
@@ -167,7 +206,7 @@ void setNight(){
     BUILDINGS.color_change(D_BUILDINGS);
     BACKGROUND.color_change(D_BACKGROUND);
     FEATURE_NAMES.color_change(D_FEATURE_NAMES);
-    STREET_NAMES.color_change(WHITE);
+    STREET_NAMES.color_change(D_STREET_NAMES);
     ONE_WAY.color_change(D_ONE_WAY);
     night = true;
 }
@@ -199,6 +238,10 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     getline(ss, street1, ',');
     ss.ignore(5,' ');
     getline(ss, street2);
+<<<<<<< HEAD
+=======
+    
+>>>>>>> e6d4b65d393dceb713c2673dcc93b71dffa4ee51
     street1_search_result = find_street_ids_from_partial_street_name(street1);
     street2_search_result = find_street_ids_from_partial_street_name(street2);
     if(street1_search_result.size()==0 || street2_search_result.size()==0 ){

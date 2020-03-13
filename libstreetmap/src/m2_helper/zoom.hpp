@@ -86,7 +86,7 @@ const ezgl::color D_OUTLINE(197,197,197);
 const ezgl::color D_BUILDINGS(52,54,55); //
 const ezgl::color D_BACKGROUND(43,45,46); //
 const ezgl::color D_FEATURE_NAMES(150,151,152);//
-const ezgl::color D_STREET_NAMES(128,132,134);//
+const ezgl::color D_STREET_NAMES(237,28,36);//
 const ezgl::color D_ONE_WAY(114,118,120);//
 
 
