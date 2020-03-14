@@ -238,10 +238,6 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     getline(ss, street1, ',');
     ss.ignore(5,' ');
     getline(ss, street2);
-<<<<<<< HEAD
-=======
-    
->>>>>>> e6d4b65d393dceb713c2673dcc93b71dffa4ee51
     street1_search_result = find_street_ids_from_partial_street_name(street1);
     street2_search_result = find_street_ids_from_partial_street_name(street2);
     if(street1_search_result.size()==0 || street2_search_result.size()==0 ){

@@ -13,11 +13,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
-<<<<<<< HEAD
 #include <m1.h>
 //#define V getNumIntersections();
 //=================function forward declarations=====================
-=======
 
 const int V = getNumIntersections(); //vertices
 using namespace std;
@@ -27,20 +25,8 @@ vector<vector<double>> weighted_graph_of_intersections;
 void create_weighted_graph_of_intersections();
 
 
->>>>>>> e6d4b65d393dceb713c2673dcc93b71dffa4ee51
-double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path,
-        const double turn_penalty);
-std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start,
-        const IntersectionIndex intersect_id_end, const double turn_penalty);
-//
 double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
         const double walking_speed, const double turn_penalty);
-std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
-        const IntersectionIndex start_intersection,
-        const IntersectionIndex end_intersection,
-        const double turn_penalty,
-        const double walking_speed,
-        const double walking_time_limit);
 
 /*
 int min_distance(int dist[], bool sptSet[]);
@@ -81,7 +67,6 @@ double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
 }
 
 /***************/
-<<<<<<< HEAD
 
 std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start,
         const IntersectionIndex intersect_id_end, const double turn_penalty){
@@ -107,7 +92,6 @@ int min_distance(int dist[], bool sptSet[]){
         }
         return min_index;
     }
-=======
 double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path,
         const double turn_penalty){
     return 0;
@@ -115,7 +99,6 @@ double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path,
 double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
         const double walking_speed, const double turn_penalty){
     return 0;
->>>>>>> e6d4b65d393dceb713c2673dcc93b71dffa4ee51
 }
 
 std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
