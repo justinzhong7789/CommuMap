@@ -13,11 +13,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
-<<<<<<< HEAD
-#include <m1.h>
+
 //#define V getNumIntersections();
 //=================function forward declarations=====================
-=======
 
 const int V = getNumIntersections(); //vertices
 using namespace std;
@@ -26,21 +24,45 @@ vector<vector<double>> weighted_graph_of_intersections;
 
 void create_weighted_graph_of_intersections();
 
+//double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
+//        const double walking_speed, const double turn_penalty){
+//    return 0.0;
+//}
 
->>>>>>> e6d4b65d393dceb713c2673dcc93b71dffa4ee51
-double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path,
-        const double turn_penalty);
-std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start,
-        const IntersectionIndex intersect_id_end, const double turn_penalty);
-//
-double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
-        const double walking_speed, const double turn_penalty);
 std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
         const IntersectionIndex start_intersection,
         const IntersectionIndex end_intersection,
         const double turn_penalty,
         const double walking_speed,
-        const double walking_time_limit);
+        const double walking_time_limit){
+    return{{0},{0}};
+}
+
+
+//
+///***************/
+//
+
+//double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path, const double turn_penalty){
+//    int vecSize = path.size();
+//    int turnCount = 0;
+//    int totalTravelTime = 0;
+//    if(vecSize==0){return 0;}
+//    else{
+//        for(int i=0; i+1< vecSize; i++){
+//            if(there_is_turn(path[i],path[i+1])){
+//                turnCount++;
+//            }
+//        }
+//        for(int j=0;j<vecSize;j++){
+//            totalTravelTime += find_street_segment_travel_time(path[j]);
+//        }
+//        return (totalTravelTime +(turnCount*turn_penalty));
+//    }
+//        
+//}
+
+
 
 /*
 int min_distance(int dist[], bool sptSet[]);
@@ -52,49 +74,19 @@ bool there_is_turn(int from_seg_id, int to_seg_id);
 //===================================================================
 
 
-
-double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path,
-        const double turn_penalty){
-    int vecSize = path.size();
-    int turnCount = 0;
-    int totalTravelTime = 0;
-    if(vecSize==0){return 0;}
-    else{
-        for(int i=0; i+1< vecSize; i++){
-            if(there_is_turn(path[i],path[i+1])){
-                turnCount++;
-            }
-        }
-        for(int j=0;j<vecSize;j++){
-            totalTravelTime += find_street_segment_travel_time(path[j]);
-        }
-        return (totalTravelTime +(turnCount*turn_penalty));
-    }
-}
-
-
-
-
-double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
-        const double walking_speed, const double turn_penalty){
-    return 0;
-}
-
 /***************/
-<<<<<<< HEAD
+//std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start, const IntersectionIndex intersect_id_end, const double turn_penalty){
+//    
+//    // If size==0
+//    if (intersect_id_start == intersect_id_end){
+//        std::cout << "Error: starting intersection is same as end!" << std::endl;
+//        return {-1};
+//    }
+//    // Using Dijkstra's
+//     std::vector<StreetSegmentIndex> sptSet; // Shortest path tree set
+//     return {0};
+//}
 
-std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start,
-        const IntersectionIndex intersect_id_end, const double turn_penalty){
-    
-    // If size==0
-    if (intersect_id_start == intersect_id_end){
-        std::cout << "Error: starting intersection is same as end!" << std::endl;
-        return {-1};
-    }
-    // Using Dijkstra's
-     std::vector<StreetSegmentIndex> sptSet; // Shortest path tree set
-     return {0};
-}
 /*
 // Find vertex with minimum distance from vertices not included in sptSet
 int min_distance(int dist[], bool sptSet[]){
@@ -180,6 +172,7 @@ std::vector<StreetSegmentIndex>find_path_between_intersections(const Intersectio
 //        }
 //    }
 //}
+<<<<<<< HEAD
 
 // Creates weighted graph connecting all intersections
 // Weight represents time to traverse between intersections
@@ -219,9 +212,17 @@ void create_weighted_graph_of_intersections(){
 }
 */
 // if 
-bool there_is_turn(int from_seg_id, int to_seg_id){
-    int from_street_id = getInfoStreetSegment(from_seg_id).streetID;
-    int to_street_id = getInfoStreetSegment(to_seg_id).streetID;
-    if(from_street_id == to_street_id){return false;}
-    else {return true;}
-}
+//bool there_is_turn(int from_seg_id, int to_seg_id){
+//    int from_street_id = getInfoStreetSegment(from_seg_id).streetID;
+//    int to_street_id = getInfoStreetSegment(to_seg_id).streetID;
+//    if(from_street_id == to_street_id){return false;}
+//    else {return true;}
+//}
+
+
+
+
+
+
+
+
