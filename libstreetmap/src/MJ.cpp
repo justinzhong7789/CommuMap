@@ -14,18 +14,18 @@
 #include <string>
 #include <iostream>
 
-std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
-        const IntersectionIndex start_intersection,
-        const IntersectionIndex end_intersection,
-        const double turn_penalty,
-        const double walking_speed,
-        const double walking_time_limit){
-    
-    std::pair<std::vector<int>, std::vector<int>> pairVector;
-    pairVector.first = {0};
-    pairVector.second = {0};
-    return pairVector;
-}
+//std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
+//        const IntersectionIndex start_intersection,
+//        const IntersectionIndex end_intersection,
+//        const double turn_penalty,
+//        const double walking_speed,
+//        const double walking_time_limit){
+//    
+//    std::pair<std::vector<int>, std::vector<int>> pairVector;
+//    pairVector.first = {0};
+//    pairVector.second = {0};
+//    return pairVector;
+//}
 
 //Assuming function already made that says if turn_penalty is needed: is_a_turn(segment, next segment);
 double compute_path_walking_time(const std::vector<StreetSegmentIndex>& path, const double walking_speed, const double turn_penalty){
