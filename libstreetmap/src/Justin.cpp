@@ -44,7 +44,6 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
                           const double walking_speed, 
                           const double walking_time_limit){
                           
-    
-    
+    return {{0},{0}};
 }
 
