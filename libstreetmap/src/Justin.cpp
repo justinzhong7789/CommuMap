@@ -40,3 +40,8 @@ double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path, con
     }
         
 }
+
+std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start, const IntersectionIndex intersect_id_end, const double turn_penalty){
+    
+     return {0};
+}

@@ -30,8 +30,6 @@ void create_weighted_graph_of_intersections();
 //    return 0.0;
 //}
 
-double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
-        const double walking_speed, const double turn_penalty);
 std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
         const IntersectionIndex start_intersection,
         const IntersectionIndex end_intersection,
@@ -216,3 +214,39 @@ void create_weighted_graph_of_intersections(){
 //    if(from_street_id == to_street_id){return false;}
 //    else {return true;}
 //}
+// Creates weighted graph connecting all intersections
+// Weight represents time to traverse between intersections
+// Weight will be negative for one-way streets that cannot be traversed (?)
+void create_weighted_graph_of_intersections(){
+    const int total_intersections = getNumIntersections();
+    
+    // Initialize size of inner vectors
+    vector<double> initialize_zero(total_intersections, 0);
+
+    // Add inner vectors into outer vector
+    for (int i=0; i<total_intersections; i++){
+        weighted_graph_of_intersections.push_back(initialize_zero);
+    }
+    initialize_zero.clear();
+    
+    // Row
+    for (int i=0; i<getNumIntersections(); i++){
+        int seg_total = getIntersectionStreetSegmentCount(i);
+        for (int seg_count=0; seg_count < seg_total; seg_count++){
+            // ASSUME THAT CORRESPONDING INFO WILL RETURN THE ORIGINAL INTERSECTION HAS STREETSEGMENT.TO
+            StreetSegmentIndex seg_id = getIntersectionStreetSegment(i, seg_count); 
+            InfoStreetSegment seg_info = getInfoStreetSegment(seg_id);     
+            // LOGIC CHECKING; TO BE DELETED
+            if (seg_info.to == i){
+                cout << "Good" << endl;
+            } else {
+                cout << "Bad" << endl;
+            }
+            // Assign weight to edge if street is NOT one-way
+            if (seg_info.oneWay == false){    
+                IntersectionIndex j = seg_info.to;
+                weighted_graph_of_intersections[i][j] = 0;
+            }
+        }
+    }
+}
