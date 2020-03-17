@@ -43,6 +43,17 @@ double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path, con
         
 }
 
+std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> 
+         find_path_with_walk_to_pick_up(
+                          const IntersectionIndex start_intersection, 
+                          const IntersectionIndex end_intersection,
+                          const double turn_penalty,
+                          const double walking_speed, 
+                          const double walking_time_limit){
+                          
+    
+    
+}
 std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start, const IntersectionIndex intersect_id_end, const double turn_penalty){
     
      return {0};
