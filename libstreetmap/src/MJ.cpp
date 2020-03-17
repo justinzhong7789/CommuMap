@@ -52,12 +52,3 @@ double compute_path_walking_time(const std::vector<StreetSegmentIndex>& path, co
     
 }
 
-//// order, would take one from the start to the end intersection.
-//std::vector<StreetSegmentIndex> find_path_between_intersections(
-//		          const IntersectionIndex intersect_id_start, 
-//                  const IntersectionIndex intersect_id_end,
-//                  const double turn_penalty)
-//{
-//    return {0};
-//}
-

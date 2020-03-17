@@ -8,7 +8,7 @@
 
 extern void set_disable_event_loop (bool new_setting);
 
-std::string map_name = "/cad2/ece297s/public/maps/interlaken_switzerland.streets.bin";
+std::string map_name = "/cad2/ece297s/public/maps/toronto_canada.streets.bin";
 
 int main(int argc, char** argv) {
     //Disable interactive graphics
