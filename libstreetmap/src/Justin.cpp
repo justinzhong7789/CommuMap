@@ -15,13 +15,6 @@
 #include <iostream>
 #include "m3_global.hpp"
 
-bool there_is_turn(int from_seg_id, int to_seg_id){
-    int from_street_id = getInfoStreetSegment(from_seg_id).streetID;
-    int to_street_id = getInfoStreetSegment(to_seg_id).streetID;
-    if(from_street_id == to_street_id){return false;}
-    else {return true;}
-}
-
 double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path, const double turn_penalty){
     int vecSize = path.size();
     int turnCount = 0;
@@ -54,6 +47,8 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
     
     
 }
+
+
 std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start, const IntersectionIndex intersect_id_end, const double turn_penalty){
     
      return {0};
