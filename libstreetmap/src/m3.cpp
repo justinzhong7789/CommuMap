@@ -29,17 +29,6 @@ void create_weighted_graph_of_intersections();
 //        const double walking_speed, const double turn_penalty){
 //    return 0.0;
 //}
-
-std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
-        const IntersectionIndex start_intersection,
-        const IntersectionIndex end_intersection,
-        const double turn_penalty,
-        const double walking_speed,
-        const double walking_time_limit){
-    return{{0},{0}};
-}
-
-
 //
 ///***************/
 //
