@@ -26,4 +26,4 @@
  * return true is both streets belong to the same street,
  * false if not
  */
-bool bool there_is_turn(int from_seg_id, int to_seg_id);
+bool there_is_turn(int from_seg_id, int to_seg_id);

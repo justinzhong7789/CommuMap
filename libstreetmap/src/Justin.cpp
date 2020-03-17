@@ -13,7 +13,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
+#include "m3_global.hpp"
 
 bool there_is_turn(int from_seg_id, int to_seg_id){
     int from_street_id = getInfoStreetSegment(from_seg_id).streetID;
@@ -25,18 +25,20 @@ bool there_is_turn(int from_seg_id, int to_seg_id){
 double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path, const double turn_penalty){
     int vecSize = path.size();
     int turnCount = 0;
-    int totalTravelTime = 0;
+    double totalTravelTime = 0;
     if(vecSize==0){return 0;}
     else{
-        for(int i=0; i+1< vecSize; i++){
-            if(there_is_turn(path[i],path[i+1])){
-                turnCount++;
+        
+        for(int i=0;i<vecSize;i++){
+            
+            if(i+1<vecSize){
+                if(there_is_turn(path[i],path[i+1])){
+                    turnCount++;
+                }
             }
+            totalTravelTime += find_street_segment_travel_time(path[i]);
         }
-        for(int j=0;j<vecSize;j++){
-            totalTravelTime += find_street_segment_travel_time(path[j]);
-        }
-        return (totalTravelTime +(turnCount*turn_penalty));
+        return (totalTravelTime +((double)turnCount*turn_penalty));
     }
         
 }
