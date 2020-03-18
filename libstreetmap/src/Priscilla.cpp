@@ -11,188 +11,204 @@
 #include "m3.h"
 
 #include <vector>
+#include <list>
 #include <string>
 #include <iostream>
 #include <m1.h>
 
-//#define V getNumIntersections();
 //=================function forward declarations=====================
-
-const int V = getNumIntersections(); //vertices
+#define NO_EDGE -1
+#define NO_ID -1
 using namespace std;
 
-vector<vector<double>> weighted_graph_of_intersections;
 
-void create_weighted_graph_of_intersections();
-
-
-/*
-int min_distance(int dist[], bool sptSet[]);
-void dijkstra(int graph[][], int src);
-void create_weighted_graph_for_intersections();
-*/
-bool there_is_turn(int from_seg_id, int to_seg_id);
-
-//===================================================================
-
-
-/***************/
-
-/*
-// Find vertex with minimum distance from vertices not included in sptSet
-int min_distance(int dist[], bool sptSet[]){
-    int min = INT_MAX, min_index;
+class Node {
+ public:   
+     // Class member variables
+    IntersectionIndex id;
+    IntersectionIndex parent_id;
+    // Outgoing edge etc.
+    // Edge outEdge;
+    int outEdge;
+    int reachingEdge; // ID of the edge used to reach this node
+    double bestTime; // Shortest time found to this node so far
     
-    for (int v = 0; v < V; v++){
-        if (sptSet[v] == false && dist[v] <= min){
-            min = dist[v];
-            min_index = v;
-        }
-        return min_index;
+    // Constructors
+    Node(IntersectionIndex ID, int OutEdge){
+        id = ID;
+        parent_id = NO_ID; // Not applicable
+        outEdge = OutEdge;
+        reachingEdge = NO_EDGE; // Not applicable
+        bestTime = -1; // Not applicable
     }
-double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path,
+    Node (IntersectionIndex ID, IntersectionIndex ParentID, int OutEdge, int ReachingEdge, double BestTime){
+        id = ID;
+        parent_id = ParentID;
+        outEdge = OutEdge;
+        reachingEdge = ReachingEdge;
+        bestTime = BestTime;
+    }
+    
+    // Class member functions
+    //void set_outEdges(vector<StreetSegmentIndex> edges);
+    void set_reachingEdge(StreetSegmentIndex reachEdge);
+    void set_bestTime(double time);
+    //void set_id(IntersectionIndex intersect_id);
+    void set_parent_id(IntersectionIndex intersect_parent_id);
+ };
+ 
+ void Node::set_reachingEdge(StreetSegmentIndex reachEdge){
+     reachingEdge = reachEdge;
+ }
+ void Node::set_bestTime(double time){
+     bestTime = time;
+ }
+ void Node::set_parent_id(IntersectionIndex intersect_parent_id){
+     parent_id = intersect_parent_id;
+ }
+ 
+ /* 
+ class Edge {
+ public:
+     // Member variables
+     StreetSegmentIndex id;
+     IntersectionIndex from;
+     IntersectionIndex to;
+     double travelTime; // travel time from intersection from->to
+     
+     // Constructors
+     Edge(StreetSegmentIndex ID){
+         
+     }
+     
+     void set_id(StreetSegmentIndex segment_id);
+     void set_to(IntersectionIndex intersect_to);
+     void set_from(IntersectionIndex intersect_from);
+     void set_travelTime(double time);
+ };
+ */
+ 
+ struct WaveElem{
+    Node *node; //IntesectionIndex
+    int edgeID; // StreetSegmentIndex
+    double travelTime;
+    // double sort;
+    
+    WaveElem (Node *n, int id, float time){
+        node = n;
+        edgeID = id;
+        travelTime = time;
+    }
+};
+/************** Variable Declarations ******************/
+ 
+ vector<Node*> nodeTable;
+ // vector<Edge*> edgeTable;
+ 
+/************** Function Declarations ******************/ 
+ 
+ void makeNodeTable();
+ void makeEdgeTable();
+ Node* getNodebyID(IntersectionIndex sourceID);
+ bool bfsPath(Node* sourceNode, int destID);
+ double travelTime(StreetSegmentIndex segID);
+ list<StreetSegmentIndex> bfsTraceback(IntersectionIndex destID);
+ 
+ /******************************************************/
+ void makeNodeTable(){
+     // Initialize vector size
+     int nodeTable_size = getNumIntersections();
+     
+     for (IntersectionIndex id=0; id<nodeTable_size; id++){
+         int seg_connected = getIntersectionStreetSegmentCount(id);
+         nodeTable.push_back(new Node(id, seg_connected));
+     }
+ }
+ 
+ void makeEdgeTable(){
+     int edgeTable_size = getNumStreetSegments();
+     // Unfinished
+ }
+ 
+ Node* getNodebyID(IntersectionIndex sourceID){
+    Node *sourceNode = nodeTable[sourceID];
+    return sourceNode;
+ }
+
+ bool bfsPath (Node* sourceNode, int destID){
+    list<WaveElem> wavefront;
+    wavefront.push_back(WaveElem(sourceNode, NO_EDGE, 0));
+    
+    while (!wavefront.empty()){
+            WaveElem wave = wavefront.front(); // get next element
+            wavefront.pop_front(); // remove from wavefront
+            Node *currNode = wave.node;
+            
+            
+            if(wave.travelTime < currNode->bestTime){
+                currNode->reachingEdge = wave.edgeID;
+                currNode->bestTime = wave.travelTime;
+                // Check for completed path 
+                if (currNode->id == destID){
+                    return true;
+                }
+                for (int i=0; i<currNode->outEdge; i++){      
+                    Node *toNode;
+                    StreetSegmentIndex outEdge_id = getIntersectionStreetSegment(currNode->id, i);
+                    InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id);
+                    if (currNode->id == info_outEdge.from && info_outEdge.oneWay != true){
+                        Node *toNode = nodeTable[info_outEdge.to];
+                    }
+                    else if (currNode->id == info_outEdge.to && info_outEdge.oneWay != true){
+                        Node *toNode = nodeTable[info_outEdge.from];
+                    }
+                    toNode->set_reachingEdge(outEdge_id);
+                    toNode->set_bestTime(toNode->bestTime + travelTime(outEdge_id));
+                    // Update table 
+                    nodeTable[toNode->id] = toNode;
+                    // Update parent_id for reaching edge
+                    nodeTable[outEdge_id]->set_parent_id(toNode->id);
+                    wavefront.push_back(WaveElem(toNode, outEdge_id, currNode->bestTime+travelTime(outEdge_id)));
+                }
+
+            }
+    }
+    return false;
+}
+ 
+ // Returns travel time of street segment
+ // DOES NOT CURRENTLY ACCOUNT FOR TURN
+double travelTime(StreetSegmentIndex segID){
+    return find_street_segment_travel_time(segID);
+}
+
+list<StreetSegmentIndex> bfsTraceback(StreetSegmentIndex destID){
+    list<StreetSegmentIndex> path;
+    Node* currNode = getNodebyID(destID);
+    StreetSegmentIndex prevEdge = currNode->reachingEdge;
+    
+    while (prevEdge != NO_EDGE){
+        path.push_front(prevEdge);
+        // Find parent node
+        currNode = nodeTable[currNode->parent_id];
+        prevEdge = currNode->reachingEdge;
+    }
+    return path;
+}
+
+vector<StreetSegmentIndex> find_path_between_intersections(
+        const IntersectionIndex intersect_id_start,
+        const IntersectionIndex intersect_id_end,
         const double turn_penalty){
-    return 0;
-}
-double compute_path_walking_time(const std::vector<StreetSegmentIndex>&path,
-        const double walking_speed, const double turn_penalty){
-    return 0;
-}
-
-std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> find_path_with_walk_to_pick_up(
-        const IntersectionIndex start_intersection,
-        const IntersectionIndex end_intersection,
-        const double turn_penalty,
-        const double walking_speed,
-        const double walking_time_limit){
-    return {{NULL}, {NULL}};
-}
-std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start,
-        const IntersectionIndex intersect_id_end, const double turn_penalty){
-    create_weighted_graph_of_intersections();
-    weighted_graph_of_intersections.clear();
-    return {NULL};
-}
-//    
-//    // If size==0
-//    if (intersect_id_start == intersect_id_end){
-//        cout << "Error: starting intersection is same as end!" << endl;
-//        return -1;
-//    }
-//    // Using Dijkstra's
-//     std::vector<StreetSegmentIndex> sptSet; // Shortest path tree set
-//     
-//}
-//
-//// Find vertex with minimum distance from vertices not included in sptSet
-//int min_distance(int dist[], bool sptSet[]){
-//    int min = INT_MAX, min_index;
-//    
-//    for (int v = 0; v < V; v++){
-//        if (sptSet[v] == false && dist[v] <= min){
-//            min = dist[v];
-//            min_index = v;
-//        }
-//        return min_index;
-//    }
-//}
-//
-//void dijkstra(int graph[V][V], int src){
-//    int dist[V]; // output array. holds shortest distance from src to V
-//    bool sptSet[V]; // true if vertix i is included in spt
-//    
-//    for (int i=0; i<V; i++){
-//        dist[i] = INT_MAX;
-//        sptSet[i] = false;
-//    }
-//    dist[src] = 0;
-//    // Find shortst path for all vertices
-//    for (int count = 0; count < V-1; count++){
-//        // Choose min distance vertex
-//        int u = min_distance(dist, sptSet);
-//        // Mark vertex as chosen
-//        sptSet[u] = true;
-//        
-//        for (int v=0; v<V; v++){
-//            // Update dist[v] if not in sptSet
-//            if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX && dist[v]+graph[u][v]<dist[v]){
-//                dist[v] = dist[u] + graph[u][v];
-//            }
-//        }
-//    }
-//}
-
-// Creates weighted graph connecting all intersections
-// Weight represents time to traverse between intersections
-// Weight will be negative for one-way streets that cannot be traversed (?)
-void create_weighted_graph_of_intersections(){
-    const int total_intersections = getNumIntersections();
+    Node *sourceNode = getNodebyID(intersect_id_start);
+    bool found = bfsPath(sourceNode, intersect_id_end);
     
-    // Initialize size of inner vectors
-    vector<double> initialize_zero(total_intersections, 0);
-
-    // Add inner vectors into outer vector
-    for (int i=0; i<total_intersections; i++){
-        weighted_graph_of_intersections.push_back(initialize_zero);
+    if (found){
+        list<StreetSegmentIndex> l = bfsTraceback(intersect_id_end);
+        vector<StreetSegmentIndex> v{make_move_iterator(begin(l)), make_move_iterator(end(l))};
+        return v;
     }
-    initialize_zero.clear();
-    
-    // Row
-    for (int i=0; i<getNumIntersections(); i++){
-        int seg_total = getIntersectionStreetSegmentCount(i);
-        for (int seg_count=0; seg_count < seg_total; seg_count++){
-            // ASSUME THAT CORRESPONDING INFO WILL RETURN THE ORIGINAL INTERSECTION HAS STREETSEGMENT.TO
-            StreetSegmentIndex seg_id = getIntersectionStreetSegment(i, seg_count); 
-            InfoStreetSegment seg_info = getInfoStreetSegment(seg_id);     
-            // LOGIC CHECKING; TO BE DELETED
-            if (seg_info.to == i){
-                cout << "Good" << endl;
-            } else {
-                cout << "Bad" << endl;
-            }
-            // Assign weight to edge if street is NOT one-way
-            if (seg_info.oneWay == false){    
-                IntersectionIndex j = seg_info.to;
-                weighted_graph_of_intersections[i][j] = 0;
-            }
-        }
-    }
-}
-*/
-
-// Creates weighted graph connecting all intersections
-// Weight represents time to traverse between intersections
-// Weight will be negative for one-way streets that cannot be traversed (?)
-void create_weighted_graph_of_intersections(){
-    const int total_intersections = getNumIntersections();
-    
-    // Initialize size of inner vectors
-    vector<double> initialize_zero(total_intersections, 0);
-
-    // Add inner vectors into outer vector
-    for (int i=0; i<total_intersections; i++){
-        weighted_graph_of_intersections.push_back(initialize_zero);
-    }
-    initialize_zero.clear();
-    
-    // Row
-    for (int i=0; i<getNumIntersections(); i++){
-        int seg_total = getIntersectionStreetSegmentCount(i);
-        for (int seg_count=0; seg_count < seg_total; seg_count++){
-            // ASSUME THAT CORRESPONDING INFO WILL RETURN THE ORIGINAL INTERSECTION HAS STREETSEGMENT.TO
-            StreetSegmentIndex seg_id = getIntersectionStreetSegment(i, seg_count); 
-            InfoStreetSegment seg_info = getInfoStreetSegment(seg_id);     
-            // LOGIC CHECKING; TO BE DELETED
-            if (seg_info.to == i){
-                cout << "Good" << endl;
-            } else {
-                cout << "Bad" << endl;
-            }
-            // Assign weight to edge if street is NOT one-way
-            if (seg_info.oneWay == false){    
-                IntersectionIndex j = seg_info.to;
-                weighted_graph_of_intersections[i][j] = 0;
-            }
-        }
+    else {
+        return {NULL};
     }
 }
