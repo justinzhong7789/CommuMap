@@ -48,8 +48,3 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
     
 }
 
-
-std::vector<StreetSegmentIndex>find_path_between_intersections(const IntersectionIndex intersect_id_start, const IntersectionIndex intersect_id_end, const double turn_penalty){
-    
-     return {0};
-}

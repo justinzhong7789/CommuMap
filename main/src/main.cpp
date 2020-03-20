@@ -44,6 +44,7 @@ int main(int argc, char** argv) {
     
     //std::cin>>mapType;
     if(argc == 1) {
+        
         //Use a default map
         map_path = default_map_path;
     } else if (argc == 2) {
