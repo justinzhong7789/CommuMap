@@ -5,7 +5,7 @@
   <object class="GtkWindow" id="MainWindow">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="title">EZGL Example Application</property>
+    <property name="title">CommuMap</property>
     <property name="default_width">800</property>
     <property name="default_height">600</property>
     <child>
@@ -179,9 +179,6 @@
             <child>
               <placeholder/>
             </child>
-            <child>
-              <placeholder/>
-            </child>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -200,7 +197,7 @@
         </child>
         <child>
           <object class="GtkButton" id="SearchButton">
-            <property name="label" translatable="yes">button</property>
+            <property name="label" translatable="yes">Search</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
@@ -211,9 +208,6 @@
           </packing>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
-      <placeholder/>
     </child>
   </object>
 </interface>

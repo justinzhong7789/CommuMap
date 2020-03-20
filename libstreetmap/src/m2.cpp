@@ -354,7 +354,7 @@ void drawPOI(GtkWidget */*widget*/, ezgl::application *application){
                 g->set_color(YELLOW);
                 LatLon POIposition = getPointOfInterestPosition(i);
                 point2d position(x_from_lon(POIposition.lon()), y_from_lat(POIposition.lat())); 
-                g->fill_arc(position, 0.002, 0, 360);
+                g->fill_arc(position, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);//originally 0.002, and zoom in is 0.0007
                 g->set_color(BLACK);
                 g->set_font_size(10);
                 g->draw_text(position, getPointOfInterestName(i));
