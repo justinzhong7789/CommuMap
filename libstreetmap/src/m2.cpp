@@ -66,20 +66,26 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application);
 void walk_button(GtkWidget */*widget*/, ezgl::application *application);
 
 vector<string> POItypesTable;
-//const char* search_text;
+string POItext;
+vector<int> found_intersections;
+bool searchingPOI = 0;
+bool searchingIntersections = 0;
 
-void highlight_intersections(vector<int> intersection_ids, ezgl::application *application);
+void highlight_intersections(vector<int> intersection_ids,  ezgl::renderer *g);
+//void highlight_intersections(vector<int> intersection_ids,  ezgl::application *application);
 string drawFindSearchBar(ezgl::application *application);
 void setNight();
 void setLight();
 void close_M2();
 void makePOITypesTable();
 bool elementAlreadyExists(string st, vector<string> vec);
-void drawPOI(GtkWidget */*widget*/, ezgl::application *application);
+void draw_POI(GtkWidget */*widget*/, ezgl::application *application);
+
+void highlight_POI(ezgl::renderer *g);
 //Determining the first time drawn
 int numTimesDrawn = 0;
 bool night;
-
+void clean_map();
 GtkEntry *textboxGlobal;
 
 std::string typed;
@@ -110,10 +116,7 @@ void draw_map() {
     cout<<"Drawing here"<< endl;
    
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
-    
- 
-    
-    
+
     application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
     
     
@@ -134,24 +137,45 @@ void draw_main_canvas(ezgl::renderer *g) {
         
         point2d botL (x_from_lon(min_lon), min_lat);
         point2d topR (x_from_lon(max_lon), max_lat);
+        
         zooms.full.m_first = botL;
         zooms.full.m_second = topR;
         full_screen = g->world_to_screen(full_map);
         numTimesDrawn++;
     }
     
+    LatLon minMax (max_lat, min_lon);
+    
     zoom(g);
     zoomFeatures(g);
     zoomStreets(g);
     nameStreets(g);
     nameFeatures(g);
-    //drawSearchBar(g);
+    
+//    ezgl::surface * redDot = g->load_png("images/redDot.png");
+//    g->draw_surface(redDot, point2d_from_latlon(minMax));
+    
+//    g->set_color(ezgl::YELLOW);
+//     g->fill_arc(point2d_from_latlon(minMax), 0.2, 0, 360);
+    if(searchingIntersections){
+        highlight_intersections(found_intersections, g);
+    }
+    if(searchingPOI){
+        highlight_POI(g);
+    }
+}
+
+void clean_map(ezgl::application *application)
+{
+    searchingIntersections = false;
+    searchingPOI = false;
+    application->refresh_drawing();
 }
 
 void initial_setup(ezgl::application *application, bool /*new_window*/){  
 //  application->create_button("find", 6, find_button);
   application->create_button("find", 6, find_button);
-  application->create_button("draw POI", 7, drawPOI);
+ // application->create_button("draw POI", 7, drawPOI);
   application->create_button("load map",8,Load_Map);
 
     GtkLabel *route = (GtkLabel*) application->get_object("Route");
@@ -163,14 +187,17 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   
   GObject *openMj = application->get_object("Window");
   g_signal_connect(openMj, "clicked", G_CALLBACK(window_button),application);
-//  g_signal_connect(openMj, "clicked", G_CALLBACK(open_dialog),window);
+
   
   GObject *SearchButton = application->get_object("SearchButton");
   g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
 
+  GObject *drawPOI = application->get_object("DrawPOI");
+  g_signal_connect(drawPOI, "clicked", G_CALLBACK(draw_POI), application);
+
   GObject * NightMode = application->get_object("NightMode");
   g_signal_connect(NightMode, "clicked", G_CALLBACK(nightMode_button),application);
-//  gtk_widget_show_all(window);
+
   
   
 }
@@ -221,14 +248,15 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application, gpoint
 
 void drive_button(GtkWidget */*widget*/, ezgl::application *application)
 {
-    
     cout<<"Drive was pressed!"<<endl;
+    clean_map(application);
 }
 
 void walk_button(GtkWidget */*widget*/, ezgl::application *application)
 {
 
     cout<<"Walk was pressed"<<endl;
+     clean_map(application);
 }
 
 //
@@ -372,8 +400,8 @@ void setLight(){
 
 void find_button(GtkWidget */*widget*/, ezgl::application *application){
     
-    std::string error = "\nFinding Intersection...\n";
-    const char * errorLabel = error.c_str();
+    const char * errorLabel;
+    string error;
     GtkLabel *errorOutput = (GtkLabel*)application->get_object("ErrorOutput");
     gtk_label_set_text(errorOutput, errorLabel);
     
@@ -383,51 +411,64 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     
     stringstream ss(search_text);
     string street1, street2;
-    vector<int> street1_search_result, street2_search_result, found_intersections;
+    vector<int> street1_search_result, street2_search_result;
     
     getline(ss, street1, ',');
-    ss.ignore(5,' ');
+    ss.ignore(256,' ');
     getline(ss, street2);
+    
+    error = "\nStreet 1: " + street1 + "     Street 2: " + street2 + "\n";
+    
     street1_search_result = find_street_ids_from_partial_street_name(street1);
     street2_search_result = find_street_ids_from_partial_street_name(street2);
     
     if(street1_search_result.size()==0 || street2_search_result.size()==0 ){
-        if(street1_search_result.size()==0){error = "\ncannot find matching street for input 1\n";}
-        if(street2_search_result.size()==0){error = "\ncannot find matching street for input 2\n";}
+        if(street1_search_result.size()==0){error = "\ncannot find matching street for input 1\n";} 
+        else if(street2_search_result.size()==0){error = "\ncannot find matching street for input 2\n";}
+        searchingIntersections = false;
     }
     else if(street1_search_result.size()>1 || street2_search_result.size()>1){
-        if(street1_search_result.size()>1){error = "\ninput 1 does not uniquely identify a street\n";}
-        if(street2_search_result.size()>1){error = "\ninput 2 does not uniquely identify a street\n";}
+//        if(street1_search_result.size()>1){error = "\ninput 1 does not uniquely identify a street\n";} else
+//        if(street2_search_result.size()>1){error = "\ninput 2 does not uniquely identify a street\n";}
+        
+        found_intersections = find_intersections_of_two_streets(make_pair(street1_search_result[0], street2_search_result[0]));
+     //   highlight_intersections(found_intersections, application);
+        searchingIntersections = true;
     }
     else {
         found_intersections = find_intersections_of_two_streets(make_pair(street1_search_result[0], street2_search_result[0]));
-        highlight_intersections(found_intersections, application);
+      //  highlight_intersections(found_intersections, application);
+        searchingIntersections = true;
     }
     
     errorLabel = error.c_str();
-    
-   gtk_label_set_text(errorOutput, errorLabel);
-    
+    cout<< error<<endl;
+    gtk_label_set_text(errorOutput, errorLabel);
+    application->refresh_drawing();
 }
                               
-void highlight_intersections(vector<int> intersection_ids, ezgl::application *application){
-    ezgl::renderer *g = application->get_renderer();
+//void highlight_intersections(vector<int> intersection_ids, ezgl::application *application){
+void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
     g->set_coordinate_system(ezgl::WORLD);
     g->set_color(YELLOW);
     for(int i=0; i< intersection_ids.size(); i++){
         LatLon intersection_position = getIntersectionPosition(intersection_ids[i]);
-        g->fill_arc({x_from_lon(intersection_position.lon()), y_from_lat(intersection_position.lat())}, 0.002, 0, 360);
-        cout<< "*******************Intersection "<<i+1 <<" ******************"<<endl
-            <<"Intersection id :           "<<endl<< intersection_ids[i]<< endl
-            <<"Intersection street names:  "<<endl;
-        vector<string> street_names =  find_street_names_of_intersection(intersection_ids[i]);
-        for(int j=0;j<street_names.size();j++){
-            cout<< street_names[j]<<endl;
-        }
-        cout<<"********************************************************"<< endl;
+        g->fill_arc({x_from_lon(intersection_position.lon()), y_from_lat(intersection_position.lat())}, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);
+       
+        
+//        cout<< "*******************Intersection "<<i+1 <<" ******************"<<endl
+//            <<"Intersection id :           "<<endl<< intersection_ids[i]<< endl
+//            <<"Intersection street names:  "<<endl;
+//        vector<string> street_names =  find_street_names_of_intersection(intersection_ids[i]);
+//        for(int j=0;j<street_names.size();j++){
+//            cout<< street_names[j]<<endl;
+//        }
+//        cout<<"********************************************************"<< endl;
+        
+        
     }
-    application->flush_drawing();
 }
+
 void search_button(GtkWidget */*widget*/, ezgl::application *application){
     // Get Object
     GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
@@ -497,31 +538,51 @@ void close_M2(){
     POItypesTable.clear();
 }
 
-void drawPOI(GtkWidget */*widget*/, ezgl::application *application){
-    ezgl::renderer *g = application->get_renderer();
+void draw_POI(GtkWidget */*widget*/, ezgl::application *application){
+    //ezgl::renderer *g = application->get_renderer();
     GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
     // Get string from search bar
-    std::string search_text = gtk_entry_get_text(textEntry);
+    POItext = gtk_entry_get_text(textEntry);
     
-    if(elementAlreadyExists(search_text, POItypesTable)){
-         g->set_coordinate_system(ezgl::WORLD);
-        for(int i=0;i<getNumPointsOfInterest();i++){
-            if(getPointOfInterestType(i)==search_text){
-                g->set_color(YELLOW);
-                LatLon POIposition = getPointOfInterestPosition(i);
-                point2d position(x_from_lon(POIposition.lon()), y_from_lat(POIposition.lat())); 
-                g->fill_arc(position, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);//originally 0.002, and zoom in is 0.0007
-                g->set_color(BLACK);
-                g->set_font_size(10);
-                g->draw_text(position, getPointOfInterestName(i));
-            }
-        }
-        
+    if(elementAlreadyExists(POItext, POItypesTable)){
+//         g->set_coordinate_system(ezgl::WORLD);
+//        for(int i=0;i<getNumPointsOfInterest();i++){
+//            if(getPointOfInterestType(i)==search_text){
+//                g->set_color(RED);
+//                LatLon POIposition = getPointOfInterestPosition(i);
+//                point2d position(x_from_lon(POIposition.lon()), y_from_lat(POIposition.lat())); 
+//                g->fill_arc(position, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);//originally 0.002, and zoom in is 0.0007
+//                g->set_color(BLACK);
+//                g->set_font_size(10);
+//                g->draw_text(position, getPointOfInterestName(i));
+//            }
+//        }
+        searchingPOI = true;
     }
-    else{cout<<"there is no matching POI type"<<endl;}
+    else{
+        cout<<"there is no matching POI type"<<endl;
+        searchingPOI = false;
+    }
     
+    application->refresh_drawing();
+}
+
+void highlight_POI(ezgl::renderer * g){
     
-    application->flush_drawing();
+    g->set_coordinate_system(ezgl::WORLD);
+    for(int i=0;i<getNumPointsOfInterest();i++){
+        if(getPointOfInterestType(i)==POItext){
+            g->set_color(RED);
+            LatLon POIposition = getPointOfInterestPosition(i);
+            point2d position(x_from_lon(POIposition.lon()), y_from_lat(POIposition.lat())); 
+            g->fill_arc(position, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);//originally 0.002, and zoom in is 0.0007
+            g->set_color(BLACK);
+            //Change the font size too for each zoom level
+            g->set_font_size(10);
+            //Might want to change the position to be a little higher
+            g->draw_text(position, getPointOfInterestName(i));
+        }
+    }
 }
 
 
