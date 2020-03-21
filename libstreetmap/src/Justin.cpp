@@ -14,7 +14,8 @@
 #include <string>
 #include <iostream>
 #include "m3_global.hpp"
-
+#include <list>
+using namespace std;
 double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path, const double turn_penalty){
     int vecSize = path.size();
     int turnCount = 0;
@@ -36,6 +37,9 @@ double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path, con
         
 }
 
+//strategy is find the walking path from given start and end.
+//then select the portion that gives travel time closest to the given walk time limit
+//finally find drive path continueing from there
 std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> 
          find_path_with_walk_to_pick_up(
                           const IntersectionIndex start_intersection, 
@@ -43,7 +47,102 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
                           const double turn_penalty,
                           const double walking_speed, 
                           const double walking_time_limit){
-                          
-    return {{0},{0}};
+    list<StreetSegmentIndex> completeWalkPath;
+    vector<StreetSegmentIndex> walkPortion;
+    double walkTime = 0;
+    Node* sourceNode = getNodebyID(start_intersection);
+    bool pathFound = bfs_find_walk_path(sourceNode, end_intersection, turn_penalty);
+    if(pathFound){
+        completeWalkPath = bfsTraceback(end_intersection);
+    }
+    for(int i = 0; i<completeWalkPath.size();i++){
+        if(compute_path_walking_time(walkPortion, walking_speed, turn_penalty)<walking_time_limit){
+            walkPortion.push_back(completeWalkPath[i]);
+        }
+        else{
+            break;
+        }
+    }
+    //discard the last element to obtain the walk path
+    walkPortion.pop_back();
+    InfoStreetSegment lastSeg = getInfoStreetSegment(walkPortion[walkPortion.size()-1]);
+    InfoStreetSegment secondTolastSeg = getInfoStreetSegment(walkPortion[walkPortion.size()-2]);
+    IntersectionIndex inter_for_pick_up;
+    if(lastSeg.from == secondTolastSeg.from){
+        inter_for_pick_up = lastSeg.to;
+    }
+    else if(lastSeg.from == secondTolastSeg.to){
+        inter_for_pick_up = lastSeg.to;
+    }
+    else if(lastSeg.to == secondTolastSeg.from){
+        inter_for_pick_up = lastSeg.from;
+    }
+    else if(lastSeg.to == secondTolastSeg.to){
+        inter_for_pick_up = lastSeg.from;
+    }
+    
+    vector<StreetSegmentIndex> drive_portion = find_path_between_intersections(inter_for_pick_up, end_intersection, turn_penalty);
+    
+    
+    return {walkPortion, drive_portion};
 }
+//this is completely Priscilla's code. I only changed part so that the function
+//does not consider one-way streets
+bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
+    //uses breadth search algorithm
+    // vector<WaveElem> wavefront;
+    // Establish min heap
+    priority_queue <WaveElem, vector<WaveElem>, greaterWE> pq;
+    
+    LatLon source = getIntersectionPosition(sourceNode->id);
+    LatLon dest = getIntersectionPosition(destID);
+    // Find absolute distance from source to destination
+    double original_dist = find_distance_between_two_points({source, dest});
+    // First node
+    pq.push(WaveElem(sourceNode, NO_EDGE, 0, original_dist));
+    
+    while (!pq.empty()){
+            WaveElem wave = pq.top(); // get next element
+            pq.pop(); // remove from wavefront
+            Node *currNode = wave.node;
+                        
+            if(wave.travelTime <= currNode->bestTime + 0.1){
+                currNode->reachingEdge = wave.edgeID;
+                currNode->bestTime = wave.travelTime;
+                // Check for completed path 
+                if (currNode->id == destID){
+                    return true;
+                }
+                for (int i=0; i<currNode->outEdge; i++){      
+                    Node *toNode;
+                    StreetSegmentIndex outEdge_id = getIntersectionStreetSegment(currNode->id, i);
+                    InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id);
+                    bool legal = false;
+                    // Legal check
+                    if(currNode->id == info_outEdge.from && currNode->parent_id != info_outEdge.to){
+                        legal= true;
+                        toNode = nodeTable[info_outEdge.to];
+                    }
+                    else if(currNode->id == info_outEdge.to && currNode->parent_id !=info_outEdge.from){
+                        legal = true;
+                        toNode = nodeTable[info_outEdge.from];
+                    }
+                    // Update nodes if legal
+                    if (legal){
+                        toNode->set_reachingEdge(outEdge_id);
+                        toNode->set_bestTime(currNode->bestTime + travelTime(outEdge_id) + turn_penalty*there_is_turn(toNode->id, toNode->reachingEdge));
+                        // Update table 
+                        nodeTable[toNode->id] = toNode;
+                        // Update parent_id for reaching edge
+                        nodeTable[toNode->id]->set_parent_id(currNode->id);
+                        // Find abs distance of this node
+                        LatLon current = getIntersectionPosition(toNode->id);
+                        double abs_distance = find_distance_between_two_points({current, dest});
+                        pq.push(WaveElem(toNode, outEdge_id, currNode->bestTime+travelTime(outEdge_id)+turn_penalty*there_is_turn(toNode->id, toNode->reachingEdge), abs_distance));
+                    }
+                }
 
+            }
+    }
+    return false;
+}
