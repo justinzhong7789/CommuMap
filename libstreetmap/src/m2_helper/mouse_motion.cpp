@@ -9,4 +9,6 @@ void act_on_mouse_click(ezgl::application *app, GdkEventButton* event, double x,
     
     std::cout << "Closest Intersection: " << getIntersectionName(id) << "\n";
     
+    
+    
 }

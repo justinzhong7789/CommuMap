@@ -110,6 +110,10 @@ void draw_map() {
     cout<<"Drawing here"<< endl;
    
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
+    
+ 
+    
+    
     application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
     
     
@@ -149,10 +153,13 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   application->create_button("find", 6, find_button);
   application->create_button("draw POI", 7, drawPOI);
   application->create_button("load map",8,Load_Map);
-  application->create_button("open window",9,Open_Window);
+
+    GtkLabel *route = (GtkLabel*) application->get_object("Route");
+    gtk_label_set_text(route, "\tRoute\t");
+    
+    GtkLabel *error = (GtkLabel*) application->get_object("ErrorOutput");
+    gtk_label_set_text(error, "\nWelcome to CommuMaps!\n");
   
-//  GtkWidget *window;
-//  window = (GtkWidget *) application->get_object("ApplicationWindow");
   
   GObject *openMj = application->get_object("Window");
   g_signal_connect(openMj, "clicked", G_CALLBACK(window_button),application);
@@ -174,9 +181,6 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application, gpoint
     GtkWindow *parent = (GtkWindow *) application->get_object("MainWindow");
     GtkWidget *dialog = (GtkWidget *)application->get_object("NavigationWindow");
     gtk_window_set_transient_for((GtkWindow *)dialog, parent);
-    
-    GtkWidget *label; // the label we will create to display a message in the content area
-    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     
     //Plan to display Route
     GtkLabel *labeltext = (GtkLabel *)application->get_object("Label");
@@ -227,43 +231,43 @@ void walk_button(GtkWidget */*widget*/, ezgl::application *application)
     cout<<"Walk was pressed"<<endl;
 }
 
-void Open_Window(GtkWidget */*widget*/, ezgl::application *application) {
-
-
-        //Pop up the window with the warning
-        GObject *window; // the parent window over which to add the dialog
-        GtkWidget *content_area; // the content area of the dialog
-        GtkWidget *label; // the label we will create to display a message in the content area
-        GtkWidget *dialog; // the dialog box we will create
-
-        // get a pointer to the main application window
-        window = application->get_object(application->get_main_window_id().c_str());
-        
-        // Create the dialog window.
-        // Modal windows prevent interaction with other windows in the same application
-        //GTK_DIALOG_MODAL closes the 
-        dialog = gtk_dialog_new_with_buttons("Navigate", (GtkWindow*) window, GTK_DIALOG_MODAL, ("Done"), GTK_RESPONSE_ACCEPT, NULL);
-
-        // Create a label and attach it to the content area of the dialog
-        content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-        label = gtk_label_new("Enter Two Intersections");
-        gtk_container_add(GTK_CONTAINER(content_area), label);
-
-        // The main purpose of this is to show dialog’s child widget, label
-        gtk_widget_show_all(dialog);
-
-        // Connecting the "response" signal from the user to the associated callback function
-        g_signal_connect(GTK_DIALOG(dialog), "response", G_CALLBACK(on_dialog_response), NULL);
-   
-        
-}
+//
+//void Open_Window(GtkWidget */*widget*/, ezgl::application *application) {
+//
+//
+//        //Pop up the window with the warning
+//        GObject *window; // the parent window over which to add the dialog
+//        GtkWidget *content_area; // the content area of the dialog
+//        GtkWidget *label; // the label we will create to display a message in the content area
+//        GtkWidget *dialog; // the dialog box we will create
+//
+//        // get a pointer to the main application window
+//        window = application->get_object(application->get_main_window_id().c_str());
+//        
+//        // Create the dialog window.
+//        // Modal windows prevent interaction with other windows in the same application
+//        //GTK_DIALOG_MODAL closes the 
+//        dialog = gtk_dialog_new_with_buttons("Navigate", (GtkWindow*) window, GTK_DIALOG_MODAL, ("Done"), GTK_RESPONSE_ACCEPT, NULL);
+//
+//        // Create a label and attach it to the content area of the dialog
+//        content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+//        label = gtk_label_new("Enter Two Intersections");
+//        gtk_container_add(GTK_CONTAINER(content_area), label);
+//
+//        // The main purpose of this is to show dialog’s child widget, label
+//        gtk_widget_show_all(dialog);
+//
+//        // Connecting the "response" signal from the user to the associated callback function
+//        g_signal_connect(GTK_DIALOG(dialog), "response", G_CALLBACK(on_dialog_response), NULL);
+//   
+//        
+//}
 
 void on_dialog_response(GtkDialog *dialog, gint /*response_id*/, gpointer /*user_data*/) {
     // This will cause the dialog to be destroyed and close
     // without this line the dialog remains open unless the
     // response_id is GTK_RESPONSE_DELETE_EVENT which
     // automatically closes the dialog without the following line.
-    
     
     //Will print out line when dialog is closed (Doesn't mean that it doesnt get the input still tho.. I just can't print it)
     std::string text = gtk_entry_get_text(textboxGlobal);
@@ -293,9 +297,10 @@ void Load_Map(GtkWidget */*widget*/, ezgl::application *application){
     
     GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
     // Get string from search bar
-    std::string map_path = gtk_entry_get_text(textEntry);
-
-        cout<<"load_map was clicked"<<endl;
+    std::string cityName = gtk_entry_get_text(textEntry);
+    
+    std::string map_path = "/cad2/ece297s/public/maps/" + cityName + ".streets.bin";
+    
         close_M2();
         load_success = load_map(map_path);
         
@@ -367,31 +372,42 @@ void setLight(){
 
 void find_button(GtkWidget */*widget*/, ezgl::application *application){
     
-    cout<< "the find button is pressed."<<endl;
-        // Get Object
+    std::string error = "\nFinding Intersection...\n";
+    const char * errorLabel = error.c_str();
+    GtkLabel *errorOutput = (GtkLabel*)application->get_object("ErrorOutput");
+    gtk_label_set_text(errorOutput, errorLabel);
+    
     GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
     // Get string from search bar
     std::string search_text = gtk_entry_get_text(textEntry);
+    
     stringstream ss(search_text);
     string street1, street2;
     vector<int> street1_search_result, street2_search_result, found_intersections;
+    
     getline(ss, street1, ',');
     ss.ignore(5,' ');
     getline(ss, street2);
     street1_search_result = find_street_ids_from_partial_street_name(street1);
     street2_search_result = find_street_ids_from_partial_street_name(street2);
+    
     if(street1_search_result.size()==0 || street2_search_result.size()==0 ){
-        if(street1_search_result.size()==0){cout<<"cannot find matching street for input 1"<<endl;}
-        if(street2_search_result.size()==0){cout<<"cannot find matching street for input 2"<<endl;}
+        if(street1_search_result.size()==0){error = "\ncannot find matching street for input 1\n";}
+        if(street2_search_result.size()==0){error = "\ncannot find matching street for input 2\n";}
     }
     else if(street1_search_result.size()>1 || street2_search_result.size()>1){
-        if(street1_search_result.size()>1){cout<<"input 1 does not uniquely identify a street"<<endl;}
-        if(street2_search_result.size()>1){cout<<"input 2 does not uniquely identify a street"<<endl;}
+        if(street1_search_result.size()>1){error = "\ninput 1 does not uniquely identify a street\n";}
+        if(street2_search_result.size()>1){error = "\ninput 2 does not uniquely identify a street\n";}
     }
     else {
         found_intersections = find_intersections_of_two_streets(make_pair(street1_search_result[0], street2_search_result[0]));
         highlight_intersections(found_intersections, application);
     }
+    
+    errorLabel = error.c_str();
+    
+   gtk_label_set_text(errorOutput, errorLabel);
+    
 }
                               
 void highlight_intersections(vector<int> intersection_ids, ezgl::application *application){
@@ -535,15 +551,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey* /*key*/, char* /*lett
     GtkEntry *textEntry = (GtkEntry *)app->get_object("SearchBar");
     // Get string from search bar
     typed = gtk_entry_get_text(textEntry);
-    //cout << typed << endl;
-//    
-//    GtkEntry *textLocation = (GtkEntry *)app->get_object("Location");
-//    // Get string from search bar
-//    std::string location = gtk_entry_get_text(textLocation);
-//    cout << typed << endl;
-//    cout<<"Location: "<<location<<endl;
-//    
-    
+
     // lists possible inputs
     text_just write_text_left = text_just::left;
     renderer *g = app->get_renderer();
