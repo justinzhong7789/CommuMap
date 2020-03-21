@@ -9,6 +9,7 @@
 #include "m1.h"
 #include "m2.h"
 #include "m3.h"
+#include "MJ.hpp"
 #include "m3_global.hpp"
 
 #include <vector>
@@ -41,4 +42,3 @@ double compute_path_walking_time(const std::vector<StreetSegmentIndex>& path, co
     }
     
 }
-

@@ -10,9 +10,11 @@
 #include "m2_helper/features.hpp"
 #include "m2_helper/m2_global_variables.hpp"
 #include "m2_helper/global_variables.hpp"
+#include "m3_global.hpp"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
 #include "m1.h"
+#include "MJ.hpp"
 #include "StreetsDatabaseAPI.h"
 #include "OSMDatabaseAPI.h"
 #include <sstream>
@@ -56,6 +58,13 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application);
 void search_button(GtkWidget */*widget*/, ezgl::application *application);
 void nightMode_button(GtkWidget *widget, ezgl::application *application);
 void Load_Map(GtkWidget */*widget*/, ezgl::application *application);
+void Open_Window(GtkWidget */*widget*/, ezgl::application *application);
+void on_dialog_response(GtkDialog *dialog, gint /*response_id*/, gpointer /*user_data*/);
+void window_button(GtkWidget */*widget*/, ezgl::application *application, gpointer user_data);
+void open_dialog (GtkWidget *widget, gpointer data);
+void drive_button(GtkWidget */*widget*/, ezgl::application *application);
+void walk_button(GtkWidget */*widget*/, ezgl::application *application);
+
 vector<string> POItypesTable;
 //const char* search_text;
 
@@ -71,11 +80,16 @@ void drawPOI(GtkWidget */*widget*/, ezgl::application *application);
 int numTimesDrawn = 0;
 bool night;
 
+GtkEntry *textboxGlobal;
+
+std::string typed;
+
 void draw_map() {
 
     setLight();   
     
     ezgl::application::settings settings;
+   
     // Include headers
     settings.main_ui_resource = "libstreetmap/resources/main.ui";
     settings.window_identifier = "MainWindow";
@@ -91,14 +105,19 @@ void draw_map() {
     makeStreetSizeTable();
     sortFeatures();
     makePOITypesTable();
+    
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
     cout<<"Drawing here"<< endl;
+   
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
     application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
     
+    
+   
   //  close_M2();
     
 }
+
 
 void draw_main_canvas(ezgl::renderer *g) {
       
@@ -130,16 +149,145 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   application->create_button("find", 6, find_button);
   application->create_button("draw POI", 7, drawPOI);
   application->create_button("load map",8,Load_Map);
+  application->create_button("open window",9,Open_Window);
+  
+//  GtkWidget *window;
+//  window = (GtkWidget *) application->get_object("ApplicationWindow");
+  
+  GObject *openMj = application->get_object("Window");
+  g_signal_connect(openMj, "clicked", G_CALLBACK(window_button),application);
+//  g_signal_connect(openMj, "clicked", G_CALLBACK(open_dialog),window);
+  
   GObject *SearchButton = application->get_object("SearchButton");
   g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
 
   GObject * NightMode = application->get_object("NightMode");
   g_signal_connect(NightMode, "clicked", G_CALLBACK(nightMode_button),application);
+//  gtk_widget_show_all(window);
   
-//  GObject *LoadMap = application->get_object("LoadMap");
-//  g_signal_connect(LadMap, "clicked", G_CALLBACK(Load_Map), application);
   
 }
+
+
+void window_button(GtkWidget */*widget*/, ezgl::application *application, gpointer user_data){
+    
+    GtkWindow *parent = (GtkWindow *) application->get_object("MainWindow");
+    GtkWidget *dialog = (GtkWidget *)application->get_object("NavigationWindow");
+    gtk_window_set_transient_for((GtkWindow *)dialog, parent);
+    
+    GtkWidget *label; // the label we will create to display a message in the content area
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    
+    //Plan to display Route
+    GtkLabel *labeltext = (GtkLabel *)application->get_object("Label");
+    gtk_label_set_text(labeltext, "Test");
+    
+    //Title: Enter two Intersections.
+    GtkLabel *instructions = (GtkLabel *)application->get_object("Instructions");
+    gtk_label_set_text(instructions, "Enter Two Intersections\n");
+    
+    //Title: Insert Location
+    GtkLabel *locationLabel = (GtkLabel *)application->get_object("LocationLabel");
+    gtk_label_set_text(locationLabel, "Type Location");
+    
+    //Title: Insert Destination
+    GtkLabel *destinationLabel = (GtkLabel *)application->get_object("DestinationLabel");
+    gtk_label_set_text(destinationLabel, "Type Destination");
+    
+    //Text bar1 -haven't implemented second search bar yet
+    textboxGlobal = (GtkEntry *) application->get_object("Location");
+    gtk_entry_set_text(textboxGlobal, "Location");
+    
+    gtk_widget_show_all(dialog);
+    g_signal_connect(GTK_DIALOG (dialog), "response", G_CALLBACK(on_dialog_response), textboxGlobal);
+    
+    //If drive button is pressed
+    GObject *DriveButton = application->get_object("Drive");
+    g_signal_connect(DriveButton, "clicked", G_CALLBACK(drive_button), application);
+    
+    //If walk button is pressed
+    GObject *WalkButton = application->get_object("Walk");
+    g_signal_connect(WalkButton, "clicked", G_CALLBACK(walk_button), application);
+    
+    //Close window
+    g_signal_connect(GTK_DIALOG (dialog), "response", G_CALLBACK(on_dialog_response), textboxGlobal);
+    std::cout<<"Here"<<std::endl;
+    
+}
+
+void drive_button(GtkWidget */*widget*/, ezgl::application *application)
+{
+    
+    cout<<"Drive was pressed!"<<endl;
+}
+
+void walk_button(GtkWidget */*widget*/, ezgl::application *application)
+{
+
+    cout<<"Walk was pressed"<<endl;
+}
+
+void Open_Window(GtkWidget */*widget*/, ezgl::application *application) {
+
+
+        //Pop up the window with the warning
+        GObject *window; // the parent window over which to add the dialog
+        GtkWidget *content_area; // the content area of the dialog
+        GtkWidget *label; // the label we will create to display a message in the content area
+        GtkWidget *dialog; // the dialog box we will create
+
+        // get a pointer to the main application window
+        window = application->get_object(application->get_main_window_id().c_str());
+        
+        // Create the dialog window.
+        // Modal windows prevent interaction with other windows in the same application
+        //GTK_DIALOG_MODAL closes the 
+        dialog = gtk_dialog_new_with_buttons("Navigate", (GtkWindow*) window, GTK_DIALOG_MODAL, ("Done"), GTK_RESPONSE_ACCEPT, NULL);
+
+        // Create a label and attach it to the content area of the dialog
+        content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+        label = gtk_label_new("Enter Two Intersections");
+        gtk_container_add(GTK_CONTAINER(content_area), label);
+
+        // The main purpose of this is to show dialog’s child widget, label
+        gtk_widget_show_all(dialog);
+
+        // Connecting the "response" signal from the user to the associated callback function
+        g_signal_connect(GTK_DIALOG(dialog), "response", G_CALLBACK(on_dialog_response), NULL);
+   
+        
+}
+
+void on_dialog_response(GtkDialog *dialog, gint /*response_id*/, gpointer /*user_data*/) {
+    // This will cause the dialog to be destroyed and close
+    // without this line the dialog remains open unless the
+    // response_id is GTK_RESPONSE_DELETE_EVENT which
+    // automatically closes the dialog without the following line.
+    
+    
+    //Will print out line when dialog is closed (Doesn't mean that it doesnt get the input still tho.. I just can't print it)
+    std::string text = gtk_entry_get_text(textboxGlobal);
+    cout<< text<<endl;
+    gtk_widget_destroy(GTK_WIDGET(dialog));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void Load_Map(GtkWidget */*widget*/, ezgl::application *application){
     
@@ -174,14 +322,6 @@ void Load_Map(GtkWidget */*widget*/, ezgl::application *application){
     application->change_canvas_world_coordinates("MainCanvas", initial_world);
     application->refresh_drawing();
     cout<<"Done reLoading"<<endl;
-//      if (map_name == "beijing_china" || map_name == "cairo_egypt" || map_name == "cape-town_south-africa" ||
-//            map_name == "golden-horseshoe_canada" || map_name == "hamilton_canada" || map_name == "hong-kong_china" ||
-//            map_name == "iceland" || map_name == "interlaken_switzerland" || map_name == "london_england" ||
-//            map_name == "moscow_russia" || map_name == "new-delhi_india" || map_name == "new-york_usa" ||
-//            map_name == "rio-de-janeiro_brazil" || map_name == "saint-helena" || map_name == "singapore" ||
-//            map_name == "sydney_australiia" || map_name == "tehran_iran" || map_name == "tokyo_japan" || map_name == "toronto_canada"){
-//        load_map(map_name);
-//    }
     
 }
 
@@ -388,4 +528,50 @@ bool elementAlreadyExists(string st, vector<string> vec){
         }
     }
     return exist;
+}
+
+void act_on_key_press(ezgl::application *app, GdkEventKey* /*key*/, char* /*letter*/){   
+
+    GtkEntry *textEntry = (GtkEntry *)app->get_object("SearchBar");
+    // Get string from search bar
+    typed = gtk_entry_get_text(textEntry);
+    //cout << typed << endl;
+//    
+//    GtkEntry *textLocation = (GtkEntry *)app->get_object("Location");
+//    // Get string from search bar
+//    std::string location = gtk_entry_get_text(textLocation);
+//    cout << typed << endl;
+//    cout<<"Location: "<<location<<endl;
+//    
+    
+    // lists possible inputs
+    text_just write_text_left = text_just::left;
+    renderer *g = app->get_renderer();
+    
+    
+    rectangle map_full_screen = g->get_visible_screen();
+    double offset = 10;
+    double search_bar_width = 40;
+    
+    const ezgl::point2d start_point(map_full_screen.m_first.x + offset, map_full_screen.m_first.y + offset);
+    const ezgl::point2d end_point(400, map_full_screen.m_first.y + search_bar_width);
+    
+    // Determine position of text box
+    ezgl::point2d text_start(start_point.x + offset, start_point.y + search_bar_width * 0.4); 
+    // Draw using screen coordinates    
+    g->set_coordinate_system(ezgl::SCREEN);
+    g->set_horiz_text_just(write_text_left);    
+    g->set_color(ezgl::BLACK);
+    g->set_font_size(14);
+    
+    vector<int> results = find_street_ids_from_partial_street_name(typed);
+    int results_num = results.size();
+    app->refresh_drawing();    
+    for (int i = 0; i < std::min(5, results_num); i++){
+        g->set_color(ezgl::WHITE);
+        g->fill_rectangle({start_point.x, start_point.y+30*(i)+3}, {end_point.x, end_point.y+30*(i)+3});
+        g->set_color(ezgl::BLACK);
+        g->draw_text({text_start.x, text_start.y+30*(i)+3}, getStreetName(results[i]));
+    }
+    g->set_coordinate_system(ezgl::WORLD);
 }
