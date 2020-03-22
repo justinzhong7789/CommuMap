@@ -64,3 +64,31 @@ void makeStreetSizeTable();
 void makeStreetsVector();
 
 extern bool load_success;
+
+/*===================== Flags for Milestone 3 =====================*/
+
+extern bool night;
+extern bool searchingPOI;
+extern bool searchingIntersections;
+extern bool searchingStreet;
+extern bool click_OnOff;
+extern bool text_OnOff;
+extern bool find_w_click;
+extern int num_intersections;
+extern int location_ID;
+extern int destination_ID;
+
+extern string locationText;
+extern string destinationText;
+
+
+/*============== HELPER FUNCTIONS FOR CALLBACK FUNCTIONS ==============*/
+void on_dialog_response(GtkDialog *dialog, gint /*response_id*/, gpointer /*user_data*/);
+void setNight();
+void setLight();
+void makePOITypesTable();
+bool elementAlreadyExists(string st, vector<string> vec);
+void highlight_POI(ezgl::renderer *g);
+void highlight_intersections(vector<int> intersection_ids,  ezgl::renderer *g);
+void highlight_street(std::vector<int> street_seg_ids, ezgl::renderer *g);
+void find_intersection(std::string search_text, ezgl::application *application, int intersectID);
