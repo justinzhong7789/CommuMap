@@ -71,6 +71,7 @@ extern bool night;
 extern bool searchingPOI;
 extern bool searchingIntersections;
 extern bool searchingStreet;
+extern bool searchingRoute;
 extern bool click_OnOff;
 extern bool text_OnOff;
 extern bool find_w_click;
@@ -80,6 +81,11 @@ extern int destination_ID;
 
 extern string locationText;
 extern string destinationText;
+
+extern GtkEntry *LocationTextGlobal;
+extern GtkEntry *DestinationTextGlobal;
+
+extern vector<int> found_route_segments;
 
 
 /*============== HELPER FUNCTIONS FOR CALLBACK FUNCTIONS ==============*/
@@ -91,4 +97,26 @@ bool elementAlreadyExists(string st, vector<string> vec);
 void highlight_POI(ezgl::renderer *g);
 void highlight_intersections(vector<int> intersection_ids,  ezgl::renderer *g);
 void highlight_street(std::vector<int> street_seg_ids, ezgl::renderer *g);
+void highlight_route(std::vector<int> nav_seg_ids, ezgl::renderer *g);
 void find_intersection(std::string search_text, ezgl::application *application, int intersectID);
+std::vector<int> testingNav();
+void draw_Segments(std::vector<int> seg_ids,ezgl::application *application);
+void write_Directions(int location, int destination, std::vector<int> seg_ids);
+
+
+/*============== CALLBACK FUNCTIONS FOR BUTTONS ==============*/
+void find_button(GtkWidget */*widget*/, ezgl::application *application);
+void search_button(GtkWidget */*widget*/, ezgl::application *application);
+void nightMode_button(GtkWidget *widget, ezgl::application *application);
+void Load_Map(GtkWidget */*widget*/, ezgl::application *application);
+void drive_button(GtkWidget */*widget*/, ezgl::application *application);
+void walk_button(GtkWidget */*widget*/, ezgl::application *application);
+void text_switch(GtkWidget */*widget*/, ezgl::application *application);
+void window_button(GtkWidget */*widget*/, ezgl::application *application);
+void draw_POI(GtkWidget */*widget*/, ezgl::application *application);
+void close_button(GtkWidget */*widget*/, ezgl::application *application);
+void location_entry(GtkWidget */*widget*/, ezgl::application *application);
+void destination_entry(GtkWidget */*widget*/, ezgl::application *application);
+
+
+void clean_map(ezgl:: application* application);
