@@ -40,7 +40,7 @@ double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path, con
 //strategy is find the walking path from given start and end.
 //then select the portion that gives travel time closest to the given walk time limit
 //finally find drive path continueing from there
-std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> 
+/*std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> 
          find_path_with_walk_to_pick_up(
                           const IntersectionIndex start_intersection, 
                           const IntersectionIndex end_intersection,
@@ -146,3 +146,4 @@ bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
     }
     return false;
 }
+*/

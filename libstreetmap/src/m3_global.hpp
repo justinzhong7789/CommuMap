@@ -27,4 +27,4 @@
  * false if not
  */
 bool there_is_turn(int from_seg_id, int to_seg_id);
-bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty);
+//bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty);
