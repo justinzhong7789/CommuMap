@@ -66,27 +66,25 @@ void Load_Map(GtkWidget */*widget*/, ezgl::application *application);
 void drive_button(GtkWidget */*widget*/, ezgl::application *application);
 void walk_button(GtkWidget */*widget*/, ezgl::application *application);
 void text_switch(GtkWidget */*widget*/, ezgl::application *application);
-void window_button(GtkWidget */*widget*/, ezgl::application *application, gpointer user_data);
+void window_button(GtkWidget */*widget*/, ezgl::application *application);
 void draw_POI(GtkWidget */*widget*/, ezgl::application *application);
-
-/*============== HELPER FUNCTIONS FOR CALLBACK FUNCTIONS ==============*/
-void on_dialog_response(GtkDialog *dialog, gint /*response_id*/, gpointer /*user_data*/);
-void setNight();
-void setLight();
-void makePOITypesTable();
-bool elementAlreadyExists(string st, vector<string> vec);
-void highlight_POI(ezgl::renderer *g);
-void highlight_intersections(vector<int> intersection_ids,  ezgl::renderer *g);
-void highlight_street(std::vector<int> street_seg_ids, ezgl::renderer *g);
+void close_button(GtkWidget */*widget*/, ezgl::application *application);
+void location_entry(GtkWidget */*widget*/, ezgl::application *application);
+void destination_entry(GtkWidget */*widget*/, ezgl::application *application);
 
 /*============== HELPER FUNCTIONS FOR CALLBACK FUNCTIONS ==============*/
 //Determining the first time drawn
 int numTimesDrawn = 0;
+int num_intersections = 0;
 string typed;
 string POItext;
+string locationText;
+string destinationText;
 vector<string> POItypesTable;
 vector<int> found_intersections;
 vector<int> found_street_segments;
+int destination_ID;
+int location_ID;
 
 //Created flags
 bool night;
@@ -95,9 +93,11 @@ bool searchingIntersections = 0;
 bool searchingStreet = 0;
 bool click_OnOff = 0;
 bool text_OnOff = 0;
+bool find_w_click = 0;
 
 //Global GTK WIDGETS
 GtkEntry *LocationTextGlobal;
+GtkEntry *DestinationTextGlobal;
 
 void draw_map() {
 
@@ -127,8 +127,6 @@ void draw_map() {
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
 
     application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
-    
-    
    
   //  close_M2();
     
@@ -170,8 +168,9 @@ void draw_main_canvas(ezgl::renderer *g) {
 //    g->set_color(ezgl::YELLOW);
 //     g->fill_arc(point2d_from_latlon(minMax), 0.2, 0, 360);
     
-    if(searchingIntersections){
+    if(searchingIntersections ){
         highlight_intersections(found_intersections, g);
+   
     }
     if(searchingPOI){
         highlight_POI(g);
@@ -183,6 +182,8 @@ void clean_map(ezgl::application *application)
     searchingIntersections = false;
     searchingPOI = false;
     searchingStreet = false;
+    found_intersections.clear();
+    found_street_segments.clear();
     application->refresh_drawing();
 }
 
@@ -213,15 +214,13 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
 }
 
 
-void window_button(GtkWidget */*widget*/, ezgl::application *application, gpointer user_data){
+void window_button(GtkWidget */*widget*/, ezgl::application *application ){
+    
+    find_w_click = true; 
     
     GtkWindow *parent = (GtkWindow *) application->get_object("MainWindow");
     GtkWidget *dialog = (GtkWidget *)application->get_object("NavigationWindow");
-    gtk_window_set_transient_for((GtkWindow *)dialog, parent);
-    
-    GtkWidget * content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-    GtkWidget * test = gtk_label_new("Your map is processing...");
-    gtk_container_add(GTK_CONTAINER(content_area), test);
+    gtk_window_set_transient_for((GtkWindow *)dialog, parent);   
     
     
     //Plan to display Route
@@ -240,12 +239,15 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application, gpoint
     GtkLabel *destinationLabel = (GtkLabel *)application->get_object("DestinationLabel");
     gtk_label_set_text(destinationLabel, "Type Destination");
     
-    gtk_widget_show_all(dialog);
+    gtk_widget_show(dialog);
     
-    //Text bar1 -haven't implemented second search bar yet
+    //Location -haven't implemented second search bar yet
     LocationTextGlobal = (GtkEntry *) application->get_object("Location");
     gtk_entry_set_text(LocationTextGlobal, "Location");
+    g_signal_connect(LocationTextGlobal, "activate", G_CALLBACK(location_entry), application);
     
+    DestinationTextGlobal = (GtkEntry *) application->get_object("Destination");
+    gtk_entry_set_text(DestinationTextGlobal, "Destination");
     
     //If drive button is pressed
     GObject *driveButton = application->get_object("Drive");
@@ -255,17 +257,41 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application, gpoint
     GObject *walkButton = application->get_object("Walk");
     g_signal_connect(walkButton, "clicked", G_CALLBACK(walk_button), application);
     
+    GObject *closeButton = application->get_object("Close");
+    g_signal_connect(closeButton, "clicked", G_CALLBACK(close_button), application);
     
-    GtkSwitch *clickSwitch = (GtkSwitch *) application->get_object("ClickSwitch");
-    GtkSwitch *textSwitch = (GtkSwitch *) application->get_object("TextSwitch");
-    g_signal_connect(GTK_SWITCH(textSwitch), "clicked", G_CALLBACK(text_switch), application);
-    
-
     g_signal_connect(GTK_DIALOG (dialog), "close", G_CALLBACK(on_dialog_response), LocationTextGlobal);
     
     //Close window
     std::cout<<"Here"<<std::endl;
     
+}
+
+void location_entry(GtkWidget */*widget*/, ezgl::application *application)
+{
+    //Doubles every time you reopen. (Not sure why this is happening)
+    
+    locationText = gtk_entry_get_text(LocationTextGlobal);
+    cout<< "Pressed Enter for location"<<endl;
+    
+}
+
+void destination_entry(GtkWidget */*widget*/, ezgl::application *application)
+{
+    //Doubles every time you reopen. (Not sure why this is happening)
+    
+    destinationText = gtk_entry_get_text(DestinationTextGlobal);
+    cout<< "Pressed Enter for destination"<<endl;
+    
+}
+
+void close_button(GtkWidget */*widget*/, ezgl::application *application)
+{
+    find_w_click = false;
+    GtkWidget * dialog = (GtkWidget *) application -> get_object("NavigationWindow");
+    GtkWidget *locationLabel = (GtkWidget *)application->get_object("LocationLabel");
+    gtk_widget_hide_on_delete(locationLabel);
+    gtk_widget_hide_on_delete(dialog);
 }
 
 void drive_button(GtkWidget */*widget*/, ezgl::application *application)
@@ -276,7 +302,6 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
 
 void walk_button(GtkWidget */*widget*/, ezgl::application *application)
 {
-
     cout<<"Walk was pressed"<<endl;
      clean_map(application);
 }
@@ -338,7 +363,7 @@ void on_dialog_response(GtkDialog *dialog, gint /*response_id*/, gpointer /*user
     //Will print out line when dialog is closed (Doesn't mean that it doesnt get the input still tho.. I just can't print it)
 //    std::string text = gtk_entry_get_text(LocationTextGlobal);
 //    cout<< text<<endl;
-    gtk_widget_destroy(GTK_WIDGET(dialog));
+    gtk_widget_hide_on_delete(GTK_WIDGET(dialog));
 }
 
 
@@ -438,61 +463,122 @@ void setLight(){
 
 void find_button(GtkWidget */*widget*/, ezgl::application *application){
     
-    const char * errorLabel;
-    string error;
-    GtkLabel *errorOutput = (GtkLabel*)application->get_object("ErrorOutput");
-    gtk_label_set_text(errorOutput, errorLabel);
-    
     GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
     // Get string from search bar
     std::string search_text = gtk_entry_get_text(textEntry);
     
+    find_intersection (search_text,application,0);
+}
+
+void find_intersection(std::string search_text, ezgl::application *application, int intersectID)
+{
+    const char * errorLabel;
+    const char * locChar;
+    const char * destChar;
+    string error;
+    GtkLabel *errorOutput = (GtkLabel*)application->get_object("ErrorOutput");
+    
     stringstream ss(search_text);
     string street1, street2;
     vector<int> street1_search_result, street2_search_result;
-    
-    getline(ss, street1, ',');
+
+    getline(ss, street1, '&');//change to & test. 
     ss.ignore(256,' ');
     getline(ss, street2);
-    
+
     error = "\nStreet 1: " + street1 + "     Street 2: " + street2 + "\n";
-    
+
     street1_search_result = find_street_ids_from_partial_street_name(street1);
     street2_search_result = find_street_ids_from_partial_street_name(street2);
+    //vector<int> intersections;
+            
+    //CHECKING TO GET TWO INTERSECTIONS
+    if(find_w_click){
+        found_intersections.clear();
+        cout<<"finding with click: "<<num_intersections<<endl;
+        if(num_intersections == 0 && found_intersections.size() == 0){
+            
+            //Outputting found intersection in search bar
+            locChar = search_text.c_str();
+            gtk_entry_set_text(LocationTextGlobal, locChar );
+            
+            location_ID = intersectID;
+            found_intersections.push_back(intersectID);
+            
+            num_intersections++; //now on step 1 (num =1)
+            cout<<"Looking for the first intersection!"<<location_ID<<endl<<endl;
+            
+        }
+        else if(num_intersections == 1 && found_intersections.size() == 0){
+            
+            num_intersections=0; //now on step 2 
+            
+            //Outputting found intersection in search bar
+            destChar = search_text.c_str();
+            gtk_entry_set_text(DestinationTextGlobal, destChar );
+             
+            destination_ID = intersectID;
+            
+            //found_intersections.clear();
+            found_intersections.push_back(location_ID);
+            found_intersections.push_back(destination_ID);
+            
+            cout<<"Looking for the second intersection!"<<location_ID<<" "<<destination_ID<<endl;
+        }
+        searchingIntersections = true;
+    }else{
+        num_intersections = 0;
+        cout<<"finding with button\n"<<endl;
     
-    if(street1_search_result.size()==0 || street2_search_result.size()==0 ){
-        if(street1_search_result.size()==0){error = "\ncannot find matching street for input 1\n";} 
-        else if(street2_search_result.size()==0){error = "\ncannot find matching street for input 2\n";}
-        searchingIntersections = false;
-    }
-    else if(street1_search_result.size()>1 || street2_search_result.size()>1){
-//        if(street1_search_result.size()>1){error = "\ninput 1 does not uniquely identify a street\n";} else
-//        if(street2_search_result.size()>1){error = "\ninput 2 does not uniquely identify a street\n";}
-        
-        found_intersections = find_intersections_of_two_streets(make_pair(street1_search_result[0], street2_search_result[0]));
-      searchingIntersections = true;
-    }
-    else {
-        found_intersections = find_intersections_of_two_streets(make_pair(street1_search_result[0], street2_search_result[0]));
-       searchingIntersections = true;
-    }
     
-    errorLabel = error.c_str();
-    cout<< error<<endl;
-    gtk_label_set_text(errorOutput, errorLabel);
+        //REGULARLY FINDING THE INTERSECTION
+        //and error checking
+        if(street1_search_result.size()==0 || street2_search_result.size()==0 ){
+            if(street1_search_result.size()==0){error = "\ncannot find matching street for input 1\n";} 
+            else if(street2_search_result.size()==0){error = "\ncannot find matching street for input 2\n";}
+            searchingIntersections = false; //will not be drawn
+        }
+        else if(street1_search_result.size()>1 || street2_search_result.size()>1){
+            found_intersections = find_intersections_of_two_streets(make_pair(street1_search_result[0], street2_search_result[0]));
+            searchingIntersections = true; //will be drawn
+        }
+        else {
+            found_intersections = find_intersections_of_two_streets(make_pair(street1_search_result[0], street2_search_result[0]));
+            searchingIntersections = true; //will be drawn
+        }
+        if(found_intersections.size() == 0){
+            error = "\nIntersection does not exist\n";
+            searchingIntersections = false; //will not be drawn
+        }
+
+        //PRODUCTING ERROR OUTPUT or STREET NAMES OUTPUT
+        errorLabel = error.c_str();
+        gtk_label_set_text(errorOutput, errorLabel);
+    }
     
     //Go into draw map so that the flags can actually activate
     application->refresh_drawing();
 }
-                              
+
 //void highlight_intersections(vector<int> intersection_ids, ezgl::application *application){
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
+    
     g->set_coordinate_system(ezgl::WORLD);
     g->set_color(YELLOW);
-    for(int i=0; i< intersection_ids.size(); i++){
-        LatLon intersection_position = getIntersectionPosition(intersection_ids[i]);
+    
+    if(find_w_click){
+        for(int i=0; i< intersection_ids.size(); i++){
+            
+            cout<<"Intersection: "<<intersection_ids[i]<<endl;
+            
+            LatLon intersection_position = getIntersectionPosition(intersection_ids[i]);
+            g->fill_arc({x_from_lon(intersection_position.lon()), y_from_lat(intersection_position.lat())}, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);
+        }
+    }else{
+//        cout<<here!<<endl;
+        LatLon intersection_position = getIntersectionPosition(intersection_ids[0]);
         g->fill_arc({x_from_lon(intersection_position.lon()), y_from_lat(intersection_position.lat())}, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);
-       
+    }
         
 //        cout<< "*******************Intersection "<<i+1 <<" ******************"<<endl
 //            <<"Intersection id :           "<<endl<< intersection_ids[i]<< endl
@@ -502,9 +588,7 @@ void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
 //            cout<< street_names[j]<<endl;
 //        }
 //        cout<<"********************************************************"<< endl;
-        
-        
-    }
+  //  found_intersections.clear();
 }
 
 void search_button(GtkWidget */*widget*/, ezgl::application *application){
@@ -522,8 +606,7 @@ void search_button(GtkWidget */*widget*/, ezgl::application *application){
         
         searchingStreet = true;
         // Make map go to zoom fit mode
-        renderer *g = application->get_renderer();
-        
+       
         // Highlight street of first function
         StreetIndex street_id = street_index[0];
         found_street_segments = find_street_segments_of_street(street_id);
