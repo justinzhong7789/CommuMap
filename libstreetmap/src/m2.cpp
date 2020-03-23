@@ -83,6 +83,8 @@ bool searchingRoute = true;
 bool click_OnOff = 0;
 bool text_OnOff = 0;
 bool find_w_click = 0;
+void clean_map(ezgl::application *application);
+GtkEntry *textboxGlobal;
 
 //Global GTK WIDGETS
 GtkEntry *LocationTextGlobal;

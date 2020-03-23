@@ -19,8 +19,7 @@
 #include <queue>
 
 //=================function forward declarations=====================
-#define NO_EDGE -1
-#define NO_ID -1
+
 using namespace std;
 
 
@@ -96,6 +95,7 @@ class Node {
  };
  */
  
+<<<<<<< HEAD
  struct WaveElem{
     Node *node; //IntesectionIndex
     int edgeID; // StreetSegmentIndex
@@ -117,17 +117,9 @@ struct greaterWE{
 };
 /************** Variable Declarations ******************/
  
- vector<Node*> nodeTable;
  
-/************** Function Declarations ******************/ 
  
- void makeNodeTable();
- Node* getNodebyID(IntersectionIndex sourceID);
- bool bfsPath(Node* sourceNode, int destID, double turn_penalty);
- double travelTime(StreetSegmentIndex segID);
- list<StreetSegmentIndex> bfsTraceback(IntersectionIndex destID);
- 
- /******************************************************/
+
  void makeNodeTable(){
      // Initialize vector size
      int nodeTable_size = getNumIntersections();

@@ -1,4 +1,17 @@
+
 #include "MJ.hpp"
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+#include "StreetsDatabaseAPI.h"
+#include "m1.h"
+#include "m2.h"
+#include "m3.h"
+#include "MJ.hpp"
+//#include "m3_global.hpp"
 
 
 //Assuming function already made that says if turn_penalty is needed: is_a_turn(segment, next segment);

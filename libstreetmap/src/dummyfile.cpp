@@ -3,8 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+<<<<<<< HEAD
 /*
  bool bfsPath (Node* sourceNode, int destID, double turn_penalty){
+=======
+#include "m3_global.hpp"
+/*
+using namespace std;
+ bool bfsPath_dummy (Node* sourceNode, int destID, double turn_penalty){
+>>>>>>> added functions to reset the nodeTable after accessing.
     // vector<WaveElem> wavefront;
     // Establish min heap
     priority_queue <WaveElem, vector<WaveElem>, greaterWE> pq;
@@ -79,4 +86,10 @@
             }
     }
     return false;
+<<<<<<< HEAD
 }*/
+=======
+}
+
+*/
+>>>>>>> added functions to reset the nodeTable after accessing.

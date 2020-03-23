@@ -49,15 +49,17 @@ double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path, con
                           const double walking_time_limit){
     list<StreetSegmentIndex> completeWalkPath;
     vector<StreetSegmentIndex> walkPortion;
-    double walkTime = 0;
     Node* sourceNode = getNodebyID(start_intersection);
     bool pathFound = bfs_find_walk_path(sourceNode, end_intersection, turn_penalty);
     if(pathFound){
         completeWalkPath = bfsTraceback(end_intersection);
+        //reverse the list to get correct ordered path
+        
     }
     for(int i = 0; i<completeWalkPath.size();i++){
         if(compute_path_walking_time(walkPortion, walking_speed, turn_penalty)<walking_time_limit){
-            walkPortion.push_back(completeWalkPath[i]);
+            walkPortion.push_back(completeWalkPath.back());
+            completeWalkPath.pop_back();
         }
         else{
             break;
@@ -86,6 +88,8 @@ double compute_path_travel_time(const std::vector<StreetSegmentIndex>& path, con
     
     return {walkPortion, drive_portion};
 }
+
+
 //this is completely Priscilla's code. I only changed part so that the function
 //does not consider one-way streets
 bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
@@ -147,3 +151,34 @@ bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
     return false;
 }
 */
+
+/*
+ reset the whole nodeTable
+ */
+void reset_nodeTable(){
+    for(int i=0;i<nodeTable.size();i++){
+        nodeTable[i]->parent_id = NO_ID;
+        nodeTable[i]->reachingEdge = NO_EDGE;
+        nodeTable[i]->bestTime = WORST_TIME;
+    }
+
+}
+/*
+ if pass in the nodes accessed and changed as a vector<int>
+ * it only changes those nodes. Faster
+ */
+void reset_nodeTable(vector<int> nodesAccessed){
+    for(int i=0; i< nodesAccessed.size(); i++){
+        nodeTable[nodesAccessed[i]]->parent_id = NO_ID;
+        nodeTable[nodesAccessed[i]]->reachingEdge = NO_EDGE;
+        nodeTable[nodesAccessed[i]]->bestTime = WORST_TIME;
+    }
+
+}
+
+/*delete the memory allocated on the heap by new when the nodeTable was made*/
+void delete_nodeTable(){
+    for(int i=0; i< nodeTable.size();i++){
+        delete nodeTable[i];
+    }
+}

@@ -10,6 +10,7 @@
  *
  * Created on March 20, 2020, 8:04 PM
  */
+#pragma once
 
 #pragma once
 
