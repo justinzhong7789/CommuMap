@@ -21,8 +21,8 @@
 //=================function forward declarations=====================
 
 using namespace std;
-
-
+vector<Node*> nodeTable;
+/*
 class Node {
  public:   
      // Class member variables
@@ -59,7 +59,7 @@ class Node {
     void set_parent_id(IntersectionIndex intersect_parent_id);
     void set_visited(bool visit);
  };
- 
+ */
  void Node::set_reachingEdge(StreetSegmentIndex reachEdge){
      reachingEdge = reachEdge;
  }
@@ -95,7 +95,6 @@ class Node {
  };
  */
  
-<<<<<<< HEAD
  struct WaveElem{
     Node *node; //IntesectionIndex
     int edgeID; // StreetSegmentIndex

@@ -120,4 +120,5 @@ void location_entry(GtkWidget */*widget*/, ezgl::application *application);
 void destination_entry(GtkWidget */*widget*/, ezgl::application *application);
 
 
+
 void clean_map(ezgl:: application* application);
