@@ -101,7 +101,8 @@ void highlight_route(std::vector<int> nav_seg_ids, ezgl::renderer *g);
 void find_intersection(std::string search_text, ezgl::application *application, int intersectID);
 std::vector<int> testingNav();
 void draw_Segments(std::vector<int> seg_ids,ezgl::application *application);
-void write_Directions(int location, int destination, std::vector<int> seg_ids);
+void write_Directions(int location, int destination, std::vector<int> seg_ids,ezgl::application *application);
+string turn_from_direction(string current, string next);
 
 
 /*============== CALLBACK FUNCTIONS FOR BUTTONS ==============*/

@@ -340,6 +340,24 @@ void application::create_button(const char *button_text,
   create_button(button_text, 0, insert_row, 3, 1, button_func);
 }
 
+void application::createButtonTester(ezgl::application *application, button_callback_fn button_func)
+{
+        //get pointer to the button using gtk_get_object or something i dont remember
+        GtkWidget * new_button = (GtkWidget*) application->get_object("button");
+        //get the file you want to attach to the button css stuff
+        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+        GtkCssProvider *provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/button.css", NULL);
+        
+        //attach it to the button
+        gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER(provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+        // show the button (idk if you need this step)
+        gtk_widget_show(new_button);
+}
+
 bool application::destroy_button(const char *button_text_to_destroy)
 {
   // get the inner grid
@@ -468,3 +486,29 @@ void set_disable_event_loop(bool new_setting)
 {
   disable_event_loop = new_setting;
 }
+
+
+
+//void application::createButtonTester(const char button_text, const char gridName, int top, int left, int width, int height, button_callback_fn button_func) {
+//        //create the button
+//        GtkWidget *new_button = gtk_button_new_with_label(button_text);
+//    
+//        //get the file you want to attach to the button css stuff
+//        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+//        GtkCssProvider *provider = gtk_css_provider_new ();
+//        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-5/f/fontan10/ece297/work/mapper/libstreetmap/src/buttons.css", NULL);
+//        
+//        //attach it to the button
+//        gtk_style_context_add_provider (context,
+//                                    GTK_STYLE_PROVIDER(provider),
+//                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+//        
+//        
+//        //get the pointer to the grid you want to insert in
+//        GtkGrid *in_grid = (GtkGrid *) get_object(gridName);
+//        //attach the button to the grid
+//        gtk_grid_attach(in_grid, new_button, left, top, width, height);
+//
+//        // show the button
+//        gtk_widget_show(new_button);
+//    }

@@ -58,6 +58,8 @@ void initial_setup(ezgl::application *application, bool new_window);//add find b
 void close_M2();
 
 /*============== HELPER FUNCTIONS FOR CALLBACK FUNCTIONS ==============*/
+void button_test(GtkWidget */*widget*/, ezgl::application *application );
+
 //Determining the first time drawn
 int numTimesDrawn = 0;
 int num_intersections = 0;
@@ -153,11 +155,10 @@ void draw_main_canvas(ezgl::renderer *g) {
     nameStreets(g);
     nameFeatures(g);
     
-//    ezgl::surface * redDot = g->load_png("images/redDot.png");
+//    ezgl::surface * redDot = g->load_png("main/Images/redDot.png");
 //    g->draw_surface(redDot, point2d_from_latlon(minMax));
     
-//    g->set_color(ezgl::YELLOW);
-//     g->fill_arc(point2d_from_latlon(minMax), 0.2, 0, 360);
+//    g->sepoint2d_from_latlon(minMax), 0.2, 0, 360);
     
     if(searchingIntersections ){
         highlight_intersections(found_intersections, g);
@@ -182,7 +183,7 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
 
   application->create_button("Find Intersections", 9, find_button);
   application->create_button("Load City",7,Load_Map);
-
+  application->createButtonTester(application, button_test);
     GtkLabel *route = (GtkLabel*) application->get_object("Route");
     gtk_label_set_text(route, "\tRoute\t");
     
@@ -192,6 +193,8 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   
   GObject *openMj = application->get_object("Window");
   g_signal_connect(openMj, "clicked", G_CALLBACK(window_button),application);
+  
+
 
   GObject *SearchButton = application->get_object("SearchButton");
   g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
@@ -202,10 +205,21 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   GObject * NightMode = application->get_object("NightMode");
   g_signal_connect(NightMode, "clicked", G_CALLBACK(nightMode_button),application);  
   
+  GtkWidget *test = (GtkWidget *) application->get_object("button");
+  g_signal_connect(test, "clicked", G_CALLBACK(button_test),application);
+  
+//  GtkImage *image = (GtkImage *)gtk_image_new_from_file("main/Images/homeIcon.png");
+//  gtk_image_set_pixel_size(image, 10);
+//  gtk_button_set_image(GTK_BUTTON(test), (GtkWidget*)image);
+  
 }
 
-
-void window_button(GtkWidget */*widget*/, ezgl::application *application ){
+void button_test(GtkWidget */*widget*/, ezgl::application *application )
+{
+    cout<<"WOAH I WAS JUST CLICKED"<<endl;
+}
+void window_button(GtkWidget */*widget*/, ezgl::application *application )
+{
     
     clean_map(application);
     find_w_click = true; 

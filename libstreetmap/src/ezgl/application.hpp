@@ -182,6 +182,12 @@ public:
    */
   void create_button(const char *button_text, int insert_row, button_callback_fn button_func);
 
+    /*
+   * Testing colour settings
+   */
+  void createButtonTester(ezgl::application *application, button_callback_fn button_func);
+  
+  
   /**
    * Deletes a button by its label (displayed text)
    * 

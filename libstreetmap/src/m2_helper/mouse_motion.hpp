@@ -3,6 +3,8 @@
 
 #include "m1.h"
 #include "m2.h"
+#include "m3.h"
+#include "../m3_global.hpp"
 #include "zoom.hpp"
 #include "global_variables.hpp"
 #include "m2_global_variables.hpp"
