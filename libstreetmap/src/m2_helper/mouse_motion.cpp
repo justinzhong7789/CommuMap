@@ -17,6 +17,7 @@ void act_on_mouse_click(ezgl::application *app, GdkEventButton* event, double x,
         int id = find_closest_intersection(pos);
         std::string search_text = getIntersectionName(id);
         std::cout << "Closest Intersection: " << getIntersectionName(id) << " ID: "<<id<<"\n";
+        
         find_intersection(search_text, app, id);
     }
 }
@@ -42,7 +43,7 @@ void walk_button(GtkWidget */*widget*/, ezgl::application *application)
 std::vector<int> testingNav(){
     
     //CHANGE THE INPUT OF FIND_PATH HERE
-    std::vector<int> test = find_path_between_intersections(13, 51601, 0.00000000000000000);
+    std::vector<int> test = find_path_between_intersections(location_ID, destination_ID, 0.00000000000000000);
     return test;
 }
 

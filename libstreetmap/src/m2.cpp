@@ -436,7 +436,9 @@ void find_intersection(std::string search_text, ezgl::application *application, 
             
     
     //DEBUGGIN EDIT
-    string text = "ID is: "+location_ID;
+    stringstream testss;
+    testss<<intersectID;
+    string text = testss.str();
     
     //CHECKING TO GET TWO INTERSECTIONS
     if(find_w_click){
@@ -445,12 +447,12 @@ void find_intersection(std::string search_text, ezgl::application *application, 
         if(num_intersections == 0 && found_intersections.size() == 0){
             
             //Outputting found intersection in search bar
-            
+            location_ID = intersectID; 
             locChar = text.c_str();
             //locChar = search_text.c_str();
             gtk_entry_set_text(LocationTextGlobal, locChar );
             
-            location_ID = intersectID;
+           
             found_intersections.push_back(intersectID);
             
             num_intersections++; //now on step 1 (num =1)
@@ -460,13 +462,15 @@ void find_intersection(std::string search_text, ezgl::application *application, 
         else if(num_intersections == 1 && found_intersections.size() == 0){
             
             num_intersections=0; //now on step 2 
+           
+             destination_ID = intersectID;
             
             //Outputting found intersection in search bar
             destChar = text.c_str();
 //            destChar = search_text.c_str();
             gtk_entry_set_text(DestinationTextGlobal, destChar );
              
-            destination_ID = intersectID;
+           
             
             //found_intersections.clear();
             found_intersections.push_back(location_ID);
