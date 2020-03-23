@@ -34,6 +34,7 @@ class Node {
     int outEdge;
     int reachingEdge; // ID of the edge used to reach this node
     double bestTime; // Shortest time found to this node so far
+    bool visited;
     
     // Constructors
     Node(IntersectionIndex ID, int OutEdge){
@@ -42,13 +43,15 @@ class Node {
         outEdge = OutEdge;
         reachingEdge = NO_EDGE; // Not applicable
         bestTime = 0; // Not applicable
+        visited = false;
     }
-    Node (IntersectionIndex ID, IntersectionIndex ParentID, int OutEdge, int ReachingEdge, double BestTime){
+    Node (IntersectionIndex ID, IntersectionIndex ParentID, int OutEdge, int ReachingEdge, double BestTime, bool ifVisited){
         id = ID;
         parent_id = ParentID;
         outEdge = OutEdge;
         reachingEdge = ReachingEdge;
         bestTime = BestTime;
+        visited = ifVisited;
     }
     
     // Class member functions
@@ -66,6 +69,9 @@ class Node {
  }
  void Node::set_parent_id(IntersectionIndex intersect_parent_id){
      parent_id = intersect_parent_id;
+ }
+ void Node::set_visited(bool ifVisited){
+     visited = ifVisited;
  }
 
  
@@ -94,19 +100,19 @@ class Node {
     Node *node; //IntesectionIndex
     int edgeID; // StreetSegmentIndex
     double travelTime;
-    double distanceFromDest;
+    double score;
     
     WaveElem (Node *n, int id, float time, double dist){
         node = n;
         edgeID = id;
         travelTime = time;
-        distanceFromDest = dist;
+        score = dist;
     }
 };
 
 struct greaterWE{
     int operator() (const WaveElem& we1, const WaveElem we2){
-        return (we1.distanceFromDest > we2.distanceFromDest);
+        return (we1.score > we2.score);
     }
 };
 /************** Variable Declarations ******************/
@@ -154,10 +160,8 @@ struct greaterWE{
             pq.pop(); // remove from wavefront
             Node *currNode = wave.node;
             
-            cout << currNode->id << endl;
-            
-            if (currNode->bestTime <= wave.travelTime + 0.1){            
-            //if(wave.travelTime <= currNode->bestTime + 0.1){
+            //if (currNode->bestTime <= wave.travelTime + 0.01){            
+            if(wave.travelTime <= currNode->bestTime + 0.1){
                 wave.edgeID = currNode->reachingEdge;
                 wave.travelTime = currNode->bestTime;
                 //currNode->reachingEdge = wave.edgeID;
@@ -166,9 +170,7 @@ struct greaterWE{
                 if (currNode->id == destID){
                     return true;
                 }
-                if (currNode->id == 131827){
-                    cout << "stopeh" << endl;
-                }
+                currNode->set_visited(true);
                 for (int i=0; i<currNode->outEdge; i++){      
                     Node *toNode;
                     StreetSegmentIndex outEdge_id = getIntersectionStreetSegment(currNode->id, i);
@@ -186,22 +188,9 @@ struct greaterWE{
                         legal = true;
                     }
                     // Update nodes if legal
-                    bool update = false;
-                    if (legal){
-                        // If we have never been to this node before, allow update
-                        if (toNode->bestTime == 0){
-                            update = true;
-                        }
-                        // If node has been traversed but is slower than current path, allow update
-                        else if (toNode->bestTime > currNode->bestTime){
-                            update = true;
-                        }
-                        // If node has been traversed and is faster than current path, do not update
-                        else { update = false; }
-                    }
-                    if (update){  
+                    if (legal && !toNode->visited){
                         toNode->set_reachingEdge(outEdge_id);
-                        toNode->set_bestTime(currNode->bestTime + travelTime(outEdge_id) + turn_penalty*there_is_turn(toNode->id, toNode->reachingEdge));
+                        toNode->set_bestTime(currNode->bestTime + find_street_segment_travel_time(outEdge_id) + turn_penalty*there_is_turn(toNode->id, toNode->reachingEdge));
                         // Update table 
                         nodeTable[toNode->id] = toNode;
                         // Update parent_id for reaching edge
@@ -209,7 +198,9 @@ struct greaterWE{
                         // Find abs distance of this node
                         LatLon current = getIntersectionPosition(toNode->id);
                         double abs_distance = find_distance_between_two_points({current, dest});
-                        pq.push(WaveElem(toNode, outEdge_id, currNode->bestTime+travelTime(outEdge_id)+turn_penalty*there_is_turn(toNode->id, toNode->reachingEdge), abs_distance));
+                        //double score = abs_distance + toNode->bestTime * 16.667;
+                        double score = (-1)*(original_dist - abs_distance)/toNode->bestTime;
+                        pq.push(WaveElem(toNode, outEdge_id, toNode->bestTime, score));
                     }
                 }
 
@@ -217,13 +208,7 @@ struct greaterWE{
     }
     return false;
 }
- 
- // Returns travel time of street segment
- // DOES NOT CURRENTLY ACCOUNT FOR TURN
-double travelTime(StreetSegmentIndex segID){
-    
-    return find_street_segment_travel_time(segID);
-}
+
 
 list<StreetSegmentIndex> bfsTraceback(StreetSegmentIndex destID){
     list<StreetSegmentIndex> path;
@@ -253,6 +238,8 @@ vector<StreetSegmentIndex> find_path_between_intersections(
         list<StreetSegmentIndex> l = bfsTraceback(intersect_id_end);
         vector<StreetSegmentIndex> v{make_move_iterator(begin(l)), make_move_iterator(end(l))};
         nodeTable.clear();
+        double a = compute_path_travel_time(v, 0.00000);
+        cout << "travel time: " << a << endl;
         return v;
     }
     else {
