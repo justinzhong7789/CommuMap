@@ -434,6 +434,10 @@ void find_intersection(std::string search_text, ezgl::application *application, 
     street2_search_result = find_street_ids_from_partial_street_name(street2);
     //vector<int> intersections;
             
+    
+    //DEBUGGIN EDIT
+    string text = "ID is: "+location_ID;
+    
     //CHECKING TO GET TWO INTERSECTIONS
     if(find_w_click){
         found_intersections.clear();
@@ -441,7 +445,9 @@ void find_intersection(std::string search_text, ezgl::application *application, 
         if(num_intersections == 0 && found_intersections.size() == 0){
             
             //Outputting found intersection in search bar
-            locChar = search_text.c_str();
+            
+            locChar = text.c_str();
+            //locChar = search_text.c_str();
             gtk_entry_set_text(LocationTextGlobal, locChar );
             
             location_ID = intersectID;
@@ -456,7 +462,8 @@ void find_intersection(std::string search_text, ezgl::application *application, 
             num_intersections=0; //now on step 2 
             
             //Outputting found intersection in search bar
-            destChar = search_text.c_str();
+            destChar = text.c_str();
+//            destChar = search_text.c_str();
             gtk_entry_set_text(DestinationTextGlobal, destChar );
              
             destination_ID = intersectID;

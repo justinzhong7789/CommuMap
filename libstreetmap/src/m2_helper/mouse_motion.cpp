@@ -28,10 +28,7 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
     cout<<"Drive was pressed!"<<endl;
     found_route_segments = testingNav();
      
-//    for(int i=0;i<found_route_segments.size();i++){
-//        cout<<"route seg: "<<found_route_segments[i]<<endl;
-//    }
-    write_Directions(13, 51601, found_route_segments, application);
+    //write_Directions(13, 51601, found_route_segments, application);
     application->refresh_drawing();
     cout<<"done drawing"<<endl;
 }
