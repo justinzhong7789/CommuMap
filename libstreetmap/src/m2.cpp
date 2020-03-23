@@ -89,6 +89,9 @@ GtkEntry *textboxGlobal;
 //Global GTK WIDGETS
 GtkEntry *LocationTextGlobal;
 GtkEntry *DestinationTextGlobal;
+GtkEntry *TurnPenaltyGlobal;
+
+double turn_penalty_entry = 0;
 
 void draw_map() {
 
@@ -214,6 +217,8 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
 //  gtk_image_set_pixel_size(image, 10);
 //  gtk_button_set_image(GTK_BUTTON(test), (GtkWidget*)image);
   
+   TurnPenaltyGlobal = (GtkEntry *)application->get_object("TurnPenalty");
+  
 }
 
 void button_test(GtkWidget */*widget*/, ezgl::application *application )
@@ -246,6 +251,9 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application )
     //Title: Insert Destination
     GtkLabel *destinationLabel = (GtkLabel *)application->get_object("DestinationLabel");
     gtk_label_set_text(destinationLabel, "Type Destination");
+    
+    GtkLabel *turnPenaltyLabel = (GtkLabel *)application->get_object("TurnPenaltyLabel");
+    gtk_label_set_text(turnPenaltyLabel, "      Turn Penalty:    ");
     
     gtk_widget_show(dialog);
     

@@ -84,9 +84,10 @@ extern string destinationText;
 
 extern GtkEntry *LocationTextGlobal;
 extern GtkEntry *DestinationTextGlobal;
+extern GtkEntry *TurnPenaltyGlobal;
 
 extern vector<int> found_route_segments;
-
+extern double turn_penalty_entry;
 
 /*============== HELPER FUNCTIONS FOR CALLBACK FUNCTIONS ==============*/
 void on_dialog_response(GtkDialog *dialog, gint /*response_id*/, gpointer /*user_data*/);

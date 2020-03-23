@@ -27,6 +27,10 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
     searchingRoute = true;
     //clean_map(application);
     cout<<"Drive was pressed!"<<endl;
+    std::string turnEntry (gtk_entry_get_text(TurnPenaltyGlobal));
+    std::stringstream ss;
+    ss<<turnEntry;
+    ss>>turn_penalty_entry;
     found_route_segments = testingNav();
      
     //write_Directions(13, 51601, found_route_segments, application);
@@ -43,7 +47,7 @@ void walk_button(GtkWidget */*widget*/, ezgl::application *application)
 std::vector<int> testingNav(){
     
     //CHANGE THE INPUT OF FIND_PATH HERE
-    std::vector<int> test = find_path_between_intersections(location_ID, destination_ID, 0.00000000000000000);
+    std::vector<int> test = find_path_between_intersections(location_ID, destination_ID, turn_penalty_entry);
     return test;
 }
 
