@@ -103,7 +103,7 @@ void find_intersection(std::string search_text, ezgl::application *application, 
 std::vector<int> testingNav();
 void draw_Segments(std::vector<int> seg_ids,ezgl::application *application);
 void write_Directions(int location, int destination, std::vector<int> seg_ids,ezgl::application *application);
-string turn_from_direction(string current, string next);
+string turn_from_direction(double curr, double next);
 
 
 /*============== CALLBACK FUNCTIONS FOR BUTTONS ==============*/

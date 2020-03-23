@@ -33,7 +33,7 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
     ss>>turn_penalty_entry;
     found_route_segments = testingNav();
      
-    //write_Directions(13, 51601, found_route_segments, application);
+    write_Directions(location_ID, destination_ID, found_route_segments, application);
     application->refresh_drawing();
     cout<<"done drawing"<<endl;
 }
@@ -81,10 +81,9 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
     //Variables, (already kind of have these already though)
     string initialPoint = getIntersectionName(location);
     string finalPoint = getIntersectionName(destination);
-    string total;
     string start;
     string end;
-    string middle = " ";
+    string middle;
 
     auto infoFirst = getInfoStreetSegment(seg_ids[0]);
     string firstStreet = getStreetName(infoFirst.streetID); 
@@ -99,86 +98,72 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
     
     Direction firstMove = getDirection(location, nextInter);
     
+    start = "Beginning route at " + getIntersectionName(location) +  "\n";
       
     if(firstStreet == "<unknown>"){
-        start = "Go "+firstMove.Name+"\n";
+        start = start + "Go "+firstMove.Name+"\n";
     }else{
-    start = "Go " + firstMove.Name +"on " + firstStreet + "\n";
+        start = start + "Go " + firstMove.Name +" on " + firstStreet + "\n";
     }
+    cout<<"First rad is: "<<firstMove.rad<<endl;
+
+    
+    end = "Arrived at " + getIntersectionName(destination);
     
     int origFrom = location;
     Direction move1;
     Direction move2;
     int from1, from2, to1, to2;
     
-    for(int i = 0; i<seg_ids.size() ; i++){
-        
-        if(i+1<seg_ids.size()){
-            
-            
+    for(int i = 0; (i+1)<seg_ids.size() ; i++){
                 
-            auto info1 = getInfoStreetSegment(seg_ids[i]);
-            auto info2 = getInfoStreetSegment(seg_ids[i+1]);
+        //Keep track of which intersections go where
+        auto info1 = getInfoStreetSegment(seg_ids[i]);
+        auto info2 = getInfoStreetSegment(seg_ids[i+1]);
 
 
-            from1 = origFrom;
-            if(from1 == info1.from){
-                to1 = info1.to;
-            }else{
-                to1 = info1.from;
-            }
+        from1 = origFrom;
+        if(from1 == info1.from){
+            to1 = info1.to;
+        }else{
+            to1 = info1.from;
+        }
 
-            if(to1 == info2.from){
-                to2 = info2.to;
-            }else{
-                to2 = info2.from;
-            }
-            to1 = from2;
+        from2 = to1;
+        if(from2 == info2.from){
+            to2 = info2.to;
+        }else{
+            to2 = info2.from;
+        }
+       
+        if(there_is_turn(seg_ids[i],seg_ids[i+1])){
+            
+            
             move1 = getDirection(from1,to1);
             move2 = getDirection(from2,to2);
-            
-            if(there_is_turn(seg_ids[i],seg_ids[i+1])){
-                middle = middle + "Turn " + turn_from_direction(move1.Name,move2.Name) + " at " + getStreetName(info2.streetID) + "\n";
-                
-            }
-            
-            origFrom = to1;
+            middle = middle + "Turn " + turn_from_direction(move1.rad,move2.rad) + " at " + getStreetName(info2.streetID) + "\n";
             
         }
-      
+
+        origFrom = to1;
     }
+    
     const char * print;
-    total = start + middle + end;
+    string total = start + middle + end;
     print = total.c_str();
     gtk_label_set_text(display, print);
-    
-    
 }
 
-string turn_from_direction(string current, string next){
-    if(current == "North" && next == "West"){
-        return "left";
-    }
-    if(current == "North" && next == "East"){
+string turn_from_direction(double curr, double next){    
+    
+    double check = next - curr + M_PI/2;
+    cout<<"Curr: "<<curr<<" next: "<<next<<" check: "<<check<<endl;
+    
+    if(-M_PI/2 < check && check < M_PI/2){
         return "right";
     }
-    if(current == "South" && next == "West"){
-        return "right";
-    }
-    if(current == "South" && next == "East"){
+    if((-M_PI < check && check< -M_PI/2)||(M_PI/2 < check && check< M_PI)){
         return "left";
-    }
-    if(current == "West" && next == "North"){
-        return "right";
-    }
-    if(current == "West" && next == "South"){
-        return "left";
-    }
-    if(current == "East" && next == "North"){
-        return "left";
-    }
-    if(current == "West" && next == "South"){
-        return "right";
     }
     return "straight";
 }
@@ -193,7 +178,10 @@ Direction getDirection(int intersectionOne, int intersectionTwo){
     LatLon twoPos = getIntersectionPosition(id2);
     double y = twoPos.lat()-onePos.lat();
     double x = twoPos.lon()-onePos.lon();
-    
+    cout<<"X1 is: "<<onePos.lon()<<"X2 is: "<<twoPos.lon()<<endl;
+    cout<<"Y1 is: "<<onePos.lat()<<"Y2 is: "<<twoPos.lat()<<endl;
+    cout<<"dX is: "<<x<<endl;
+    cout<<"dY is: "<<y<<endl;
     if(y == 0){
         if(x > 0){
             direction.Name = "East";
@@ -220,6 +208,10 @@ Direction getDirection(int intersectionOne, int intersectionTwo){
     
     double angle = atan(y/x);
     string name;
+    if( x<0 && y<0){
+        angle = angle - M_PI;
+    }
+    
     if(-M_PI/4 <= angle && angle < M_PI/4){
         name = "East";
     }

@@ -111,16 +111,16 @@ void makeStreetSizeTable(){
             if(120 > speed && speed > 80 && street_length > 15000) {
                 streetsizes.highway.push_back(street_data);
             }
-            else if (80 >= speed && speed >= 60 && street_length > 2000){          
+            if (80 >= speed && speed >= 60 && street_length > 2000){          
                 streetsizes.major.push_back(street_data);
            //     majorStreets.push_back(street_data.id);
             }
-            else if (60 >= speed && speed >= 50 && street_length > 500){
+            if (60 >= speed && speed >= 50 && street_length > 500){
                 streetsizes.minor.push_back(street_data);
             }
-            else {
+            
                 streetsizes.local.push_back(street_data);
-            }
+            
         }
     }
 }
