@@ -143,59 +143,66 @@ vector<Node*> nodeTable;
     LatLon dest = getIntersectionPosition(destID);
     // Find absolute distance from source to destination
     double original_dist = find_distance_between_two_points({source, dest});
-    double constraint_dist = 1.9 * original_dist; // set constraint as 190% of the distance
+    double constraint_dist; // initialize constraint
+    if(original_dist < 1500){
+        constraint_dist = 2.5 * original_dist; // short routes have more flexibility, up to 250%
+    } else { constraint_dist = original_dist * 1.25; }
     // First node
-    pq.push(WaveElem(sourceNode, NO_EDGE, 0, 1, original_dist));
+    pq.push(WaveElem(sourceNode, NO_EDGE, 0, 1, WORST_TIME));
     
     while (!pq.empty()){
             WaveElem wave = pq.top(); // get next element
             pq.pop(); // remove from wavefront
             Node *currNode = wave.node;
             
-                if (currNode->id == destID){
+            if (currNode->id == destID){
                     return true;
-                }
-                currNode->set_visited(true);
-                for (int i=0; i<currNode->outEdge; i++){      
-                    Node *toNode;
-                    StreetSegmentIndex outEdge_id = getIntersectionStreetSegment(currNode->id, i);
+            }
+            currNode->set_visited(true);
+            for (int i=0; i<currNode->outEdge; i++){      
+                Node *toNode;
+                StreetSegmentIndex outEdge_id = getIntersectionStreetSegment(currNode->id, i);
 
-                    InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id);                   
-                    bool legal = false;
+                InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id);                   
+                bool legal = false;
                     // Legal check
-                    if (currNode->id == info_outEdge.from && currNode->parent_id != info_outEdge.to){
-                        toNode = nodeTable[info_outEdge.to];
-                        legal = true;
-                    }
-                    else if (currNode->id == info_outEdge.to && currNode->parent_id != info_outEdge.from && info_outEdge.oneWay != true){
-                        toNode = nodeTable[info_outEdge.from];
-                        legal = true;
-                    }
+                if (currNode->id == info_outEdge.from && currNode->parent_id != info_outEdge.to){
+                    toNode = nodeTable[info_outEdge.to];
+                    legal = true;
+                }
+                else if (currNode->id == info_outEdge.to && currNode->parent_id != info_outEdge.from && info_outEdge.oneWay != true){
+                    toNode = nodeTable[info_outEdge.from];
+                    legal = true;
+                }
                     // Update nodes if legal
-                    if (legal && !toNode->visited){
-                        double score = currNode->bestTime + find_street_segment_travel_time(outEdge_id)+turn_penalty*there_is_turn(toNode->id, outEdge_id);
-                        
-                        if (score < toNode->bestTime || toNode->bestTime == 0){
-                        toNode->set_reachingEdge(outEdge_id);
-                        toNode->set_bestTime(score);
+                if (legal && !toNode->visited){
+                   double score;
+                   // Calculate score using travel time and turn time
+                    if (currNode->reachingEdge != NO_EDGE){
+                        score = currNode->bestTime + find_street_segment_travel_time(outEdge_id)+turn_penalty*there_is_turn(currNode->reachingEdge, outEdge_id);
+                    } else { score = find_street_segment_travel_time(outEdge_id); } // If first mode, only count travel time
+                  
+                if (score < toNode->bestTime || toNode->bestTime == 0){
+                    toNode->set_reachingEdge(outEdge_id);
+                    toNode->set_bestTime(score);
                        
-                        // Update table 
-                        nodeTable[toNode->id] = toNode;
-                        // Update parent_id for reaching edge
-                        nodeTable[toNode->id]->set_parent_id(currNode->id);
-                        // Find abs distance of this node
-                        LatLon current = getIntersectionPosition(toNode->id);
-                        double abs_distance = find_distance_between_two_points({current, dest});
+                    // Update table 
+                    nodeTable[toNode->id] = toNode;
+                    // Update parent_id for reaching edge
+                    nodeTable[toNode->id]->set_parent_id(currNode->id);
+                    // Find abs distance of this node
+                    LatLon current = getIntersectionPosition(toNode->id);
+                    double abs_distance = find_distance_between_two_points({current, dest});
                         
-                        // testing constraints
-                        int constraint = 0;
-                        if (constraint_dist > abs_distance){
-                            constraint = 1;
-                        }                     
-                        pq.push(WaveElem(toNode, outEdge_id, toNode->bestTime, constraint, score));
-                        }
+                    // Testing constraints
+                    int constraint = 0;
+                    if (constraint_dist > abs_distance){
+                        constraint = 1;
+                    }                     
+                    pq.push(WaveElem(toNode, outEdge_id, toNode->bestTime, constraint, score));
                     }
                 }
+            }
     }
     return false;
 }
@@ -220,21 +227,21 @@ vector<StreetSegmentIndex> find_path_between_intersections(
         const IntersectionIndex intersect_id_start,
         const IntersectionIndex intersect_id_end,
         const double turn_penalty){
-    makeNodeTable();
     
+    makeNodeTable();    
     
     Node *sourceNode = getNodebyID(intersect_id_start);
     bool found = bfsPath(sourceNode, intersect_id_end, turn_penalty);
     
     if (found){
-        list<StreetSegmentIndex> l = bfsTraceback(intersect_id_end);
+        list<StreetSegmentIndex> l = bfsTraceback(intersect_id_end); // Call traceback
+        // Convert list to vector
         vector<StreetSegmentIndex> v{make_move_iterator(begin(l)), make_move_iterator(end(l))};
         nodeTable.clear();
-        double a = compute_path_travel_time(v, 0.00000);
-        cout << "travel time: " << a << endl;
         return v;
     }
     else {
+        //nodeTable.clear();
         return {};
     }
 }
