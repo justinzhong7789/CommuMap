@@ -7,9 +7,9 @@ struct Direction{
     double rad;
 };
 
-Direction getDirection(int intersectionOne, int intesectionTwo);
+Direction getDirection(LatLon onePos, LatLon twoPos);
 
-void act_on_mouse_click(ezgl::application *app, GdkEventButton* event, double x, double y){
+void act_on_mouse_click(ezgl::application *app, GdkEventButton* /*event*/, double x, double y){
     
     if(find_w_click){
       //  cout << "Mouse clicked at (" << x << "," << y << ")\n" ;
@@ -95,7 +95,19 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
         nextInter = infoFirst.from;
     }
     
-    Direction firstMove = getDirection(location, nextInter);
+    LatLon locationPos = getIntersectionPosition(location);
+    LatLon nextInterPos = getIntersectionPosition(nextInter);
+    
+    int curveCount = infoFirst.curvePointCount;
+    
+    Direction firstMove;
+    if(curveCount>0){
+        LatLon locationCurve = closestCurvePoint(location, seg_ids[0]);
+        firstMove = getDirection(locationPos, locationCurve);
+    }else{
+        firstMove = getDirection(locationPos, nextInterPos);
+    }
+    
     
     start = "Beginning route at " + getIntersectionName(location) +  "\n";
       
@@ -138,8 +150,11 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
         if(there_is_turn(seg_ids[i],seg_ids[i+1])){
             
             
-            move1 = getDirection(from1,to1);
-            move2 = getDirection(from2,to2);
+            LatLon closest1 = closestCurvePoint(to1, seg_ids[i]);
+            LatLon closest2 = closestCurvePoint(to1, seg_ids[i+1]);
+            LatLon interPos = getIntersectionPosition(to1);
+            move1 = getDirection(closest1,interPos);
+            move2 = getDirection(closest2,interPos);
             middle = middle + "Turn " + turn_from_direction(move1.rad,move2.rad) + " at " + getStreetName(info2.streetID) + "\n";
             
         }
@@ -158,23 +173,19 @@ string turn_from_direction(double curr, double next){
     double check = next - curr + M_PI/2;
     cout<<"Curr: "<<curr<<" next: "<<next<<" check: "<<check<<endl;
     
-    if(-M_PI/2 < check && check < M_PI/2){
+    if(-M_PI/2 <= check && check < M_PI/2){
         return "right";
     }
-    if((-M_PI < check && check< -M_PI/2)||(M_PI/2 < check && check< M_PI)){
+    if((-M_PI < check && check<= -M_PI/2)||(M_PI/2 <= check && check<= M_PI)){
         return "left";
     }
     return "straight";
 }
 
-Direction getDirection(int intersectionOne, int intersectionTwo){
+Direction getDirection(LatLon onePos, LatLon twoPos)
+{
     
-    
-    int id1 = intersectionOne;
-    int id2 = intersectionTwo;
     Direction direction;
-    LatLon onePos = getIntersectionPosition(id1);
-    LatLon twoPos = getIntersectionPosition(id2);
     double y = twoPos.lat()-onePos.lat();
     double x = twoPos.lon()-onePos.lon();
     cout<<"X1 is: "<<onePos.lon()<<"X2 is: "<<twoPos.lon()<<endl;
@@ -227,5 +238,36 @@ Direction getDirection(int intersectionOne, int intersectionTwo){
     direction.Name = name;
     direction.rad = angle;
     return direction;
+}
+
+LatLon closestCurvePoint(int interID, int segID){
+    LatLon interPos = getIntersectionPosition(interID);
+    auto infoSeg = getInfoStreetSegment(segID);
+    int curveCount = infoSeg.curvePointCount;
+    double closestLat,closestLon;
+    if(segID<getNumStreetSegments()){
+        cout<<"segID is good"<<endl;
+    }
+    closestLat = 0;
+    closestLon =0;
+    double shortestDist = 1000;
+    double currentDist;
+    
+    for(int i = 0; i<curveCount;i++){
+        LatLon curvePos = getStreetSegmentCurvePoint(i,segID);
+        currentDist = pow((curvePos.lat() - interPos.lat()),2) + pow((curvePos.lon() - interPos.lon()),2);
+        currentDist = sqrt(currentDist);
+        
+        if(shortestDist>currentDist){
+            shortestDist = currentDist;
+            closestLat = curvePos.lat();
+            closestLon = curvePos.lon();
+        }
+    }
+    
+    LatLon closestCurve (closestLat, closestLon);
+    return closestCurve;
+
+    
 }
 

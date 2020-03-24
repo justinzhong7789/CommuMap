@@ -338,11 +338,8 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application )
     g_signal_connect(closeButton, "clicked", G_CALLBACK(close_button), application);
     
     
-    //might not need
-    g_signal_connect(GTK_DIALOG (dialog), "close", G_CALLBACK(on_dialog_response), LocationTextGlobal);
-    
     //Close window
-    std::cout<<"Here"<<std::endl;
+    g_signal_connect(GTK_DIALOG (dialog), "close", G_CALLBACK(on_dialog_response), LocationTextGlobal);
     
 }
 

@@ -17,6 +17,6 @@
 #include <iostream>
 #include <sstream>
 
-void act_on_mouse_click(ezgl::application *app, GdkEventButton* event, double x, double y);
+void act_on_mouse_click(ezgl::application *app, GdkEventButton* /*event*/, double x, double y);
 
 

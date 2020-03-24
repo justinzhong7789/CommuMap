@@ -104,7 +104,7 @@ std::vector<int> testingNav();
 void draw_Segments(std::vector<int> seg_ids,ezgl::application *application);
 void write_Directions(int location, int destination, std::vector<int> seg_ids,ezgl::application *application);
 string turn_from_direction(double curr, double next);
-
+LatLon closestCurvePoint(int interID, int segID);
 bool find_street(ezgl::application *application,std::string search_text);
 
 /*============== CALLBACK FUNCTIONS FOR BUTTONS ==============*/
