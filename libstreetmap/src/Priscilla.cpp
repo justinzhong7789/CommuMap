@@ -176,7 +176,7 @@ vector<Node*> nodeTable;
         constraint_dist = 2.5 * original_dist; // short routes have more flexibility, up to 250%
     } else { constraint_dist = original_dist * 1.25; }
     // First node
-    pq.push(WaveElem(sourceNode, NO_EDGE, 0, 1, WORST_TIME));
+    pq.push(WaveElem(sourceNode, NO_EDGE, WORST_TIME, LARGEST_DISTANCE));
     
     while (!pq.empty()){
             WaveElem wave = pq.top(); // get next element

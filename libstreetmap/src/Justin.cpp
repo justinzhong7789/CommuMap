@@ -48,10 +48,12 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
                           const double turn_penalty,
                           const double walking_speed, 
                           const double walking_time_limit){
+    cout<< nodeTable.size()<<endl;
     if(nodeTable.size()==0){
+        cout<< "condition entered;"<<endl;
         makeNodeTable();
     }
-    
+    cout<< nodeTable.size()<<endl;
     list<StreetSegmentIndex> completeWalkPath;
     vector<StreetSegmentIndex> walkPortion;
     Node* sourceNode = getNodebyID(start_intersection);
@@ -166,6 +168,7 @@ void reset_nodeTable(){
         nodeTable[i]->parent_id = NO_ID;
         nodeTable[i]->reachingEdge = NO_EDGE;
         nodeTable[i]->bestTime = WORST_TIME;
+        nodeTable[i]->visited = false;
     }
 
 }
@@ -178,6 +181,7 @@ void reset_nodeTable(vector<int> nodesAccessed){
         nodeTable[nodesAccessed[i]]->parent_id = NO_ID;
         nodeTable[nodesAccessed[i]]->reachingEdge = NO_EDGE;
         nodeTable[nodesAccessed[i]]->bestTime = WORST_TIME;
+        nodeTable[nodesAccessed[i]]->visited = false;
     }
 
 }
