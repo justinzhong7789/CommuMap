@@ -75,37 +75,19 @@ class Node {
  }
 
  
- /* 
- class Edge {
- public:
-     // Member variables
-     StreetSegmentIndex id;
-     IntersectionIndex from;
-     IntersectionIndex to;
-     double travelTime; // travel time from intersection from->to
-     
-     // Constructors
-     Edge(StreetSegmentIndex ID){
-         
-     }
-     
-     void set_id(StreetSegmentIndex segment_id);
-     void set_to(IntersectionIndex intersect_to);
-     void set_from(IntersectionIndex intersect_from);
-     void set_travelTime(double time);
- };
- */
  
  struct WaveElem{
     Node *node; //IntesectionIndex
     int edgeID; // StreetSegmentIndex
     double travelTime;
     double score;
+    int directed; // is node within 190% of Euclidean distance
     
-    WaveElem (Node *n, int id, float time, double dist){
+    WaveElem (Node *n, int id, float time, int constraint, double dist){
         node = n;
         edgeID = id;
         travelTime = time;
+        directed = constraint;
         score = dist;
     }
 };
@@ -115,11 +97,19 @@ struct greaterWE{
         return (we1.score > we2.score);
     }
 };
-/************** Variable Declarations ******************/
+
+// work in progress
+struct comparatorWE{
+    bool operator() (const WaveElem& we1, const WaveElem we2){
+        return ((we1.directed < we2.directed) || ((we1.directed == we2.directed) && 
+                (we1.score > we2.score)));
+    }
+};
+//---------------------Variable Declarations -----------------------//
  
  vector<Node*> nodeTable;
  
-/************** Function Declarations ******************/ 
+//--------------------- Function Declarations ---------------------// 
  
  void makeNodeTable();
  Node* getNodebyID(IntersectionIndex sourceID);
@@ -127,7 +117,7 @@ struct greaterWE{
  double travelTime(StreetSegmentIndex segID);
  list<StreetSegmentIndex> bfsTraceback(IntersectionIndex destID);
  
- /******************************************************/
+ //--------------------------------------------------------------
  void makeNodeTable(){
      // Initialize vector size
      int nodeTable_size = getNumIntersections();
@@ -141,19 +131,64 @@ struct greaterWE{
  Node* getNodebyID(IntersectionIndex sourceID){
     Node *sourceNode = nodeTable[sourceID];
     return sourceNode;
- }
+ }/*
+ 
+ bool bfsPath (Node* sourceNode, int destID, double turn_penalty){
+     list<WaveElem> wavefront;
+     wavefront.push_back(WaveElem(sourceNode, -1, 0));
+     while (!wavefront.empty()){
+         WaveElem wave = wavefront.front();
+         wavefront.pop_front();
+         Node *currNode = wave.node;
+         
+         if (wave.travelTime < currNode->bestTime+0.01){
+             currNode->reachingEdge = wave.edgeID;
+             currNode->bestTime = wave.travelTime;
+             if (currNode->id == destID){
+                 return true;
+             }
+             for (int i=0; i<currNode->outEdge; i++){      
+                    Node *toNode;
+                    StreetSegmentIndex outEdge_id = getIntersectionStreetSegment(currNode->id, i);
+                    InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id);
+                    // If oneway illegal or if visited, then not legal
+                    bool legal = false;
+                    // Legal check
+                    if (currNode->id == info_outEdge.from && currNode->parent_id != info_outEdge.to){
+                        toNode = nodeTable[info_outEdge.to];
+                        legal = true;
+                    }
+                    else if (currNode->id == info_outEdge.to && currNode->parent_id != info_outEdge.from && info_outEdge.oneWay != true){
+                        toNode = nodeTable[info_outEdge.from];
+                        legal = true;
+                    }
+                    if (legal){
+                        toNode->set_bestTime(currNode->bestTime + find_street_segment_travel_time(outEdge_id)+turn_penalty*there_is_turn(toNode->id, outEdge_id));
+                        toNode->set_reachingEdge(outEdge_id);
+                        toNode->set_parent_id(currNode->id);
+                        
+                        nodeTable[toNode->id] = toNode;
+                        wavefront.push_back(WaveElem(toNode, outEdge_id, toNode->bestTime));
+                    }
+             }
+         }
+     }
+     return false;
+ }*/
+ 
 
  bool bfsPath (Node* sourceNode, int destID, double turn_penalty){
     // vector<WaveElem> wavefront;
     // Establish min heap
-    priority_queue <WaveElem, vector<WaveElem>, greaterWE> pq;
+    priority_queue <WaveElem, vector<WaveElem>, comparatorWE> pq;
     
     LatLon source = getIntersectionPosition(sourceNode->id);
     LatLon dest = getIntersectionPosition(destID);
     // Find absolute distance from source to destination
     double original_dist = find_distance_between_two_points({source, dest});
+    double constraint_dist = 1.9*original_dist; // set constraint as 190% of the distance
     // First node
-    pq.push(WaveElem(sourceNode, NO_EDGE, 0, original_dist));
+    pq.push(WaveElem(sourceNode, NO_EDGE, 0, 1, original_dist));
     
     while (!pq.empty()){
             WaveElem wave = pq.top(); // get next element
@@ -161,9 +196,9 @@ struct greaterWE{
             Node *currNode = wave.node;
             
             //if (currNode->bestTime <= wave.travelTime + 0.01){            
-            if(wave.travelTime <= currNode->bestTime + 0.1){
-                wave.edgeID = currNode->reachingEdge;
-                wave.travelTime = currNode->bestTime;
+            //if(wave.travelTime <= currNode->bestTime+0.01){
+               // wave.edgeID = currNode->reachingEdge;
+               // wave.travelTime = currNode->bestTime;
                 //currNode->reachingEdge = wave.edgeID;
                 //currNode->bestTime = wave.travelTime;
                 // Check for completed path 
@@ -189,8 +224,12 @@ struct greaterWE{
                     }
                     // Update nodes if legal
                     if (legal && !toNode->visited){
+                        double score = currNode->bestTime + find_street_segment_travel_time(outEdge_id)+turn_penalty*there_is_turn(toNode->id, outEdge_id);
+                        
+                        if (score < toNode->bestTime || toNode->bestTime == 0){
                         toNode->set_reachingEdge(outEdge_id);
                         toNode->set_bestTime(currNode->bestTime + find_street_segment_travel_time(outEdge_id) + turn_penalty*there_is_turn(toNode->id, toNode->reachingEdge));
+                       
                         // Update table 
                         nodeTable[toNode->id] = toNode;
                         // Update parent_id for reaching edge
@@ -198,13 +237,18 @@ struct greaterWE{
                         // Find abs distance of this node
                         LatLon current = getIntersectionPosition(toNode->id);
                         double abs_distance = find_distance_between_two_points({current, dest});
-                        //double score = abs_distance + toNode->bestTime * 16.667;
-                        double score = (-1)*(original_dist - abs_distance)/toNode->bestTime;
-                        pq.push(WaveElem(toNode, outEdge_id, toNode->bestTime, score));
+                        
+                        // testing constraints
+                        int constraint = 0;
+                        if (constraint_dist > abs_distance){
+                            constraint = 1;
+                        }                     
+                        pq.push(WaveElem(toNode, outEdge_id, toNode->bestTime, constraint, score));
+                        }
                     }
                 }
 
-            }
+          //}
     }
     return false;
 }
