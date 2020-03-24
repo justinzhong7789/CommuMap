@@ -76,6 +76,25 @@ class Node {
     }
 };
 
+struct WaveElem{
+    Node *node; //IntesectionIndex
+    int edgeID; // StreetSegmentIndex
+    double travelTime;
+    double score;
+    
+    WaveElem (Node *n, int id, float time, double dist){
+        node = n;
+        edgeID = id;
+        travelTime = time;
+        score = dist;
+    }
+};
+
+struct greaterWE{
+    int operator() (const WaveElem& we1, const WaveElem we2){
+        return (we1.score > we2.score);
+    }
+};
 /***************** global variable*********************/
 
 extern vector<Node*> nodeTable;

@@ -71,7 +71,33 @@ using namespace std;
  void Node::set_visited(bool ifVisited){
      visited = ifVisited;
  }
+<<<<<<< HEAD
  */
+=======
+
+ 
+ /* 
+ class Edge {
+ public:
+     // Member variables
+     StreetSegmentIndex id;
+     IntersectionIndex from;
+     IntersectionIndex to;
+     double travelTime; // travel time from intersection from->to
+     
+     // Constructors
+     Edge(StreetSegmentIndex ID){
+         
+     }
+     
+     void set_id(StreetSegmentIndex segment_id);
+     void set_to(IntersectionIndex intersect_to);
+     void set_from(IntersectionIndex intersect_from);
+     void set_travelTime(double time);
+ };
+
+ 
+>>>>>>> trying to debug walk to pick up
  struct WaveElem{
     Node *node; //IntesectionIndex
     int edgeID; // StreetSegmentIndex
@@ -93,6 +119,7 @@ struct greaterWE{
         return (we1.score > we2.score);
     }
 };
+<<<<<<< HEAD
 
 // work in progress
 struct comparatorWE{
@@ -102,6 +129,10 @@ struct comparatorWE{
     }
 };
 //---------------------Variable Declarations -----------------------//
+=======
+ */
+/************** Variable Declarations ******************/
+>>>>>>> trying to debug walk to pick up
  
 vector<Node*> nodeTable;
  
@@ -128,8 +159,11 @@ vector<Node*> nodeTable;
  
  // Gets a node by the intersection id
  Node* getNodebyID(IntersectionIndex sourceID){
-    Node *sourceNode = nodeTable[sourceID];
-    return sourceNode;
+     /*this if statement prevents accessing element beyond the bound of the vector(seg fault)*/
+    if(sourceID<nodeTable.size()){
+        Node *sourceNode = nodeTable[sourceID];
+        return sourceNode; 
+    }else{return nullptr;}
  }
 
  // Returns true if a path can be found, false otherwise
