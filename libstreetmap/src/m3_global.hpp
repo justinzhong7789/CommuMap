@@ -30,6 +30,7 @@ using namespace std;
 
 //this number is the biggest an int can hold in c++
 #define WORST_TIME 2147483647
+#define LARGEST_DISTANCE 2147483647.00
 
 class Node {
  public:   
@@ -42,7 +43,6 @@ class Node {
     int reachingEdge; // ID of the edge used to reach this node
     double bestTime; // Shortest time found to this node so far
     bool visited;
-    
     // Constructors
     Node(IntersectionIndex ID, int OutEdge){
         id = ID;
@@ -77,6 +77,36 @@ class Node {
 };
 
 /***************** Global Variables ********************/
+struct WaveElem{
+    Node *node; //IntesectionIndex
+    int edgeID; // StreetSegmentIndex
+    double travelTime;
+    double score;
+    int directed;
+    
+    WaveElem (Node *n, int id, float time, double dist){
+        node = n;
+        edgeID = id;
+        travelTime = time;
+        score = dist;
+    }
+    //WaveElem(toNode, outEdge_id, toNode->bestTime, constraint, score));
+    WaveElem(Node* n, int outEdge_id, float bestTime, int constraint, double dist){
+        node = n;
+        edgeID = outEdge_id;
+        travelTime = bestTime;
+        directed = constraint;
+        score = dist;
+    }
+};
+
+struct comparatorWE{
+    bool operator() (const WaveElem& we1, const WaveElem we2){
+        return ((we1.travelTime < we2.travelTime) || ((we1.travelTime == we2.travelTime) && 
+                (we1.score > we2.score)));
+    }
+};
+/***************** global variable*********************/
 
 extern vector<Node*> nodeTable;
 
