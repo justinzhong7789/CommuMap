@@ -52,7 +52,6 @@ ezgl::color STREET_NAMES;
 ezgl::color ONE_WAY;
 
 /*============== DRAWING OF MAP ==============*/
-string map_name;
 void draw_main_canvas(ezgl::renderer *g);
 void initial_setup(ezgl::application *application, bool new_window);//add find button
 void close_M2();
@@ -83,6 +82,7 @@ bool searchingRoute = true;
 bool click_OnOff = 0;
 bool text_OnOff = 0;
 bool find_w_click = 0;
+bool load_success;
 //void clean_map(ezgl::application *application);
 GtkEntry *textboxGlobal;
 

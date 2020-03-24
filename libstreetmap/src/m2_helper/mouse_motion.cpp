@@ -22,6 +22,15 @@ void act_on_mouse_click(ezgl::application *app, GdkEventButton* /*event*/, doubl
     }
 }
 
+std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>> 
+         find_path_with_walk_to_pick_up(const IntersectionIndex start_intersection, 
+                          const IntersectionIndex end_intersection,
+                          const double turn_penalty,
+                          const double walking_speed, 
+                          const double walking_time_limit){
+    return {{0},{0}};
+}
+
 void drive_button(GtkWidget */*widget*/, ezgl::application *application)
 {
     searchingRoute = true;
