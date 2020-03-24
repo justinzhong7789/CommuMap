@@ -67,8 +67,6 @@ void zoomStreets(ezgl::renderer *g){
             
         case 5:
             drawStreets(streetsizes.highway, g, width, ezgl::GREY_75);
-           if(zooms.zcase <= 3) drawOneWay(g);
-    //       drawStreetNames(streetsizes.highway, g, 10);
             break;
             
         default: 
@@ -166,14 +164,15 @@ void nameStreets(ezgl::renderer *g){
         case 1: //empty case for future purposes
         case 2:
         case 3:
-            drawStreetNames(streetsizes.minor, g , width,10);
-        case 4:
             drawStreetNames(streetsizes.local, g , width,10);
-          //  drawStreetNames(streetsizes.minor, g , width,40);
+        case 4:
+           // drawStreetNames(streetsizes.local, g , width,10);
+            drawStreetNames(streetsizes.minor, g , width,40);
             drawStreetNames(streetsizes.major, g , width,60);
             
         case 5:
             drawStreetNames(streetsizes.highway, g, width,100);
+            if(zooms.zcase <= 3) drawOneWay(g);
             break;
             
         default: 
@@ -190,12 +189,12 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
     for (size_t i=0; i<streets.size(); i++){
         int drawn = 0;
         string street_name = streets[i].name;
-        if(street_name == "<unknown>"){
-            break;
-        }
+       
         int j, next;
-        for (j=0, next = 0; (j<streets[i].segments.size()) && (drawn <1) &&( next<streets[i].segments.size()); j++, next = next+2){//used to be 10
-            
+        for (j=0, next = 1; (j<streets[i].segments.size()) && (drawn <1) &&( next<streets[i].segments.size()); j++, next = next+2){//used to be 10
+            if(street_name == "<unknown>"){
+                break;
+            }
             
             StreetSegmentsData segData = streets[i].segments[j];
             //ASSUMING THAT THE SEGDATA IS IN ORDER
@@ -223,7 +222,7 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
                 length = (segDataNext.toPos.lat() - segData.fromPos.lat())/sin(angle);
             }
                     
-            if(textWidth<length){
+            if(textWidth>length){
                 
                 drawSegmentName(segData, g, font_size, street_name, angle, segmentMid);
                 drawn++;
@@ -231,6 +230,57 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
         }
     }
 }
+
+//////////////////
+
+//void drawStreetNames(ezgl::renderer *g) {
+//    if (map.currentXYDiagonal < CURRENT_XY_DIAGONAL_STREET_NAMES) {
+//        g->format_font("sans serif", ezgl::font_slant::normal, ezgl::font_weight::normal);
+//        g->set_font_size(10);
+//        g->set_color(STREET_NAMES);
+//
+//        for (int streetIdx = 1; streetIdx < getNumStreets(); ++streetIdx) {
+//            std::vector<StreetSegmentIndex> streetSegmentsOfStreet = find_street_segments_of_street(streetIdx);
+//
+//            for (int streetSegIdx = 0; streetSegIdx < streetSegmentsOfStreet.size(); ++streetSegIdx) {
+//                drawStreetNameOnStreetSegment(g, streetIdx, streetSegmentsOfStreet[streetSegIdx]);
+//            }
+//        }
+//    }
+//}
+//
+//void drawStreetNameOnStreetSegment(ezgl::renderer *g, StreetIndex streetIdx, StreetSegmentIndex streetSegIdx) {
+//    double streetSegLength = find_street_segment_length(streetSegIdx);
+//
+//    if (streetSegLength > map.currentXYDiagonal / 18.0) {
+//        InfoStreetSegment segInfo = getInfoStreetSegment(streetSegIdx);
+//
+//        LatLon fromLatLon = getIntersectionPosition(segInfo.from);
+//        LatLon toLatLon = getIntersectionPosition(segInfo.to);
+//
+//        if (withinCurrentMapLatLon(fromLatLon) || withinCurrentMapLatLon(toLatLon)) {
+//            std::string name = getStreetName(streetIdx);
+//
+//            ezgl::point2d from = point2dFromLatLon(fromLatLon);
+//            ezgl::point2d to = point2dFromLatLon(toLatLon);
+//
+//            double xDistance = from.x - to.x;
+//            double yDistance = from.y - to.y;
+//
+//            double textRotationAngle = atan(yDistance / xDistance) * RADIAN_TO_DEGREE;
+//           
+////            g->set_text_rotation(textRotationAngle);
+//            g->set_text_rotation(0);
+//
+//            ezgl::point2d textLocation = {(from.x + to.x) / 2, (from.y + to.y) / 2};
+//            g->draw_text(textLocation, name);
+//        }
+//    }
+//}
+
+/////////////////
+
+
 
 void drawSegmentName(StreetSegmentsData segData, renderer *g, int font_size, string street_name, int angle, point2d segmentMid){
 

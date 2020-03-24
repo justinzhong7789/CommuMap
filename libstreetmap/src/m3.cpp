@@ -9,7 +9,7 @@
 #include "m1.h"
 #include "m2.h"
 #include "m3.h"
-
+#include "m3_global.hpp"
 #include <vector>
 #include <string>
 #include <iostream>

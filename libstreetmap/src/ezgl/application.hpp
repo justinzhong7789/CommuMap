@@ -185,7 +185,15 @@ public:
     /*
    * Testing colour settings
    */
-  void createButtonTester(ezgl::application *application, button_callback_fn button_func);
+  void colourNavigationButton(application *application);
+  void colourNightModeButton(application *application);
+  void colourUpButton(application *application);
+  void colourDownButton(application *application);
+  void colourLeftButton(application *application);
+  void colourRightButton(application *application);
+  void colourZoomInButton(application *application);
+  void colourZoomFitButton(application *application);
+  void colourZoomOutButton(application *application);
   
   
   /**

@@ -19,10 +19,8 @@
 #include <queue>
 
 //=================function forward declarations=====================
-#define NO_EDGE -1
-#define NO_ID -1
-using namespace std;
 
+using namespace std;
 
 class Node {
  public:   
@@ -73,8 +71,6 @@ class Node {
  void Node::set_visited(bool ifVisited){
      visited = ifVisited;
  }
-
- 
  
  struct WaveElem{
     Node *node; //IntesectionIndex
@@ -107,7 +103,7 @@ struct comparatorWE{
 };
 //---------------------Variable Declarations -----------------------//
  
- vector<Node*> nodeTable;
+vector<Node*> nodeTable;
  
 //--------------------- Function Declarations ---------------------// 
  
@@ -118,6 +114,7 @@ struct comparatorWE{
  list<StreetSegmentIndex> bfsTraceback(IntersectionIndex destID);
  
  //--------------------------------------------------------------
+ 
  void makeNodeTable(){
      // Initialize vector size
      int nodeTable_size = getNumIntersections();

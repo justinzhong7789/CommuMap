@@ -340,14 +340,151 @@ void application::create_button(const char *button_text,
   create_button(button_text, 0, insert_row, 3, 1, button_func);
 }
 
-void application::createButtonTester(ezgl::application *application, button_callback_fn button_func)
+void application::colourNavigationButton(application *app)
 {
         //get pointer to the button using gtk_get_object or something i dont remember
-        GtkWidget * new_button = (GtkWidget*) application->get_object("button");
+        GtkWidget * new_button = (GtkWidget*) app->get_object("Window");
+        //get the file you want to attach to the button css stuff
+        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+        GtkCssProvider *provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/nightMode.css", NULL);
+        
+        //attach it to the button
+        gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER(provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+        // show the button (idk if you need this step)
+        gtk_widget_show(new_button);
+}
+void application::colourNightModeButton(application *app)
+{
+        //get pointer to the button using gtk_get_object or something i dont remember
+        GtkWidget * new_button = (GtkWidget*) app->get_object("NightMode");
+        //get the file you want to attach to the button css stuff
+        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+        GtkCssProvider *provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/nightMode.css", NULL);
+        
+        //attach it to the button
+        gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER(provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+        // show the button (idk if you need this step)
+        gtk_widget_show(new_button);
+}
+
+void application::colourUpButton(application *app)
+{
+        //get pointer to the button using gtk_get_object or something i dont remember
+        GtkWidget * new_button = (GtkWidget*) app->get_object("UpButton");
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
         gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/button.css", NULL);
+        
+        //attach it to the button
+        gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER(provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+        // show the button (idk if you need this step)
+        gtk_widget_show(new_button);
+}
+void application::colourDownButton(application *app)
+{
+        //get pointer to the button using gtk_get_object or something i dont remember
+        GtkWidget * new_button = (GtkWidget*) app->get_object("DownButton");
+        //get the file you want to attach to the button css stuff
+        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+        GtkCssProvider *provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/button.css", NULL);
+        
+        //attach it to the button
+        gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER(provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+        // show the button (idk if you need this step)
+        gtk_widget_show(new_button);
+}
+void application::colourRightButton(application *app)
+{
+        //get pointer to the button using gtk_get_object or something i dont remember
+        GtkWidget * new_button = (GtkWidget*) app->get_object("RightButton");
+        //get the file you want to attach to the button css stuff
+        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+        GtkCssProvider *provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/button.css", NULL);
+        
+        //attach it to the button
+        gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER(provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+        // show the button (idk if you need this step)
+        gtk_widget_show(new_button);
+}
+void application::colourLeftButton(application *app)
+{
+        //get pointer to the button using gtk_get_object or something i dont remember
+        GtkWidget * new_button = (GtkWidget*) app->get_object("LeftButton");
+        //get the file you want to attach to the button css stuff
+        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+        GtkCssProvider *provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/button.css", NULL);
+        
+        //attach it to the button
+        gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER(provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+        // show the button (idk if you need this step)
+        gtk_widget_show(new_button);
+}
+void application::colourZoomInButton(application *app)
+{
+        //get pointer to the button using gtk_get_object or something i dont remember
+        GtkWidget * new_button = (GtkWidget*) app->get_object("ZoomInButton");
+        //get the file you want to attach to the button css stuff
+        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+        GtkCssProvider *provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/zoom.css", NULL);
+        
+        //attach it to the button
+        gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER(provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+        // show the button (idk if you need this step)
+        gtk_widget_show(new_button);
+}
+void application::colourZoomOutButton(application *app)
+{
+        //get pointer to the button using gtk_get_object or something i dont remember
+        GtkWidget * new_button = (GtkWidget*) app->get_object("ZoomOutButton");
+        //get the file you want to attach to the button css stuff
+        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+        GtkCssProvider *provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/zoom.css", NULL);
+        
+        //attach it to the button
+        gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER(provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+        // show the button (idk if you need this step)
+        gtk_widget_show(new_button);
+}
+void application::colourZoomFitButton(application *app)
+{
+        //get pointer to the button using gtk_get_object or something i dont remember
+        GtkWidget * new_button = (GtkWidget*) app->get_object("ZoomFitButton");
+        //get the file you want to attach to the button css stuff
+        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+        GtkCssProvider *provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/zoom.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
