@@ -52,7 +52,6 @@ std::vector<int> testingNav(){
 }
 
 void highlight_route(std::vector<int> seg_ids, ezgl::renderer *g){
-    cout<<"here"<<endl;
     std::vector<LatLon> node;
     for(int i = 0; i<seg_ids.size();i++)
     {
@@ -75,7 +74,7 @@ void highlight_route(std::vector<int> seg_ids, ezgl::renderer *g){
 void write_Directions(int location, int destination, std::vector<int> seg_ids, ezgl::application *application)
 {
     
-    GtkLabel *display = (GtkLabel *)application->get_object("Label");
+    GtkLabel *display = (GtkLabel *)application->get_object("ScrollLabel");
     
     
     //Variables, (already kind of have these already though)
@@ -229,3 +228,4 @@ Direction getDirection(int intersectionOne, int intersectionTwo){
     direction.rad = angle;
     return direction;
 }
+

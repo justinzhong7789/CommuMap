@@ -116,7 +116,6 @@ void draw_map() {
     makePOITypesTable();
     
     ezgl::rectangle initial_world({x_from_lon(min_lon), y_from_lat(min_lat)},{x_from_lon(max_lon), y_from_lat(max_lat)});
-    cout<<"Drawing here"<< endl;
    
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
 
@@ -154,7 +153,6 @@ void draw_main_canvas(ezgl::renderer *g) {
         highlight_street(found_street_segments, g);
     }
     if(searchingRoute){
-        cout<<"back here"<<endl;
         highlight_route(found_route_segments, g);
     }
     nameStreets(g);
@@ -188,9 +186,15 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
 
   application->create_button("Find Intersections", 9, find_button);
   application->create_button("Load City",7,Load_Map);
-  application->createButtonTester(application, button_test);
-    GtkLabel *route = (GtkLabel*) application->get_object("Route");
-    gtk_label_set_text(route, "\tRoute\t");
+  application->colourNavigationButton(application);
+  application->colourUpButton(application);
+  application->colourDownButton(application);
+  application->colourRightButton(application);
+  application->colourLeftButton(application);
+  application->colourZoomInButton(application);
+  application->colourZoomOutButton(application);
+  application->colourZoomFitButton(application);
+  //application->colourNightModeButton(application);
     
     GtkLabel *error = (GtkLabel*) application->get_object("ErrorOutput");
     gtk_label_set_text(error, "\nWelcome to CommuMaps!\n");
@@ -199,8 +203,9 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   GObject *openMj = application->get_object("Window");
   g_signal_connect(openMj, "clicked", G_CALLBACK(window_button),application);
   
-
-
+  GtkEntry *SearchBar = (GtkEntry *) application->get_object("SearchBar");
+  g_signal_connect(SearchBar, "activate", G_CALLBACK(search_bar), application);
+  
   GObject *SearchButton = application->get_object("SearchButton");
   g_signal_connect(SearchButton, "clicked", G_CALLBACK(search_button), application);
 
@@ -210,8 +215,8 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   GObject * NightMode = application->get_object("NightMode");
   g_signal_connect(NightMode, "clicked", G_CALLBACK(nightMode_button),application);  
   
-  GtkWidget *test = (GtkWidget *) application->get_object("button");
-  g_signal_connect(test, "clicked", G_CALLBACK(button_test),application);
+//  GtkWidget *test = (GtkWidget *) application->get_object("button");
+//  g_signal_connect(test, "clicked", G_CALLBACK(button_test),application);
   
 //  GtkImage *image = (GtkImage *)gtk_image_new_from_file("main/Images/homeIcon.png");
 //  gtk_image_set_pixel_size(image, 10);
@@ -221,10 +226,60 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   
 }
 
-void button_test(GtkWidget */*widget*/, ezgl::application *application )
-{
-    cout<<"WOAH I WAS JUST CLICKED"<<endl;
+
+void search_bar(GtkWidget */*widget*/,ezgl::application *application){
+    GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
+    const char* search_text = gtk_entry_get_text(textEntry);
+    
+    GtkLabel *errorOutput = (GtkLabel*)application->get_object("ErrorOutput");
+    std::string error;
+       const char * print;
+    
+    std::vector<StreetIndex> street_index = find_street_ids_from_partial_street_name(search_text);
+    
+    find_w_click = false;
+    // SEARCH
+    if(find_street(application, search_text)){
+        error = "\nFound a Street!\n";
+                
+    }else if(find_intersection(search_text, application, 0)){
+        error = "\nFound an Intersection!\n";
+    }
+     
+    print = error.c_str();
+    gtk_label_set_text(errorOutput, print);
 }
+
+bool find_street(ezgl::application *application,std::string search_text){
+    
+    bool found_street;
+    const char * print;
+    GtkLabel *errorOutput = (GtkLabel*)application->get_object("ErrorOutput");
+    std::string error;
+    
+    std::vector<StreetIndex> street_index = find_street_ids_from_partial_street_name(search_text);
+    // check if there are valid results
+    if (street_index.size() == 0){
+        error =  "\nNo streets Found\n";
+        searchingStreet = false; 
+        found_street =  false;
+    }
+    else {
+        
+        searchingStreet = true;
+        // Make map go to zoom fit mode
+        // Highlight street of first function
+        StreetIndex street_id = street_index[0];
+        found_street_segments = find_street_segments_of_street(street_id);
+        found_street = true;
+    }
+        //Go into draw map so that the flags can actually activate
+    application->refresh_drawing();
+    print = error.c_str();
+    gtk_label_set_text(errorOutput, print);
+    return found_street;
+}
+
 void window_button(GtkWidget */*widget*/, ezgl::application *application )
 {
     
@@ -236,9 +291,14 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application )
     gtk_window_set_transient_for((GtkWindow *)dialog, parent);   
     
     
+    
+    GtkLabel *route = (GtkLabel*) application->get_object("Route");
+    gtk_label_set_text(route, "\tDirections:\t");
+    
+    
     //Plan to display Route
-    GtkLabel *labeltext = (GtkLabel *)application->get_object("Label");
-    gtk_label_set_text(labeltext, "Test");
+    GtkLabel *labeltext = (GtkLabel *)application->get_object("ScrollLabel");
+    gtk_label_set_text(labeltext, "\n\n\n\n\nWaiting for \nNavigation Input ... ");
     
     //Title: Enter two Intersections.
     GtkLabel *instructions = (GtkLabel *)application->get_object("Instructions");
@@ -309,8 +369,15 @@ void close_button(GtkWidget */*widget*/, ezgl::application *application)
     find_w_click = false;
     GtkWidget * dialog = (GtkWidget *) application -> get_object("NavigationWindow");
     GtkWidget *locationLabel = (GtkWidget *)application->get_object("LocationLabel");
+    GtkLabel * scrollLabel = (GtkLabel *)application->get_object("ScrollLabel");
+    gtk_label_set_text(scrollLabel,"");
+    GtkLabel * routeLabel = (GtkLabel *)application->get_object("Route");
+    gtk_label_set_text(routeLabel,"");
+    //searchingRoute = false;
     gtk_widget_hide_on_delete(locationLabel);
     gtk_widget_hide_on_delete(dialog);
+    
+    //application->refresh_drawing();
 }
 
 void on_dialog_response(GtkDialog *dialog, gint /*response_id*/, gpointer /*user_data*/) {
@@ -422,8 +489,9 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
     find_intersection (search_text,application,0);
 }
 
-void find_intersection(std::string search_text, ezgl::application *application, int intersectID)
+bool find_intersection(std::string search_text, ezgl::application *application, int intersectID)
 {
+    bool  intersection_found =  true;
     const char * errorLabel;
     const char * locChar;
     const char * destChar;
@@ -479,9 +547,7 @@ void find_intersection(std::string search_text, ezgl::application *application, 
             destChar = text.c_str();
 //            destChar = search_text.c_str();
             gtk_entry_set_text(DestinationTextGlobal, destChar );
-             
-           
-            
+
             //found_intersections.clear();
             found_intersections.push_back(location_ID);
             found_intersections.push_back(destination_ID);
@@ -489,6 +555,7 @@ void find_intersection(std::string search_text, ezgl::application *application, 
            
         }
         searchingIntersections = true;
+              intersection_found =  true;
     }else{
         num_intersections = 0;
         
@@ -500,18 +567,23 @@ void find_intersection(std::string search_text, ezgl::application *application, 
             if(street1_search_result.size()==0){error = "\ncannot find matching street for input 1\n";} 
             else if(street2_search_result.size()==0){error = "\ncannot find matching street for input 2\n";}
             searchingIntersections = false; //will not be drawn
+             intersection_found =  false;
+            
         }
         else if(street1_search_result.size()>1 || street2_search_result.size()>1){
             found_intersections = find_intersections_of_two_streets(make_pair(street1_search_result[0], street2_search_result[0]));
             searchingIntersections = true; //will be drawn
+             intersection_found =  true;
         }
         else {
             found_intersections = find_intersections_of_two_streets(make_pair(street1_search_result[0], street2_search_result[0]));
             searchingIntersections = true; //will be drawn
+             intersection_found =  true;
         }
         if(found_intersections.size() == 0){
             error = "\nIntersection does not exist\n";
             searchingIntersections = false; //will not be drawn
+            intersection_found =  false;
         }
 
         //PRODUCTING ERROR OUTPUT or STREET NAMES OUTPUT
@@ -521,6 +593,7 @@ void find_intersection(std::string search_text, ezgl::application *application, 
     
     //Go into draw map so that the flags can actually activate
     application->refresh_drawing();
+    return intersection_found;
 }
 
 //void highlight_intersections(vector<int> intersection_ids, ezgl::application *application){
@@ -703,3 +776,18 @@ void act_on_key_press(ezgl::application *app, GdkEventKey* /*key*/, char* /*lett
     }
     g->set_coordinate_system(ezgl::WORLD);
 }
+
+//(34,97,70,1) = (33,54,94,1)
+//(56,145,118,1) = (55,112,143,1)
+//(34,131,116,1) = (34,98,128,1)
+//(104,191,134,1)=(101,180,189,1)
+//(34,97,70,1) = (33,52,94,1)
+//   color-stop(0.0,rgba(34,97,70,1)),
+//             color-stop(0.30,rgba(56,145,118,0.9)),
+//             color-stop(0.81,rgba(34,131,116,0.9)),
+//             color-stop(1.00,rgba(104,191,134,1)));
+
+//   color-stop(0.0,rgba(33,54,94,1)),
+//             color-stop(0.30,rgba(55,112,143,1)),
+//             color-stop(0.81,rgba(34,98,128,1)),
+//             color-stop(1.00,rgba(101,180,189,1)));

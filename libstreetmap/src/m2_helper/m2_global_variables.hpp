@@ -99,12 +99,13 @@ void highlight_POI(ezgl::renderer *g);
 void highlight_intersections(vector<int> intersection_ids,  ezgl::renderer *g);
 void highlight_street(std::vector<int> street_seg_ids, ezgl::renderer *g);
 void highlight_route(std::vector<int> nav_seg_ids, ezgl::renderer *g);
-void find_intersection(std::string search_text, ezgl::application *application, int intersectID);
+bool find_intersection(std::string search_text, ezgl::application *application, int intersectID);
 std::vector<int> testingNav();
 void draw_Segments(std::vector<int> seg_ids,ezgl::application *application);
 void write_Directions(int location, int destination, std::vector<int> seg_ids,ezgl::application *application);
 string turn_from_direction(double curr, double next);
 
+bool find_street(ezgl::application *application,std::string search_text);
 
 /*============== CALLBACK FUNCTIONS FOR BUTTONS ==============*/
 void find_button(GtkWidget */*widget*/, ezgl::application *application);
@@ -120,6 +121,6 @@ void close_button(GtkWidget */*widget*/, ezgl::application *application);
 void location_entry(GtkWidget */*widget*/, ezgl::application *application);
 void destination_entry(GtkWidget */*widget*/, ezgl::application *application);
 
-
+void search_bar(GtkWidget */*widget*/,ezgl::application *application);
 
 void clean_map(ezgl:: application* application);
