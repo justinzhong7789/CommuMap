@@ -169,17 +169,20 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
 }
 
 string turn_from_direction(double curr, double next){    
-    
+    string turn;
     double check = next - curr + M_PI/2;
-    cout<<"Curr: "<<curr<<" next: "<<next<<" check: "<<check<<endl;
-    
+     
     if(-M_PI/2 <= check && check < M_PI/2){
-        return "right";
+        turn = "right";
     }
-    if((-M_PI < check && check<= -M_PI/2)||(M_PI/2 <= check && check<= M_PI)){
-        return "left";
+    else if((-M_PI < check && check<= -M_PI/2)||(M_PI/2 <= check && check<= M_PI)){
+        turn = "left";
     }
-    return "straight";
+    else{
+        turn = "straight";
+    }
+    cout<<"Curr: "<<curr<<" next: "<<next<<" check: "<<(check*180/M_PI)<<" turning: "<<turn<<endl;
+    return turn;
 }
 
 Direction getDirection(LatLon onePos, LatLon twoPos)
@@ -188,10 +191,7 @@ Direction getDirection(LatLon onePos, LatLon twoPos)
     Direction direction;
     double y = twoPos.lat()-onePos.lat();
     double x = twoPos.lon()-onePos.lon();
-//    cout<<"X1 is: "<<onePos.lon()<<"X2 is: "<<twoPos.lon()<<endl;
-//    cout<<"Y1 is: "<<onePos.lat()<<"Y2 is: "<<twoPos.lat()<<endl;
-//    cout<<"dX is: "<<x<<endl;
-//    cout<<"dY is: "<<y<<endl;
+
     if(y == 0){
         if(x > 0){
             direction.Name = "East";
@@ -237,6 +237,7 @@ Direction getDirection(LatLon onePos, LatLon twoPos)
     
     direction.Name = name;
     direction.rad = angle;
+    cout<<"Angle: "<<(angle*180/M_PI)<<" Direction: "<<name<<endl;
     return direction;
 }
 
