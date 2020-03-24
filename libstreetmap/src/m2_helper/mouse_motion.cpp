@@ -40,8 +40,10 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
 
 void walk_button(GtkWidget */*widget*/, ezgl::application *application)
 {
+    searchingRoute = true;
     cout<<"Walk was pressed"<<endl;
-     clean_map(application);
+    found_route_segments = find_path_between_intersections(13, 51601, 0);
+   application->refresh_drawing();
 }
 
 std::vector<int> testingNav(){
@@ -125,6 +127,7 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
     Direction move1;
     Direction move2;
     int from1, from2, to1, to2;
+    int fromTurn1, fromTurn2, toTurn1, toTurn2, turn;
     
     for(int i = 0; (i+1)<seg_ids.size() ; i++){
                 
@@ -147,16 +150,41 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
             to2 = info2.from;
         }
        
-        if(there_is_turn(seg_ids[i],seg_ids[i+1])){
+        if(there_is_turn(seg_ids[i],seg_ids[i+1]))
+        {
+            if((info1.curvePointCount!=0)&&(info2.curvePointCount!=0)){
+                LatLon closest1 = closestCurvePoint(to1, seg_ids[i]);
+                LatLon closest2 = closestCurvePoint(to1, seg_ids[i+1]);
+                LatLon interPos = getIntersectionPosition(to1);
+                move1 = getDirection(closest1,interPos);
+                move2 = getDirection(interPos,closest2);//shouldnt this be the other way around? isnt there an order?
+                string streetName = getStreetName(info2.streetID);
+                if (streetName == "<unknown>"){middle = middle + turn_from_direction(move1.rad, move2.rad)+"\n";}
+                else{
+                    middle = middle + turn_from_direction(move1.rad,move2.rad) + " at " + getStreetName(info2.streetID) + "\n";
             
-            
-            LatLon closest1 = closestCurvePoint(to1, seg_ids[i]);
-            LatLon closest2 = closestCurvePoint(to1, seg_ids[i+1]);
-            LatLon interPos = getIntersectionPosition(to1);
-            move1 = getDirection(closest1,interPos);
-            move2 = getDirection(closest2,interPos);
-            middle = middle + "Turn " + turn_from_direction(move1.rad,move2.rad) + " at " + getStreetName(info2.streetID) + "\n";
-            
+                }
+            }
+//            else{
+//                if(turn == 0){
+//                    toTurn1 = to1;
+//                    turn++;
+//                }
+//
+//                if(turn == 1){
+//                   fromTurn2 = toTurn1;
+//                   toTurn2 = to1;
+//                   turn = 0;
+//                   LatLon fromPos1 = getIntersectionPosition(toTurn1);
+//                   LatLon toPos1 = getIntersectionPosition(fromTurn1);
+//                   LatLon fromPos2 = getIntersectionPosition(toTurn2);
+//                   LatLon toPos2 = getIntersectionPosition(fromTurn2);
+//                   move1 = getDirection(fromPos1,toPos1);
+//                   move2 = getDirection(fromPos2,toPos2);
+//                   middle = middle + turn_from_direction(move1.rad,move2.rad) + " at " + getStreetName(info2.streetID) + "\n";
+//                   fromTurn1 = toTurn1;
+//                }
+//            }
         }
 
         origFrom = to1;
@@ -172,14 +200,15 @@ string turn_from_direction(double curr, double next){
     string turn;
     double check = next - curr + M_PI/2;
      
-    if(-M_PI/2 <= check && check < M_PI/2){
-        turn = "right";
+    if((-M_PI/2 <= check && check < M_PI/2) || ( M_PI*1.5 < check && check <= 2*M_PI)){
+        turn = "Turn right";
+        
     }
-    else if((-M_PI < check && check<= -M_PI/2)||(M_PI/2 <= check && check<= M_PI)){
-        turn = "left";
+    else if((-M_PI < check && check<= -M_PI/2)||(M_PI/2 <= check && check<= M_PI) || ( M_PI<check && check < M_PI*1.5)){
+        turn = "Turn left";
     }
-    else{
-        turn = "straight";
+    else if(check == M_PI||check == M_PI*1.5){
+        turn = "Continue straight";
     }
     cout<<"Curr: "<<curr<<" next: "<<next<<" check: "<<(check*180/M_PI)<<" turning: "<<turn<<endl;
     return turn;
@@ -218,8 +247,14 @@ Direction getDirection(LatLon onePos, LatLon twoPos)
     
     double angle = atan(y/x);
     string name;
+
     if( x<0 && y<0){
         angle = angle - M_PI;
+    }
+    
+      
+    if(angle< 0){
+        angle = angle +2*M_PI;
     }
     
     if(-M_PI/4 <= angle && angle < M_PI/4){
@@ -234,6 +269,8 @@ Direction getDirection(LatLon onePos, LatLon twoPos)
     else if(-3*M_PI/4 <= angle && angle < -M_PI/4){
         name = "South";
     }
+    
+    
     
     direction.Name = name;
     direction.rad = angle;

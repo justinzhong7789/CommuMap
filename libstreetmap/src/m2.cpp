@@ -374,7 +374,7 @@ void close_button(GtkWidget */*widget*/, ezgl::application *application)
     gtk_widget_hide_on_delete(locationLabel);
     gtk_widget_hide_on_delete(dialog);
     
-    //application->refresh_drawing();
+    clean_map(application);
 }
 
 void on_dialog_response(GtkDialog *dialog, gint /*response_id*/, gpointer /*user_data*/) {
