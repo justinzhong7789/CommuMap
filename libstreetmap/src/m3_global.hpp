@@ -62,17 +62,24 @@ class Node {
     }
     
     // Class member functions
-    void set_reachingEdge(StreetSegmentIndex reachEdge);
-    void set_bestTime(double time);
-    void set_parent_id(IntersectionIndex intersect_parent_id);
-    void set_visited(bool visit);
- };
+    void set_reachingEdge(StreetSegmentIndex reachEdge){
+        reachingEdge = reachEdge;
+    }
+    void set_bestTime(double time){
+        bestTime = time;
+    }
+    void set_parent_id(IntersectionIndex intersect_parent_id){
+        parent_id = intersect_parent_id;
+    }
+    void set_visited(bool ifVisited){
+        visited = ifVisited;
+    }
+};
 
 /***************** global variable*********************/
+
 extern vector<Node*> nodeTable;
 
-
-//bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty);
 /************** Function Declarations ******************/ 
 
 /*
@@ -80,7 +87,7 @@ extern vector<Node*> nodeTable;
  * return true is both streets belong to the same street,
  * false if not
  */
-bool there_is_turn(int from_seg_id, int to_seg_id);
+ bool there_is_turn(int from_seg_id, int to_seg_id);
  bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty);
  void makeNodeTable();
  Node* getNodebyID(IntersectionIndex sourceID);
