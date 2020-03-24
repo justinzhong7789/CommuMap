@@ -188,10 +188,10 @@ Direction getDirection(LatLon onePos, LatLon twoPos)
     Direction direction;
     double y = twoPos.lat()-onePos.lat();
     double x = twoPos.lon()-onePos.lon();
-    cout<<"X1 is: "<<onePos.lon()<<"X2 is: "<<twoPos.lon()<<endl;
-    cout<<"Y1 is: "<<onePos.lat()<<"Y2 is: "<<twoPos.lat()<<endl;
-    cout<<"dX is: "<<x<<endl;
-    cout<<"dY is: "<<y<<endl;
+//    cout<<"X1 is: "<<onePos.lon()<<"X2 is: "<<twoPos.lon()<<endl;
+//    cout<<"Y1 is: "<<onePos.lat()<<"Y2 is: "<<twoPos.lat()<<endl;
+//    cout<<"dX is: "<<x<<endl;
+//    cout<<"dY is: "<<y<<endl;
     if(y == 0){
         if(x > 0){
             direction.Name = "East";
@@ -245,9 +245,9 @@ LatLon closestCurvePoint(int interID, int segID){
     auto infoSeg = getInfoStreetSegment(segID);
     int curveCount = infoSeg.curvePointCount;
     double closestLat,closestLon;
-    if(segID<getNumStreetSegments()){
-        cout<<"segID is good"<<endl;
-    }
+//    if(segID<getNumStreetSegments()){
+//        cout<<"segID is good"<<endl;
+//    }
     closestLat = 0;
     closestLon =0;
     double shortestDist = 1000;
