@@ -71,9 +71,7 @@ using namespace std;
  void Node::set_visited(bool ifVisited){
      visited = ifVisited;
  }
-<<<<<<< HEAD
  */
-=======
 
  
  /* 
@@ -97,7 +95,6 @@ using namespace std;
  };
 
  
->>>>>>> trying to debug walk to pick up
  struct WaveElem{
     Node *node; //IntesectionIndex
     int edgeID; // StreetSegmentIndex
@@ -119,7 +116,6 @@ struct greaterWE{
         return (we1.score > we2.score);
     }
 };
-<<<<<<< HEAD
 
 // work in progress
 struct comparatorWE{
@@ -129,10 +125,8 @@ struct comparatorWE{
     }
 };
 //---------------------Variable Declarations -----------------------//
-=======
  */
 /************** Variable Declarations ******************/
->>>>>>> trying to debug walk to pick up
  
 vector<Node*> nodeTable;
  
