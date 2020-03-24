@@ -138,6 +138,8 @@ vector<Node*> nodeTable;
     // vector<WaveElem> wavefront;
     // Establish min heap
     priority_queue <WaveElem, vector<WaveElem>, comparatorWE> pq;
+    // debugging
+    int popped = 0;
     
     LatLon source = getIntersectionPosition(sourceNode->id);
     LatLon dest = getIntersectionPosition(destID);
@@ -151,19 +153,32 @@ vector<Node*> nodeTable;
     pq.push(WaveElem(sourceNode, NO_EDGE, 0, 1, WORST_TIME));
     
     while (!pq.empty()){
+        // If popped takes longer than this, chances are path cannot be found
+        if (popped > 200000){
+            //cout << "first test failed" << endl;
+            return (false);
+        }
             WaveElem wave = pq.top(); // get next element
             pq.pop(); // remove from wavefront
             Node *currNode = wave.node;
+                       
+            popped += 1;
+            
+            if (popped > 100000 && wave.directed == 0){
+            //    cout << "second test failed" << endl;
+                return false;
+            }
             
             if (currNode->id == destID){
+            //    cout << "Nodes popped: " << popped << endl;
                     return true;
             }
             currNode->set_visited(true);
             for (int i=0; i<currNode->outEdge; i++){      
                 Node *toNode;
                 StreetSegmentIndex outEdge_id = getIntersectionStreetSegment(currNode->id, i);
-
-                InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id);                   
+                InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id);   
+                
                 bool legal = false;
                     // Legal check
                 if (currNode->id == info_outEdge.from && currNode->parent_id != info_outEdge.to){
@@ -204,6 +219,7 @@ vector<Node*> nodeTable;
                 }
             }
     }
+    cout << "Failed path nodes popped: " << popped << endl;
     return false;
 }
 
@@ -241,7 +257,7 @@ vector<StreetSegmentIndex> find_path_between_intersections(
         return v;
     }
     else {
-        //nodeTable.clear();
+        nodeTable.clear();
         return {};
     }
 }

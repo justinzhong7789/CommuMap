@@ -76,7 +76,7 @@ class Node {
     }
 };
 
-/***************** global variable*********************/
+/***************** Global Variables ********************/
 
 extern vector<Node*> nodeTable;
 
