@@ -102,7 +102,84 @@ void highlight_route(std::vector<int> seg_ids, ezgl::renderer *g, ezgl:: color c
     }
 }
 
-//Writes the directions
+//void write_walk_directions(int location, int destination, std::vector<int>drive_seg_ids, std::vector<int> walk_seg_ids, ezgl::application *application)
+//{
+//    GtkLabel *display = (GtkLabel *)application->get_object("ScrollLabel");
+// 
+//    //Variables, (already kind of have these already though)
+//    string initialPoint = getIntersectionName(location);
+//    string finalPoint = getIntersectionName(destination);
+//    string total, totalWalk, totalDrive;
+//    string startWalk, middleWalk, endWalk;
+//    string startDrive, middleDrive, endDrive;
+//    int pickUpIntersection;
+//    const char * print;
+//    
+//    
+//    if(walk_seg_ids.size() == 0 && drive_seg_ids.size() == 0){
+//        total = "No directions found\n"; 
+//        print = total.c_str();
+//        gtk_label_set_text(display, print); 
+//        return;
+//    }
+//    if(walk_seg_ids.size() ==0)
+//    {
+//        totalWalk = "Driver will pick you up at your location.\n"; 
+//        print = total.c_str();
+//        gtk_label_set_text(display, print); 
+//        return;
+//    }
+//
+//    //will seg fault if theres no value fo seg_ids[0]
+//    auto infoFirst = getInfoStreetSegment(seg_ids[0]);
+//    string firstStreet = getStreetName(infoFirst.streetID);
+//    
+//    //Figuring out which from and to is the initial intersection ID
+//    int nextInter;
+//    if(infoFirst.from == location){
+//        nextInter = infoFirst.to;
+//    }else{
+//        nextInter = infoFirst.from;
+//    }
+//    
+//    
+//    LatLon locationPos = getIntersectionPosition(location);
+//    LatLon nextInterPos = getIntersectionPosition(nextInter);
+//    
+//    //Getting whether you have to first go north south ect.
+//    Direction firstMove;
+//    firstMove = getDirection(locationPos, nextInterPos);
+//    
+//    //Makes the first sentence for walk path
+//    string unknown;
+//    if(initialPoint.find(unknown)!= std::string::npos)
+//    {
+//        startWalk = "Starting walking path \n";
+//    }
+//    else {startWalk = "Start walking from " + getIntersectionName(location) +  "\n";}
+//    
+//    if(firstStreet == "<unknown>"){
+//        startWalk = startWalk + "Walk " + firstMove.Name + "\n";
+//    }else{
+//        startWalk = startWalk + "Walk " + firstMove.Name + " along " + firstStreet + "\n";
+//    }
+//    
+//    middleWalk = write_middle_directions(location, walk_seg_ids, application, &pickUpIntersection);
+//   
+//    string pickUpName = getIntersectionName(pickUpIntersection);
+//    //Make the last sentence for walk path
+//    if(pickUpName.find(unknown)!= std::string::npos){
+//        endWalk = "Arrived at the pick up location\nWait for the vehicle here\n";
+//    }
+//    else{endWalk = "Arrived at the pick up location, " + pickUpName + "\nWait for the vehicle here\n";}
+//    
+//  
+//    total = start + middle + end;
+//    print = total.c_str();
+//    gtk_label_set_text(display, print);
+//}
+
+//Writes the directions 
 void write_Directions(int location, int destination, std::vector<int> seg_ids, ezgl::application *application)
 {
     
@@ -112,9 +189,8 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
     //Variables, (already kind of have these already though)
     string initialPoint = getIntersectionName(location);
     string finalPoint = getIntersectionName(destination);
-    string start;
-    string end;
-    string middle;
+    string start, middle,end;
+    int lastIntersect;
 
     auto infoFirst = getInfoStreetSegment(seg_ids[0]);
     string firstStreet = getStreetName(infoFirst.streetID); 
@@ -137,8 +213,9 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
     firstMove = getDirection(locationPos, nextInterPos);
     
     //Makes the first sentence
-    
-    if(initialPoint == "<unknown>"){
+    string unknown;
+    if(initialPoint.find(unknown)!= std::string::npos)
+    {
         start = "Beginning route \n";
     }
     else {start = "Beginning route at " + getIntersectionName(location) +  "\n";}
@@ -148,18 +225,31 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
         start = start + "Go " + firstMove.Name +" on " + firstStreet + "\n";
     }
     //Make the last sentence
-    if(finalPoint == "<unknown>"){
+    if(finalPoint.find(unknown)!= std::string::npos){
         end = "Arrived at destination";
     }
-    else{end = "Arrived at " + getIntersectionName(destination);}
+    else{end = "Arrived at " + finalPoint;}
     
-    //Initializes the start at the initial intersection position
+
+    middle = write_middle_directions(location, seg_ids, application, &lastIntersect);
+   
+    const char * print;
+    string total = start + middle + end;
+    print = total.c_str();
+    gtk_label_set_text(display, print);
+}
+
+std:: string write_middle_directions(int location, std::vector<int> seg_ids, ezgl::application *application, int * lastIntersection)
+{
+        //Initializes the start at the initial intersection position
+    std::string middle;
     int origFrom = location;
     Direction move1;
     Direction move2;
     int from1, from2, to1, to2;
-    int lastSegTurnID;
-    
+    int lastSegTurnIdx;
+    int prvSegTurnIdx;
+    double street_length;
     //Making the middle sentence
     for(int i = 0; (i+1)<seg_ids.size() ; i++){
                 
@@ -198,33 +288,34 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
             string radString = turn_from_direction(move1.rad,move2.rad);
             string streetName = getStreetName(info2.streetID);
             if(streetName == "<unknown>"){
-                middle = middle + radString +"\n";
+                street_length = get_length_of_segments(prvSegTurnIdx+1, seg_ids, i+1);
+                stringstream getLength;
+                getLength << (int)street_length;
+                string lengthToGo;
+                getLength >> lengthToGo;
+                middle = middle + radString +" in "+ lengthToGo + " meters\n";
+                       
             }
             else{
                 middle = middle + radString + " at " + streetName + "\n";
             }
-            lastSegTurnID = i;
+            lastSegTurnIdx = i;
+            prvSegTurnIdx = i;
         }
 
         origFrom = to1;
        
     }
-    double street_length = get_length_of_segments(lastSegTurnID, seg_ids);
+    
+    *lastIntersection = to2;
+    street_length = get_length_of_segments(lastSegTurnIdx, seg_ids, seg_ids.size());
     stringstream getLength;
     getLength << (int)street_length;
     string lengthToGo;
     getLength >> lengthToGo;
     
-    middle = middle + "Continue for "+lengthToGo+"meters \n";
-   
-    const char * print;
-    string total = start + middle + end;
-    print = total.c_str();
-    gtk_label_set_text(display, print);
-}
-
-void write_middle_directions(int location, int destination, std::vector<int> seg_ids, ezgl::application *application){
-    
+    middle = middle + "Continue for "+lengthToGo+" meters \n";
+    return middle;
 }
 
 string turn_from_direction(double curr, double next){    
@@ -314,9 +405,9 @@ Direction getDirection(LatLon onePos, LatLon twoPos)
 }
 
 //Finding the closestCurvePoint
-double get_length_of_segments(int start, std::vector<int> seg_ids){
+double get_length_of_segments(int start, std::vector<int> seg_ids, int end){
     double street_length = 0;
-    for(int i = start; i < seg_ids.size(); i++ ){
+    for(int i = start; i < end; i++ ){
         street_length += find_street_segment_length(seg_ids[i]);
     }
     return street_length;
