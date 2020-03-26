@@ -173,29 +173,26 @@ vector<Node*> nodeTable;
     LatLon dest = getIntersectionPosition(destID);
     // Find absolute distance from source to destination
     double original_dist = find_distance_between_two_points({source, dest});
-    double constraint_dist; // initialize constraint
-    if(original_dist < 1500){
+    double constraint_dist = 1.1* original_dist; // initialize constraint
+    /*if(original_dist < 1500){
         constraint_dist = 2.5 * original_dist; // short routes have more flexibility, up to 250%
-    } else { constraint_dist = original_dist * 1.25; }
+    } else { constraint_dist = original_dist * 1.25; }*/
+            
     // First node
-    pq.push(WaveElem(sourceNode, NO_EDGE, WORST_TIME, LARGEST_DISTANCE));
+    pq.push(WaveElem(sourceNode, NO_EDGE, 1, WORST_TIME));
     
     while (!pq.empty()){
-        // If popped takes longer than this, chances are path cannot be found
-        if (popped > 200000){
-            //cout << "first test failed" << endl;
-            return (false);
-        }
             WaveElem wave = pq.top(); // get next element
             pq.pop(); // remove from wavefront
             Node *currNode = wave.node;
                        
-            popped += 1;
+            //popped += 1;
+
             
-            if (popped > 100000 && wave.directed == 0){
+            //if (popped > 50000 && wave.directed == 0){
             //    cout << "second test failed" << endl;
-                return false;
-            }
+            //    return false;
+           // }
             
             if (currNode->id == destID){
             //    cout << "Nodes popped: " << popped << endl;
@@ -205,7 +202,7 @@ vector<Node*> nodeTable;
             for (int i=0; i<currNode->outEdge; i++){      
                 Node *toNode;
                 StreetSegmentIndex outEdge_id = getIntersectionStreetSegment(currNode->id, i);
-                InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id);   
+                InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id); 
                 
                 bool legal = false;
                     // Legal check
@@ -219,15 +216,15 @@ vector<Node*> nodeTable;
                 }
                     // Update nodes if legal
                 if (legal && !toNode->visited){
-                   double score;
+                   double time_score;
                    // Calculate score using travel time and turn time
                     if (currNode->reachingEdge != NO_EDGE){
-                        score = currNode->bestTime + find_street_segment_travel_time(outEdge_id)+turn_penalty*there_is_turn(currNode->reachingEdge, outEdge_id);
-                    } else { score = find_street_segment_travel_time(outEdge_id); } // If first mode, only count travel time
+                        time_score = currNode->bestTime + find_street_segment_travel_time(outEdge_id)+turn_penalty*there_is_turn(currNode->reachingEdge, outEdge_id);
+                    } else { time_score = find_street_segment_travel_time(outEdge_id); } // If first mode, only count travel time
                   
-                if (score < toNode->bestTime || toNode->bestTime == 0){
+                if (time_score < toNode->bestTime || toNode->bestTime == 0){
                     toNode->set_reachingEdge(outEdge_id);
-                    toNode->set_bestTime(score);
+                    toNode->set_bestTime(time_score);
                        
                     // Update table 
                     nodeTable[toNode->id] = toNode;
@@ -239,15 +236,12 @@ vector<Node*> nodeTable;
                         
                     // Testing constraints
                     int constraint = 0;
-                    if (constraint_dist > abs_distance){
-                        constraint = 1;
-                    }                     
-                    pq.push(WaveElem(toNode, outEdge_id, toNode->bestTime, constraint, score));
+                    if (constraint_dist > abs_distance){ constraint = 1; } 
+                    pq.push(WaveElem(toNode, outEdge_id, constraint, time_score)); // 1/100kmh * distance
                     }
                 }
             }
     }
-    cout << "Failed path nodes popped: " << popped << endl;
     return false;
 }
 
@@ -272,7 +266,7 @@ vector<StreetSegmentIndex> find_path_between_intersections(
         const IntersectionIndex intersect_id_end,
         const double turn_penalty){
     
-    makeNodeTable();    
+    makeNodeTable();
     
     Node *sourceNode = getNodebyID(intersect_id_start);
     bool found = bfsPath(sourceNode, intersect_id_end, turn_penalty);
@@ -281,11 +275,36 @@ vector<StreetSegmentIndex> find_path_between_intersections(
         list<StreetSegmentIndex> l = bfsTraceback(intersect_id_end); // Call traceback
         // Convert list to vector
         vector<StreetSegmentIndex> v{make_move_iterator(begin(l)), make_move_iterator(end(l))};
-        nodeTable.clear();
+        //nodeTable.clear();
+        //reset_nodeTable();
+        delete_nodeTable();
         return v;
     }
     else {
-        nodeTable.clear();
-        return {};
+        //nodeTable.clear();
+        //reset_nodeTable();
+        delete_nodeTable();
+         return {};
     }
+}
+
+void reset_nodeTable(){
+    for(int i=0; i< nodeTable.size(); i++){
+        nodeTable[i]->parent_id = NO_ID;
+        nodeTable[i]->reachingEdge = NO_EDGE;
+        nodeTable[i]->bestTime = 0;
+        nodeTable[i]->visited = false;
+    }
+}
+
+//void delete_nodeTable(){
+//    for(int i=0; i< nodeTable.size();i++){
+//        delete nodeTable[i];
+//    }
+//}
+void delete_nodeTable(){
+    for (auto p : nodeTable){
+        delete p;
+    }
+    nodeTable.clear();
 }
