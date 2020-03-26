@@ -72,6 +72,7 @@ extern bool searchingPOI;
 extern bool searchingIntersections;
 extern bool searchingStreet;
 extern bool searchingRoute;
+extern bool searchingWalkPath;
 extern bool click_OnOff;
 extern bool text_OnOff;
 extern bool find_w_click;
@@ -87,6 +88,7 @@ extern GtkEntry *DestinationTextGlobal;
 extern GtkEntry *TurnPenaltyGlobal;
 
 extern vector<int> found_route_segments;
+extern vector<int> found_walk_segments;
 extern double turn_penalty_entry;
 
 /*============== HELPER FUNCTIONS FOR CALLBACK FUNCTIONS ==============*/
@@ -98,7 +100,7 @@ bool elementAlreadyExists(string st, vector<string> vec);
 void highlight_POI(ezgl::renderer *g);
 void highlight_intersections(vector<int> intersection_ids,  ezgl::renderer *g);
 void highlight_street(std::vector<int> street_seg_ids, ezgl::renderer *g);
-void highlight_route(std::vector<int> nav_seg_ids, ezgl::renderer *g);
+void highlight_route(std::vector<int> nav_seg_ids, ezgl::renderer *g), ezgl::color colour;
 bool find_intersection(std::string search_text, ezgl::application *application, int intersectID);
 std::vector<int> testingNav();
 void draw_Segments(std::vector<int> seg_ids,ezgl::application *application);
@@ -124,3 +126,4 @@ void destination_entry(GtkWidget */*widget*/, ezgl::application *application);
 void search_bar(GtkWidget */*widget*/,ezgl::application *application);
 
 void clean_map(ezgl:: application* application);
+double get_length_of_segments(int start, std::vector<int> seg_ids);
