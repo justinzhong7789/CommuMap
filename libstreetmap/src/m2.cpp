@@ -4,7 +4,7 @@
 #include "m2.h"
 
 //HEADER FILES
-#include "m2_helper/mouse_motion.hpp"
+#include "m2_helper/directions.hpp"
 #include "m2_helper/zoom.hpp"
 #include "m2_helper/search.hpp"
 #include "m2_helper/features.hpp"
@@ -70,6 +70,7 @@ vector<string> POItypesTable;
 vector<int> found_intersections;
 vector<int> found_street_segments;
 vector<int> found_route_segments;
+vector<int> found_walk_segments;
 int destination_ID;
 int location_ID;
 
@@ -79,6 +80,7 @@ bool searchingPOI = 0;
 bool searchingIntersections = 0;
 bool searchingStreet = 0;
 bool searchingRoute = true;
+bool searchingWalkPath = false;
 bool click_OnOff = 0;
 bool text_OnOff = 0;
 bool find_w_click = 0;
@@ -153,7 +155,10 @@ void draw_main_canvas(ezgl::renderer *g) {
         highlight_street(found_street_segments, g);
     }
     if(searchingRoute){
-        highlight_route(found_route_segments, g);
+        highlight_route(found_route_segments, g, BLUE);
+    }
+    if(searchingWalkPath){
+        highlight_route(found_walk_segments, g, CYAN);
     }
     nameStreets(g);
     nameFeatures(g);
@@ -177,6 +182,7 @@ void clean_map(ezgl::application *application)
     searchingPOI = false;
     searchingStreet = false;
     searchingRoute = false;
+    searchingWalkPath = false;
     found_intersections.clear();
     found_street_segments.clear();
     application->refresh_drawing();
@@ -343,20 +349,16 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application )
     
 }
 
-void location_entry(GtkWidget */*widget*/, ezgl::application *application)
+void location_entry(GtkWidget *widget, ezgl::application *application)
 {
     //Doubles every time you reopen. (Not sure why this is happening)
-    
-    locationText = gtk_entry_get_text(LocationTextGlobal);
-    cout<< "Pressed Enter for location"<<endl;
-    
+    drive_button(widget, application);
 }
 
-void destination_entry(GtkWidget */*widget*/, ezgl::application *application)
+void destination_entry(GtkWidget *widget, ezgl::application *application)
 {
     //Doubles every time you reopen. (Not sure why this is happening)
-    
-    destinationText = gtk_entry_get_text(DestinationTextGlobal);
+       drive_button(widget, application);
     cout<< "Pressed Enter for destination"<<endl;
     
 }
@@ -370,7 +372,6 @@ void close_button(GtkWidget */*widget*/, ezgl::application *application)
     gtk_label_set_text(scrollLabel,"");
     GtkLabel * routeLabel = (GtkLabel *)application->get_object("Route");
     gtk_label_set_text(routeLabel,"");
-    //searchingRoute = false;
     gtk_widget_hide_on_delete(locationLabel);
     gtk_widget_hide_on_delete(dialog);
     
