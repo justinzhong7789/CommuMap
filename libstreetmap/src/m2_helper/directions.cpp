@@ -45,33 +45,34 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
     ss>>turn_penalty_entry;
     
     if(usingIDs){
-    //gets the initial and final location of the route from the entry
-    string loc = gtk_entry_get_text(LocationIDGlobal);
-    string dest = gtk_entry_get_text(DestinationIDGlobal);
-    
-    //enters the value into my global variables
-    std::stringstream ss1;
-    std::stringstream ss2;
-    ss1<<loc;
-    ss2<<dest;
-    ss1>>location_ID;
-    ss2>>destination_ID;
-    usingIDs = false;
+        //gets the initial and final location of the route from the entry
+        string loc = gtk_entry_get_text(LocationIDGlobal);
+        string dest = gtk_entry_get_text(DestinationIDGlobal);
+
+        //enters the value into my global variables
+        std::stringstream ss1;
+        std::stringstream ss2;
+        ss1<<loc;
+        ss2<<dest;
+        ss1>>location_ID;
+        ss2>>destination_ID;
+        usingIDs = false;
     }
     else{
     
         string locStreets = gtk_entry_get_text(LocationTextGlobal);
         string destStreets = gtk_entry_get_text(DestinationTextGlobal);
         string locStreet1, locStreet2, destStreet1, destStreet2;
-        stringstream streets;
-        streets << locStreets;
-        getline(ss, locStreet1, '&');//change to & test. 
-        ss.ignore(256,' ');
-        getline(ss, locStreet2);
-        streets << destStreets;
-        getline(ss, destStreet1, '&');//change to & test. 
-        ss.ignore(256,' ');
-        getline(ss, destStreet2);
+        stringstream streets1;
+        streets1 << locStreets;
+        getline(streets1, locStreet1, '&');//change to & test. 
+        streets1.ignore(256,' ');
+        getline(streets1, locStreet2);
+         stringstream streets2;
+        streets2 << destStreets;
+        getline(streets2, destStreet1, '&');//change to & test. 
+        streets2.ignore(256,' ');
+        getline(streets2, destStreet2);
         
         
         if(validIntersection(locStreet1, locStreet2, application)){
@@ -98,6 +99,50 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
 void walk_button(GtkWidget */*widget*/, ezgl::application *application)
 {
     searchingWalkPath = true;
+    searchingRoute = true;
+      if(usingIDs){
+        //gets the initial and final location of the route from the entry
+        string loc = gtk_entry_get_text(LocationIDGlobal);
+        string dest = gtk_entry_get_text(DestinationIDGlobal);
+
+        //enters the value into my global variables
+        std::stringstream ss1;
+        std::stringstream ss2;
+        ss1<<loc;
+        ss2<<dest;
+        ss1>>location_ID;
+        ss2>>destination_ID;
+        usingIDs = false;
+    }
+    else{
+    
+        string locStreets = gtk_entry_get_text(LocationTextGlobal);
+        string destStreets = gtk_entry_get_text(DestinationTextGlobal);
+        string locStreet1, locStreet2, destStreet1, destStreet2;
+        stringstream streets1;
+        streets1 << locStreets;
+        getline(streets1, locStreet1, '&');//change to & test. 
+        streets1.ignore(256,' ');
+        getline(streets1, locStreet2);
+        stringstream streets2;
+        streets2 << destStreets;
+        getline(streets2, destStreet1, '&');//change to & test. 
+        streets2.ignore(256,' ');
+        getline(streets2, destStreet2);
+        
+        
+        if(validIntersection(locStreet1, locStreet2, application)){
+              location_ID = found_intersections[0];
+              cout<< "found location"<<endl;
+        }
+        if(validIntersection(destStreet1, destStreet2, application)){
+            destination_ID = found_intersections[0];
+            cout<< "found destination"<<endl;
+        }
+    }
+    
+    
+    
     std::string turnEntry (gtk_entry_get_text(TurnPenaltyGlobal));
     std::stringstream ss;
     ss<<turnEntry;
@@ -118,6 +163,7 @@ void walk_button(GtkWidget */*widget*/, ezgl::application *application)
     write_walk_path_directions(location_ID, destination_ID, found_pick_up_route.first /*The walk path*/, 
                                                             found_pick_up_route.second/*The drive path*/,application);
     application->refresh_drawing();
+
 }
 
 void write_walk_path_directions(int location, int destination, std::vector<int>walk_seg_ids, 
