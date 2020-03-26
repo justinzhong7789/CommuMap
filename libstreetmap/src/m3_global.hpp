@@ -124,8 +124,6 @@ extern vector<Node*> nodeTable;
  bool bfsPath(Node* sourceNode, int destID, double turn_penalty);
  double travelTime(StreetSegmentIndex segID);
  list<StreetSegmentIndex> bfsTraceback(IntersectionIndex destID);
- void reset_nodeTable();
- void reset_nodeTable(vector<int> nodesAccessed);
  void delete_nodeTable();
  /******************************************************/
  
