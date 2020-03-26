@@ -45,6 +45,7 @@
 #include <string>
 #include <set>
 #include "m2_helper/global_variables.hpp"
+#include "m3_global.hpp"
 
 /*==================== GLOBAL VARIABLES DECLARATIONS ====================*/
 
@@ -282,6 +283,8 @@ bool load_map(std::string map_path) {
         makeOSMWayTable();
         makeOSMNodeTable();
         
+        // Used for pathfinding in m3
+        makeNodeTable();
     }
     return load_Map_successful && load_OSM_successful;
 }
@@ -304,6 +307,8 @@ void close_map() {
     OSMNodeTable.clear();
     segmentsOfIntersections.clear();
     tableOfDivisors.clear(); 
+    
+    deleteNodeTable();
 }
 
 

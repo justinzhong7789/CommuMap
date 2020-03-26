@@ -117,8 +117,8 @@ extern vector<Node*> nodeTable;
  list<StreetSegmentIndex> bfsTraceback(IntersectionIndex destID);
  
  // Functions for node table
- void makeNodeTable();
- void delete_nodeTable();
+ extern void makeNodeTable();
+ extern void deleteNodeTable();
  void reset_nodeTable();
  /******************************************************/
  

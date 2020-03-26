@@ -18,126 +18,12 @@
 #include <string>
 #include <queue>
 
-//=================function forward declarations=====================
-
 using namespace std;
 
-/* class Node {
- public:   
-     // Class member variables
-    IntersectionIndex id;
-    IntersectionIndex parent_id;
-    // Outgoing edge etc.
-    // Edge outEdge;
-    int outEdge;
-    int reachingEdge; // ID of the edge used to reach this node
-    double bestTime; // Shortest time found to this node so far
-    bool visited;
-    
-    // Constructors
-    Node(IntersectionIndex ID, int OutEdge){
-        id = ID;
-        parent_id = NO_ID; // Not applicable
-        outEdge = OutEdge;
-        reachingEdge = NO_EDGE; // Not applicable
-        bestTime = 0; // Not applicable
-        visited = false;
-    }
-    Node (IntersectionIndex ID, IntersectionIndex ParentID, int OutEdge, int ReachingEdge, double BestTime, bool ifVisited){
-        id = ID;
-        parent_id = ParentID;
-        outEdge = OutEdge;
-        reachingEdge = ReachingEdge;
-        bestTime = BestTime;
-        visited = ifVisited;
-    }
-    
-    // Class member functions
-    void set_reachingEdge(StreetSegmentIndex reachEdge);
-    void set_bestTime(double time);
-    void set_parent_id(IntersectionIndex intersect_parent_id);
-    void set_visited(bool visit);
- };
- 
- void Node::set_reachingEdge(StreetSegmentIndex reachEdge){
-     reachingEdge = reachEdge;
- }
- void Node::set_bestTime(double time){
-     bestTime = time;
- }
- void Node::set_parent_id(IntersectionIndex intersect_parent_id){
-     parent_id = intersect_parent_id;
- }
- void Node::set_visited(bool ifVisited){
-     visited = ifVisited;
- }
- */
-
- 
- /* 
- class Edge {
- public:
-     // Member variables
-     StreetSegmentIndex id;
-     IntersectionIndex from;
-     IntersectionIndex to;
-     double travelTime; // travel time from intersection from->to
-     
-     // Constructors
-     Edge(StreetSegmentIndex ID){
-         
-     }
-     
-     void set_id(StreetSegmentIndex segment_id);
-     void set_to(IntersectionIndex intersect_to);
-     void set_from(IntersectionIndex intersect_from);
-     void set_travelTime(double time);
- };
-
- 
- struct WaveElem{
-    Node *node; //IntesectionIndex
-    int edgeID; // StreetSegmentIndex
-    double travelTime;
-    double score;
-    int directed; // is node within 190% of Euclidean distance
-    
-    WaveElem (Node *n, int id, float time, int constraint, double dist){
-        node = n;
-        edgeID = id;
-        travelTime = time;
-        directed = constraint;
-        score = dist;
-    }
-};
-
-struct greaterWE{
-    int operator() (const WaveElem& we1, const WaveElem we2){
-        return (we1.score > we2.score);
-    }
-};
-
-// work in progress
-struct comparatorWE{
-    bool operator() (const WaveElem& we1, const WaveElem we2){
-        return ((we1.directed < we2.directed) || ((we1.directed == we2.directed) && 
-                (we1.score > we2.score)));
-    }
-};
-//---------------------Variable Declarations -----------------------//
- */
 /************** Variable Declarations ******************/
  
 vector<Node*> nodeTable;
- 
-//--------------------- Function Declarations ---------------------// 
- /*
- void makeNodeTable();
- Node* getNodebyID(IntersectionIndex sourceID);
- bool bfsPath(Node* sourceNode, int destID, double turn_penalty);
- double travelTime(StreetSegmentIndex segID);
- list<StreetSegmentIndex> bfsTraceback(IntersectionIndex destID);
- */
+
  //--------------------------------------------------------------
  
  // Creates a node table for each intersection index in the map
@@ -163,23 +49,29 @@ vector<Node*> nodeTable;
  // Returns true if a path can be found, false otherwise
  // Updates the node table so that if a path is found, ids and parent ids can be found easily for traceback
  bool bfsPath (Node* sourceNode, int destID, double turn_penalty){
-    // vector<WaveElem> wavefront;
     // Establish min heap
     priority_queue <WaveElem, vector<WaveElem>, comparatorWE> pq;
-    // debugging
-    int popped = 0;
+    
+    // int popped = 0;
     
     LatLon source = getIntersectionPosition(sourceNode->id);
     LatLon dest = getIntersectionPosition(destID);
     // Find absolute distance from source to destination
     double original_dist = find_distance_between_two_points({source, dest});
-    double constraint_dist = 1.1* original_dist; // initialize constraint
+
+    double constraint_dist_0 = 1.1* original_dist; // initialize constraint
+    double constraint_dist_1 = 0.75 * original_dist;
+    double constraint_dist_2 = 0.5 * original_dist;
+    double constraint_dist_3 = 0.25 * original_dist;
+        
+    double constraint_dist = constraint_dist_0;
+    
     /*if(original_dist < 1500){
         constraint_dist = 2.5 * original_dist; // short routes have more flexibility, up to 250%
     } else { constraint_dist = original_dist * 1.25; }*/
             
     // First node
-    pq.push(WaveElem(sourceNode, NO_EDGE, 1, WORST_TIME));
+    pq.push(WaveElem(sourceNode, 1, 0));
     
     while (!pq.empty()){
             WaveElem wave = pq.top(); // get next element
@@ -196,6 +88,7 @@ vector<Node*> nodeTable;
             
             if (currNode->id == destID){
             //    cout << "Nodes popped: " << popped << endl;
+                cout << currNode->bestTime << endl;
                     return true;
             }
             currNode->set_visited(true);
@@ -222,7 +115,7 @@ vector<Node*> nodeTable;
                         time_score = currNode->bestTime + find_street_segment_travel_time(outEdge_id)+turn_penalty*there_is_turn(currNode->reachingEdge, outEdge_id);
                     } else { time_score = find_street_segment_travel_time(outEdge_id); } // If first mode, only count travel time
                   
-                if (time_score < toNode->bestTime || toNode->bestTime == 0){
+                if (time_score < toNode->bestTime){
                     toNode->set_reachingEdge(outEdge_id);
                     toNode->set_bestTime(time_score);
                        
@@ -236,8 +129,16 @@ vector<Node*> nodeTable;
                         
                     // Testing constraints
                     int constraint = 0;
-                    if (constraint_dist > abs_distance){ constraint = 1; } 
-                    pq.push(WaveElem(toNode, outEdge_id, constraint, time_score)); // 1/100kmh * distance
+                    // Update constraints as nodes progress closer to destination. AND condition prevents reassigning constraints to larger number once a smaller number is reached
+                    if (abs_distance < 0.6*original_dist && constraint_dist > constraint_dist_1) constraint_dist = constraint_dist_1;
+                    if (abs_distance < 0.3*original_dist && constraint_dist > constraint_dist_2) constraint_dist = constraint_dist_2;
+                    if (abs_distance < 0.15*original_dist && constraint_dist > constraint_dist_3) constraint_dist = constraint_dist_3;
+                    
+                        if (constraint_dist > abs_distance){ constraint = 1; } 
+                    //pq.push(WaveElem(toNode, constraint, time_score)); // 1/100kmh * distance
+                    
+                    // lets try another heuristic lol
+                    pq.push(WaveElem(toNode, constraint, time_score /*+ 0.75*abs_distance/(info_outEdge.speedLimit * 0.27778)*/));
                     }
                 }
             }
@@ -266,7 +167,7 @@ vector<StreetSegmentIndex> find_path_between_intersections(
         const IntersectionIndex intersect_id_end,
         const double turn_penalty){
     
-    makeNodeTable();
+    //makeNodeTable();
     
     Node *sourceNode = getNodebyID(intersect_id_start);
     bool found = bfsPath(sourceNode, intersect_id_end, turn_penalty);
@@ -275,15 +176,13 @@ vector<StreetSegmentIndex> find_path_between_intersections(
         list<StreetSegmentIndex> l = bfsTraceback(intersect_id_end); // Call traceback
         // Convert list to vector
         vector<StreetSegmentIndex> v{make_move_iterator(begin(l)), make_move_iterator(end(l))};
-        //nodeTable.clear();
-        //reset_nodeTable();
-        delete_nodeTable();
+        reset_nodeTable();
+        // delete_nodeTable();
         return v;
     }
     else {
-        //nodeTable.clear();
-        //reset_nodeTable();
-        delete_nodeTable();
+        reset_nodeTable();
+        // delete_nodeTable();
          return {};
     }
 }
@@ -292,17 +191,12 @@ void reset_nodeTable(){
     for(int i=0; i< nodeTable.size(); i++){
         nodeTable[i]->parent_id = NO_ID;
         nodeTable[i]->reachingEdge = NO_EDGE;
-        nodeTable[i]->bestTime = 0;
+        nodeTable[i]->bestTime = WORST_TIME;
         nodeTable[i]->visited = false;
     }
 }
 
-//void delete_nodeTable(){
-//    for(int i=0; i< nodeTable.size();i++){
-//        delete nodeTable[i];
-//    }
-//}
-void delete_nodeTable(){
+void deleteNodeTable(){
     for (auto p : nodeTable){
         delete p;
     }

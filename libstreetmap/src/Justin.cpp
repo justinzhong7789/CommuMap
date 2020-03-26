@@ -47,7 +47,7 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
                           const IntersectionIndex end_intersection,
                           const double turn_penalty,
                           const double walking_speed, 
-                          const double walking_time_limit){
+                          const double walking_time_limit){/*
     if(nodeTable.size()==0){
         makeNodeTable();
     }
@@ -117,10 +117,11 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
     else{
         nodeTable.clear();
         return {{0},{0}};
-    }
+    }*/
+    return {{0},{0}};
 }
 
-
+/*
 //this is completely Priscilla's code. I only changed part so that the function
 //does not consider one-way streets
 bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
@@ -207,4 +208,4 @@ bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
     //cout << "Failed path nodes popped: " << popped << endl;
     return false;
 
-}
+}*/
