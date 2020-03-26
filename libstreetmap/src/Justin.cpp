@@ -208,37 +208,3 @@ bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
     return false;
 
 }
-
-
-/*
- reset the whole nodeTable
- */
-void reset_nodeTable(){
-    for(int i=0;i<nodeTable.size();i++){
-        nodeTable[i]->parent_id = NO_ID;
-        nodeTable[i]->reachingEdge = NO_EDGE;
-        nodeTable[i]->bestTime = WORST_TIME;
-        nodeTable[i]->visited = false;
-    }
-
-}
-/*
- if pass in the nodes accessed and changed as a vector<int>
- * it only changes those nodes. Faster
- */
-void reset_nodeTable(vector<int> nodesAccessed){
-    for(int i=0; i< nodesAccessed.size(); i++){
-        nodeTable[nodesAccessed[i]]->parent_id = NO_ID;
-        nodeTable[nodesAccessed[i]]->reachingEdge = NO_EDGE;
-        nodeTable[nodesAccessed[i]]->bestTime = WORST_TIME;
-        nodeTable[nodesAccessed[i]]->visited = false;
-    }
-
-}
-
-/*delete the memory allocated on the heap by new when the nodeTable was made*/
-void delete_nodeTable(){
-    for(int i=0; i< nodeTable.size();i++){
-        delete nodeTable[i];
-    }
-}
