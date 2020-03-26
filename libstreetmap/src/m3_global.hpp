@@ -117,14 +117,19 @@ extern vector<Node*> nodeTable;
  * return true is both streets belong to the same street,
  * false if not
  */
+
+// Pathfinding Functions
  bool there_is_turn(int from_seg_id, int to_seg_id);
  bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty);
- void makeNodeTable();
  Node* getNodebyID(IntersectionIndex sourceID);
  bool bfsPath(Node* sourceNode, int destID, double turn_penalty);
  double travelTime(StreetSegmentIndex segID);
  list<StreetSegmentIndex> bfsTraceback(IntersectionIndex destID);
+ 
+ // Functions for node table
+ void makeNodeTable();
  void delete_nodeTable();
+ void reset_nodeTable()
  /******************************************************/
  
  
