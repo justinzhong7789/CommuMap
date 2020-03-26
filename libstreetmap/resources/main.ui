@@ -365,7 +365,13 @@
           <object class="GtkLabel" id="Instructions">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">label</property>
+            <property name="halign">baseline</property>
+            <property name="label" translatable="yes">
+Enter Two Intersections:
+</property>
+            <attributes>
+              <attribute name="font-desc" value="Cousine Bold 15"/>
+            </attributes>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -377,7 +383,9 @@
           <object class="GtkLabel" id="LocationLabel">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">label</property>
+            <property name="halign">start</property>
+            <property name="margin_left">20</property>
+            <property name="label" translatable="yes">Starting Point:</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -389,6 +397,8 @@
           <object class="GtkEntry" id="Location">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="margin_left">20</property>
+            <property name="margin_right">20</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -400,7 +410,9 @@
           <object class="GtkLabel" id="DestinationLabel">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">label</property>
+            <property name="halign">start</property>
+            <property name="margin_left">20</property>
+            <property name="label" translatable="yes">Destination Point:</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -412,6 +424,8 @@
           <object class="GtkEntry" id="Destination">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="margin_left">20</property>
+            <property name="margin_right">20</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -427,6 +441,7 @@
               <object class="GtkEntry" id="TurnPenalty">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="margin_right">20</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -437,11 +452,55 @@
               <object class="GtkLabel" id="TurnPenaltyLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">label</property>
+                <property name="label" translatable="yes">       Turn Penalty:       </property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="WalkingSpeedLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">       Walking Speed:       </property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="WalkingTimeLimit">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">       Walking Time Limit:       </property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="WalkingSpeed">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="margin_right">20</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="WalkingTimeLimi">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="margin_right">20</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">2</property>
               </packing>
             </child>
           </object>
@@ -457,25 +516,43 @@
             <property name="can_focus">False</property>
             <child>
               <object class="GtkButton" id="Drive">
-                <property name="label" translatable="yes">Drive</property>
+                <property name="label" translatable="yes">Route for driving</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="margin_left">20</property>
+                <property name="margin_right">20</property>
               </object>
               <packing>
-                <property name="left_attach">0</property>
+                <property name="left_attach">1</property>
                 <property name="top_attach">0</property>
+                <property name="width">2</property>
               </packing>
             </child>
             <child>
               <object class="GtkButton" id="Walk">
-                <property name="label" translatable="yes">Walk</property>
+                <property name="label" translatable="yes">Route for pick up</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="margin_left">20</property>
+                <property name="margin_right">20</property>
               </object>
               <packing>
-                <property name="left_attach">1</property>
+                <property name="left_attach">3</property>
+                <property name="top_attach">0</property>
+                <property name="width">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="margin_left">20</property>
+                <property name="label" translatable="yes">Choose Route:</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
                 <property name="top_attach">0</property>
               </packing>
             </child>
