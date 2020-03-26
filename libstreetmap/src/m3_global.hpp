@@ -49,7 +49,7 @@ class Node {
         parent_id = NO_ID; // Not applicable
         outEdge = OutEdge;
         reachingEdge = NO_EDGE; // Not applicable
-        bestTime = 0; // Not applicable
+        bestTime = WORST_TIME; // Not applicable
         visited = false;
     }
     Node (IntersectionIndex ID, IntersectionIndex ParentID, int OutEdge, int ReachingEdge, double BestTime, bool ifVisited){
@@ -79,22 +79,12 @@ class Node {
 /***************** Global Variables ********************/
 struct WaveElem{
     Node *node; //IntesectionIndex
-    int edgeID; // StreetSegmentIndex
-    double travelTime;
     double score;
     int directed;
     
-    WaveElem (Node *n, int id, float time, double dist){
-        node = n;
-        edgeID = id;
-        travelTime = time;
-        score = dist;
-    }
     //WaveElem(toNode, outEdge_id, toNode->bestTime, constraint, score));
-    WaveElem(Node* n, int outEdge_id, float bestTime, int constraint, double dist){
+    WaveElem(Node* n, int constraint, double dist){
         node = n;
-        edgeID = outEdge_id;
-        travelTime = bestTime;
         directed = constraint;
         score = dist;
     }
@@ -102,7 +92,7 @@ struct WaveElem{
 
 struct comparatorWE{
     bool operator() (const WaveElem& we1, const WaveElem we2){
-        return ((we1.travelTime < we2.travelTime) || ((we1.travelTime == we2.travelTime) && 
+        return ((we1.directed < we2.directed) || ((we1.directed == we2.directed) && 
                 (we1.score > we2.score)));
     }
 };
@@ -129,7 +119,7 @@ extern vector<Node*> nodeTable;
  // Functions for node table
  void makeNodeTable();
  void delete_nodeTable();
- void reset_nodeTable()
+ void reset_nodeTable();
  /******************************************************/
  
  
