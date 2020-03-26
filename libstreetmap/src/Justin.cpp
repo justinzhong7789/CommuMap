@@ -47,14 +47,14 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
                           const IntersectionIndex end_intersection,
                           const double turn_penalty,
                           const double walking_speed, 
-                          const double walking_time_limit){/*
+                          const double walking_time_limit){
     if(nodeTable.size()==0){
         makeNodeTable();
     }
     list<StreetSegmentIndex> completeWalkPath;
     vector<StreetSegmentIndex> walkPortion;
-
-    IntersectionIndex inter_for_pick_up;
+    vector<StreetSegmentIndex> drive_portion;
+    IntersectionIndex inter_for_pick_up = NO_EDGE;
     Node* sourceNode = getNodebyID(start_intersection);
     bool pathFound = false;
     if(sourceNode != nullptr){
@@ -65,8 +65,8 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
         }
         for(int i = 0; i<completeWalkPath.size();i++){
             if(compute_path_walking_time(walkPortion, walking_speed, turn_penalty)<walking_time_limit){
-                walkPortion.push_back(completeWalkPath.back());
-                completeWalkPath.pop_back();
+                walkPortion.push_back(completeWalkPath.front());
+                completeWalkPath.pop_front();
             }
             else{
                 break;
@@ -76,8 +76,7 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
         if(walkPortion.size()!=0){
             walkPortion.pop_back();
         }
-        
-
+     //   cout<< "walk portion size "<<walkPortion.size()<<endl;
         if(walkPortion.size()==0){
             inter_for_pick_up = start_intersection;
         }
@@ -98,94 +97,89 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
             else if(lastSeg.to == secondTolastSeg.from || lastSeg.to == secondTolastSeg.to){
                 inter_for_pick_up = lastSeg.from;
             }
+            else{return {{},{}};}//path is discontinuous
         }
-        
-        
+        reset_nodeTable();
+        drive_portion = find_path_between_intersections(inter_for_pick_up, end_intersection, turn_penalty);
     
-        vector<StreetSegmentIndex> drive_portion = find_path_between_intersections(inter_for_pick_up, end_intersection, turn_penalty);
-    
-        nodeTable.clear(); 
-        for(int i=0;i< walkPortion.size();i++){
-            cout<<" walk number"<<i<<": "<< walkPortion[i]<<endl;
-        }
         
-        for(int i=0;i< drive_portion.size();i++){
-            cout<<"drive number"<<i<<": "<< drive_portion[i]<<endl;
-        }
+        
+        //cout<< drive_portion.size()<<endl;
+        reset_nodeTable();
         return make_pair(walkPortion, drive_portion);
     }
     else{
-        nodeTable.clear();
-        return {{0},{0}};
-    }*/
-    return {{0},{0}};
+        reset_nodeTable();
+        return {{},{}};
+    }
+    return {{},{}};
 }
 
-/*
+
 //this is completely Priscilla's code. I only changed part so that the function
 //does not consider one-way streets
 bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
         // vector<WaveElem> wavefront;
     // Establish min heap
+    // Establish min heap
     priority_queue <WaveElem, vector<WaveElem>, comparatorWE> pq;
-    // debugging
-    int popped = 0;
+    
+    // int popped = 0;
     
     LatLon source = getIntersectionPosition(sourceNode->id);
     LatLon dest = getIntersectionPosition(destID);
     // Find absolute distance from source to destination
     double original_dist = find_distance_between_two_points({source, dest});
-    double constraint_dist; // initialize constraint
-    if(original_dist < 1500){
-        constraint_dist = 2.5 * original_dist; // short routes have more flexibility, up to 250%
-    } else { constraint_dist = original_dist * 1.25; }
-    // First node
-    pq.push(WaveElem(sourceNode, NO_EDGE, WORST_TIME, LARGEST_DISTANCE));
+
+    double constraint_dist_0 = 1.25* original_dist; // initialize constraint
+    double constraint_dist_1 = 0.9 * original_dist;
+    double constraint_dist_2 = 0.7 * original_dist;
+    double constraint_dist_3 = 0.5 * original_dist;
+    //double constraint_dist_4 = 0.2 * original_dist;
+        
+    double constraint_dist = constraint_dist_0;
     
-    while (!pq.empty()){ 
-        // If popped takes longer than this, chances are path cannot be found
-        if (popped > 200000){
-            //cout << "first test failed" << endl;
-            return (false);
-        }
+    /*if(original_dist < 1500){
+        constraint_dist = 2.5 * original_dist; // short routes have more flexibility, up to 250%
+    } else { constraint_dist = original_dist * 1.25; }*/
+            
+    // First node
+    pq.push(WaveElem(sourceNode, 1, 0));
+    
+    while (!pq.empty()){
             WaveElem wave = pq.top(); // get next element
             pq.pop(); // remove from wavefront
             Node *currNode = wave.node;
-                       
-            popped += 1;
-
-            if (popped > 100000 && wave.directed == 0){
-                return false;
-            }
+                      
             
             if (currNode->id == destID){
-                    return true;
+                //cout << currNode->bestTime << endl;
+                return true;
             }
             currNode->set_visited(true);
             for (int i=0; i<currNode->outEdge; i++){      
                 Node *toNode;
                 StreetSegmentIndex outEdge_id = getIntersectionStreetSegment(currNode->id, i);
-                InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id);   
+                InfoStreetSegment info_outEdge = getInfoStreetSegment(outEdge_id); 
                 
-                if (currNode->id == info_outEdge.from ){
+                    // Legal check
+                if (currNode->id == info_outEdge.from){
                     toNode = nodeTable[info_outEdge.to];
                 }
-                else if (currNode->id == info_outEdge.to ){
+                else if (currNode->id == info_outEdge.to){
                     toNode = nodeTable[info_outEdge.from];
                 }
-                
+                    // Update nodes if legal
                 if (!toNode->visited){
-                   double score;
+                   double time_score;
                    // Calculate score using travel time and turn time
-                   
                     if (currNode->reachingEdge != NO_EDGE){
-                        score = currNode->bestTime + find_street_segment_travel_time(outEdge_id)+turn_penalty*there_is_turn(currNode->reachingEdge, outEdge_id);
-                    } else { score = find_street_segment_travel_time(outEdge_id); } // If first mode, only count travel time
+                        time_score = currNode->bestTime + find_street_segment_travel_time(outEdge_id)+turn_penalty*there_is_turn(currNode->reachingEdge, outEdge_id);
+                    } else { time_score = find_street_segment_travel_time(outEdge_id); } // If first mode, only count travel time
                   
-                if (score < toNode->bestTime || toNode->bestTime == 0){
+                if (time_score < toNode->bestTime){
                     toNode->set_reachingEdge(outEdge_id);
-                    
-                    toNode->set_bestTime(score);
+                    toNode->set_bestTime(time_score);
                        
                     // Update table 
                     nodeTable[toNode->id] = toNode;
@@ -197,15 +191,24 @@ bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
                         
                     // Testing constraints
                     int constraint = 0;
-                    if (constraint_dist > abs_distance){
-                        constraint = 1;
-                    }                     
-                    pq.push(WaveElem(toNode, outEdge_id, toNode->bestTime, constraint, score));
+                    if (original_dist > 5000){
+                    // Update constraints as nodes progress closer to destination. AND condition prevents reassigning constraints to larger number once a smaller number is reached
+                        if (abs_distance < 0.65*original_dist && constraint_dist > constraint_dist_1) constraint_dist = constraint_dist_1;
+                        if (abs_distance < 0.45*original_dist && constraint_dist > constraint_dist_2) constraint_dist = constraint_dist_2;
+                        if (abs_distance < 0.2*original_dist && constraint_dist > constraint_dist_3) constraint_dist = constraint_dist_3;
+                        //if (abs_distance < 0.05*original_dist && constraint_dist > constraint_dist_4) constraint_dist = constraint_dist_4;
+                    }
+                    else constraint_dist = abs_distance*1.15; 
+                    
+                        if (constraint_dist > abs_distance){ constraint = 1; } 
+                    //pq.push(WaveElem(toNode, constraint, time_score)); // 1/100kmh * distance
+                    
+                    // lets try another heuristic lol
+                    pq.push(WaveElem(toNode, constraint, time_score /*+ 0.75*abs_distance/(info_outEdge.speedLimit * 0.27778)*/));
                     }
                 }
             }
     }
-    //cout << "Failed path nodes popped: " << popped << endl;
     return false;
 
-}*/
+}

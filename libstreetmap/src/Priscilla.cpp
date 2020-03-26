@@ -40,7 +40,7 @@ vector<Node*> nodeTable;
  // Gets a node by the intersection id
  Node* getNodebyID(IntersectionIndex sourceID){
      /*this if statement prevents accessing element beyond the bound of the vector(seg fault)*/
-    if(sourceID<nodeTable.size()){
+    if(sourceID<nodeTable.size() && sourceID>=0){
         Node *sourceNode = nodeTable[sourceID];
         return sourceNode; 
     }else{return nullptr;}
@@ -81,7 +81,7 @@ vector<Node*> nodeTable;
                       
             
             if (currNode->id == destID){
-                cout << currNode->bestTime << endl;
+                //cout << currNode->bestTime << endl;
                 return true;
             }
             currNode->set_visited(true);
