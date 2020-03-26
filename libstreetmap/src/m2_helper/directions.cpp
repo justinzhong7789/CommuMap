@@ -44,9 +44,10 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
     ss<<turnEntry;
     ss>>turn_penalty_entry;
     
+    if(usingIDs){
     //gets the initial and final location of the route from the entry
-    string loc = gtk_entry_get_text(LocationTextGlobal);
-    string dest = gtk_entry_get_text(DestinationTextGlobal);
+    string loc = gtk_entry_get_text(LocationIDGlobal);
+    string dest = gtk_entry_get_text(DestinationIDGlobal);
     
     //enters the value into my global variables
     std::stringstream ss1;
@@ -55,6 +56,33 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
     ss2<<dest;
     ss1>>location_ID;
     ss2>>destination_ID;
+    usingIDs = false;
+    }
+    else{
+
+        string locStreets = gtk_entry_get_text(LocationTextGlobal);
+        string destStreets = gtk_entry_get_text(DestinationTextGlobal);
+        string locStreet1, locStreet2, destStreet1, destStreet2;
+        stringstream streets;
+        streets << locStreets;
+        getline(ss, locStreet1, '&');//change to & test. 
+        ss.ignore(256,' ');
+        getline(ss, locStreet2);
+        streets << destStreets;
+        getline(ss, destStreet1, '&');//change to & test. 
+        ss.ignore(256,' ');
+        getline(ss, destStreet2);
+        
+        
+        if(validIntersection(locStreet1, locStreet2, application)){
+              location_ID = found_intersections[0];
+              cout<< "found location"<<endl;
+        }
+        if(validIntersection(destStreet1, destStreet2, application)){
+            destination_ID = found_intersections[0];
+            cout<< "found destination"<<endl;
+        }
+    }
     
     //Puts the segments in a vector that will be drawn later
     found_route_segments = find_path_between_intersections(location_ID, destination_ID, turn_penalty_entry);
@@ -74,10 +102,10 @@ void walk_button(GtkWidget */*widget*/, ezgl::application *application)
     std::stringstream ss;
     ss<<turnEntry;
     ss>>turn_penalty_entry;
-    std::string walkingSpeedEntry (gtk_entry_get_text(TurnPenaltyGlobal));
+    std::string walkingSpeedEntry (gtk_entry_get_text(WalkingSpeedGlobal));
     ss<<walkingSpeedEntry;
     ss>>walking_speed_entry;
-    std::string walkingTimeLimitEntry (gtk_entry_get_text(TurnPenaltyGlobal));
+    std::string walkingTimeLimitEntry (gtk_entry_get_text(WalkingTimeLimitGlobal));
     ss<<walkingTimeLimitEntry;
     ss>>walking_time_limit_entry;
     
@@ -388,12 +416,20 @@ Direction getDirection(LatLon onePos, LatLon twoPos)
     double angle = atan(y/x);
     string name;
     //Because atan is positive if both x and y are negative.
+    if(x<0 && y>0){
+        angle = angle +pi1_2;
+    }
+    if(x>0 && y<0){
+        angle = angle + pi2;
+    }
     if( x<0 && y<0){
         angle = angle - M_PI;
     }
     //trying to prevent negative angles
     if(angle<0){
         angle = angle +pi2;
+    }else if(angle > pi2){
+        angle = angle - pi2;
     }
     
     //Included the negative values just in case
@@ -444,5 +480,4 @@ void highlight_route(std::vector<int> seg_ids, ezgl::renderer *g, ezgl:: color c
         }
     }
 }
- 
 

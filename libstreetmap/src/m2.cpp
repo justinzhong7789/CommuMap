@@ -85,15 +85,20 @@ bool click_OnOff = 0;
 bool text_OnOff = 0;
 bool find_w_click = 0;
 bool load_success;
+bool usingIDs = 0;
 //void clean_map(ezgl::application *application);
 GtkEntry *textboxGlobal;
 
 //Global GTK WIDGETS
 GtkEntry *LocationTextGlobal;
 GtkEntry *DestinationTextGlobal;
+GtkEntry *LocationIDGlobal;
+GtkEntry *DestinationIDGlobal;
 GtkEntry *TurnPenaltyGlobal;
 GtkEntry *WalkingSpeedGlobal;
 GtkEntry *WalkingTimeLimitGlobal;
+GtkEntry *LocationComboEntry;
+GtkEntry *DestinationComboEntry;
 
 double turn_penalty_entry = 0;
 double walking_speed_entry = 0;
@@ -167,11 +172,6 @@ void draw_main_canvas(ezgl::renderer *g) {
     nameStreets(g);
     nameFeatures(g);
     
-//    ezgl::surface * redDot = g->load_png("main/Images/redDot.png");
-//    g->draw_surface(redDot, point2d_from_latlon(minMax));
-    
-//    g->sepoint2d_from_latlon(minMax), 0.2, 0, 360);
-    
     if(searchingIntersections ){
         highlight_intersections(found_intersections, g);
     }
@@ -204,6 +204,7 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   application->colourZoomInButton(application);
   application->colourZoomOutButton(application);
   application->colourZoomFitButton(application);
+  application->colourGrid(application);
   //application->colourNightModeButton(application);
     
     GtkLabel *error = (GtkLabel*) application->get_object("ErrorOutput");
@@ -223,7 +224,8 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
   g_signal_connect(drawPOI, "clicked", G_CALLBACK(draw_POI), application);
 
   GObject * NightMode = application->get_object("NightMode");
-  g_signal_connect(NightMode, "clicked", G_CALLBACK(nightMode_button),application);  
+  g_signal_connect(NightMode, "clicked", G_CALLBACK(nightMode_button),application); 
+//  g_signal_connect(NightMode, "enter-notify-event", G_CALLBACK(hover_test), application);
   
 //  GtkWidget *test = (GtkWidget *) application->get_object("button");
 //  g_signal_connect(test, "clicked", G_CALLBACK(button_test),application);
@@ -235,7 +237,46 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
    TurnPenaltyGlobal = (GtkEntry *)application->get_object("TurnPenalty");
    WalkingSpeedGlobal = (GtkEntry *)application->get_object("WalkingSpeed");
    WalkingTimeLimitGlobal = (GtkEntry *)application->get_object("WalkingTimeLimit");
+   
+   GtkWidget *locationComboBox = (GtkWidget*) application->get_object("LocationComboBox");
+   GtkWidget *destinationComboBox = (GtkWidget*) application->get_object("DestinationComboBox");
+      
+    LocationComboEntry = (GtkEntry *) application->get_object("LocationComboEntry");
+    DestinationComboEntry = (GtkEntry *) application->get_object("DestinationComboEntry");
+
+   g_signal_connect(locationComboBox,"changed",G_CALLBACK(location_combo), NULL);
+   g_signal_connect(destinationComboBox,"changed",G_CALLBACK(destination_combo), NULL);
   
+}
+
+void location_combo(GtkComboBox */*widget*/, ezgl::application * /*application*/)
+{
+    string textEntry = gtk_entry_get_text(LocationComboEntry);
+    cout<< textEntry<< endl;
+    string locationEntry = gtk_entry_get_text(LocationTextGlobal);
+    if(locationEntry.find("&") != std::string::npos ){
+        stringstream ss(locationEntry);
+        string street1;
+        getline(ss, street1, '&');
+        textEntry = street1 + " & " + textEntry;
+    }
+    const char * printText = textEntry.c_str();
+    gtk_entry_set_text(LocationTextGlobal, printText);
+    
+}
+void destination_combo(GtkComboBox */*widget*/, ezgl::application * /*application*/)
+{
+    string textEntry = gtk_entry_get_text(DestinationComboEntry);
+    cout<< textEntry<< endl;
+    string destinationEntry = gtk_entry_get_text(DestinationTextGlobal);
+    if(destinationEntry.find("&") != std::string::npos ){
+        stringstream ss(destinationEntry);
+        string street1;
+        getline(ss, street1, '&');
+        textEntry = street1 + " & " + textEntry;
+    }
+    const char * printText = textEntry.c_str();
+    gtk_entry_set_text(DestinationTextGlobal, printText);
 }
 
 
@@ -294,7 +335,7 @@ bool find_street(ezgl::application *application,std::string search_text){
 
 void window_button(GtkWidget */*widget*/, ezgl::application *application )
 {
-    
+    application->colourGrid(application);
     clean_map(application);
     find_w_click = true; 
     
@@ -324,6 +365,11 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application )
     gtk_entry_set_text(DestinationTextGlobal, "Destination");
     g_signal_connect(DestinationTextGlobal, "activate", G_CALLBACK(destination_entry), application);
     
+    
+    LocationIDGlobal = (GtkEntry *) application->get_object("LocationID");
+    DestinationIDGlobal = (GtkEntry *) application->get_object("DestinationID");
+ 
+    
     //If drive button is pressed
     GObject *driveButton = application->get_object("Drive");
     g_signal_connect(driveButton, "clicked", G_CALLBACK(drive_button), application);
@@ -331,6 +377,9 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application )
     //If walk button is pressed
     GObject *walkButton = application->get_object("Walk");
     g_signal_connect(walkButton, "clicked", G_CALLBACK(walk_button), application);
+    
+    GObject *useIDsButton = application->get_object("UseIDs");
+    g_signal_connect(useIDsButton, "clicked", G_CALLBACK(useIDs_button), application);
     
     GObject *closeButton = application->get_object("Close");
     g_signal_connect(closeButton, "clicked", G_CALLBACK(close_button), application);
@@ -341,18 +390,22 @@ void window_button(GtkWidget */*widget*/, ezgl::application *application )
     
 }
 
+void useIDs_button(GtkWidget */*widget*/, ezgl::application */*application*/)
+{
+    usingIDs = true;
+}
+
+
 void location_entry(GtkWidget *widget, ezgl::application *application)
 {
     //Doubles every time you reopen. (Not sure why this is happening)
-    drive_button(widget, application);
+    show_location_autofill(widget, application);
 }
 
 void destination_entry(GtkWidget *widget, ezgl::application *application)
 {
     //Doubles every time you reopen. (Not sure why this is happening)
-       drive_button(widget, application);
-    cout<< "Pressed Enter for destination"<<endl;
-    
+     show_destination_autofill(widget, application);
 }
 
 void close_button(GtkWidget */*widget*/, ezgl::application *application)
@@ -376,7 +429,81 @@ void on_dialog_response(GtkDialog *dialog, gint /*response_id*/, gpointer /*user
 }
 
 
+void show_location_autofill(GtkWidget */*widget*/, ezgl::application *application)
+{
+    const char * fill;
+    string streetName;
+    string currentText = gtk_entry_get_text(LocationTextGlobal);
+      std::vector<int> streetIds ;
+    
+    GtkListStore *listStoreLoc = (GtkListStore *)application->get_object("LocationListstore");
+    GtkTreeIter iter;
+    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(listStoreLoc), &iter);
+    
+        stringstream ss(currentText);
+        string street1, street2;
+        getline(ss, street1, '&');
+        street2 = street1;
+        ss.ignore(256,' ');
+        getline(ss, street2);
+        
+        streetIds = find_street_ids_from_partial_street_name(street2);
+       
+        for(int i = 0; i<5; i++){
+            if(streetIds.size()==0){
+                gtk_list_store_set(listStoreLoc, &iter, 0, "No options Found",-1 );
+                gtk_tree_model_iter_next(GTK_TREE_MODEL(listStoreLoc), &iter);
+            }
+            if(i>=streetIds.size()){
+                gtk_list_store_set(listStoreLoc, &iter, 0, "",-1 );
+                gtk_tree_model_iter_next(GTK_TREE_MODEL(listStoreLoc), &iter);
+            }else{
+                streetName = getStreetName(streetIds[i]);
+                fill = streetName.c_str();
+                gtk_list_store_set(listStoreLoc, &iter, 0, fill,-1 );
+                gtk_tree_model_iter_next(GTK_TREE_MODEL(listStoreLoc), &iter);
+            }
+        }
+    
+}
 
+void show_destination_autofill(GtkWidget */*widget*/, ezgl::application *application)
+{
+    const char * fill;
+    string streetName;
+    string currentText = gtk_entry_get_text(DestinationTextGlobal);
+      std::vector<int> streetIds ;
+    
+    GtkListStore *listStoreDest = (GtkListStore *)application->get_object("DestinationListstore");
+    GtkTreeIter iter;
+    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(listStoreDest), &iter);
+    
+        stringstream ss(currentText);
+        string street1, street2;
+        getline(ss, street1, '&');
+        street2 = street1;
+        ss.ignore(256,' ');
+        getline(ss, street2);
+        
+        streetIds = find_street_ids_from_partial_street_name(street2);
+        
+        for(int i = 0; i<5; i++){
+            if(streetIds.size()==0){
+                gtk_list_store_set(listStoreDest, &iter, 0, "No options Found",-1 );
+                gtk_tree_model_iter_next(GTK_TREE_MODEL(listStoreDest), &iter);
+            }
+            if(i>=streetIds.size()){
+                gtk_list_store_set(listStoreDest, &iter, 0, "",-1 );
+                gtk_tree_model_iter_next(GTK_TREE_MODEL(listStoreDest), &iter);
+            }else{
+                streetName = getStreetName(streetIds[i]);
+                fill = streetName.c_str();
+                gtk_list_store_set(listStoreDest, &iter, 0, fill,-1 );
+                gtk_tree_model_iter_next(GTK_TREE_MODEL(listStoreDest), &iter);
+            }
+        }
+    
+}
 
 
 
@@ -482,11 +609,9 @@ void find_button(GtkWidget */*widget*/, ezgl::application *application){
 bool find_intersection(std::string search_text, ezgl::application *application, int intersectID)
 {
     bool  intersection_found =  true;
-    const char * errorLabel;
+  
     const char * locChar;
     const char * destChar;
-    string error;
-    GtkLabel *errorOutput = (GtkLabel*)application->get_object("ErrorOutput");
     
     stringstream ss(search_text);
     string street1, street2;
@@ -496,11 +621,8 @@ bool find_intersection(std::string search_text, ezgl::application *application, 
     ss.ignore(256,' ');
     getline(ss, street2);
 
-    error = "\nStreet 1: " + street1 + "     Street 2: " + street2 + "\n";
-
     street1_search_result = find_street_ids_from_partial_street_name(street1);
     street2_search_result = find_street_ids_from_partial_street_name(street2);
-    //vector<int> intersections;
             
     
     //DEBUGGIN EDIT
@@ -517,10 +639,12 @@ bool find_intersection(std::string search_text, ezgl::application *application, 
             //Outputting found intersection in search bar
             location_ID = intersectID; 
             locChar = text.c_str();
-            //locChar = search_text.c_str();
-            gtk_entry_set_text(LocationTextGlobal, locChar );
+        
+            gtk_entry_set_text(LocationIDGlobal, locChar );
             
-           
+            locChar = search_text.c_str();
+            gtk_entry_set_text(LocationTextGlobal, locChar );
+               
             found_intersections.push_back(intersectID);
             
             num_intersections++; //now on step 1 (num =1)
@@ -535,7 +659,9 @@ bool find_intersection(std::string search_text, ezgl::application *application, 
             
             //Outputting found intersection in search bar
             destChar = text.c_str();
-//            destChar = search_text.c_str();
+             gtk_entry_set_text(DestinationIDGlobal, destChar );
+             
+            destChar = search_text.c_str();
             gtk_entry_set_text(DestinationTextGlobal, destChar );
 
             //found_intersections.clear();
@@ -549,9 +675,25 @@ bool find_intersection(std::string search_text, ezgl::application *application, 
     }else{
         num_intersections = 0;
         
+        intersection_found = validIntersection(street1, street2, application);
+    }
     
+    //Go into draw map so that the flags can actually activate
+    application->refresh_drawing();
+    return intersection_found;
+}
+
+bool validIntersection(std::string street1, std::string street2, ezgl::application *application)
+{
+    //REGULARLY FINDING THE INTERSECTION
+    bool intersection_found;
+    const char * errorLabel;
+    string error;
+    GtkLabel *errorOutput = (GtkLabel*)application->get_object("ErrorOutput");
     
-        //REGULARLY FINDING THE INTERSECTION
+    vector<int> street1_search_result, street2_search_result;
+    street1_search_result = find_street_ids_from_partial_street_name(street1);
+    street2_search_result = find_street_ids_from_partial_street_name(street2);
         //and error checking
         if(street1_search_result.size()==0 || street2_search_result.size()==0 ){
             if(street1_search_result.size()==0){error = "\ncannot find matching street for input 1\n";} 
@@ -579,12 +721,9 @@ bool find_intersection(std::string search_text, ezgl::application *application, 
         //PRODUCTING ERROR OUTPUT or STREET NAMES OUTPUT
         errorLabel = error.c_str();
         gtk_label_set_text(errorOutput, errorLabel);
-    }
-    
-    //Go into draw map so that the flags can actually activate
-    application->refresh_drawing();
-    return intersection_found;
-}
+     
+        return intersection_found;
+} 
 
 //void highlight_intersections(vector<int> intersection_ids, ezgl::application *application){
 void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g){
@@ -755,29 +894,56 @@ void act_on_key_press(ezgl::application *app, GdkEventKey* /*key*/, char* /*lett
     g->set_color(ezgl::BLACK);
     g->set_font_size(14);
     
-    vector<int> results = find_street_ids_from_partial_street_name(typed);
-    int results_num = results.size();
-    app->refresh_drawing();    
-    for (int i = 0; i < std::min(5, results_num); i++){
-        g->set_color(ezgl::WHITE);
-        g->fill_rectangle({start_point.x, start_point.y+30*(i)+3}, {end_point.x, end_point.y+30*(i)+3});
-        g->set_color(ezgl::BLACK);
-        g->draw_text({text_start.x, text_start.y+30*(i)+3}, getStreetName(results[i]));
-    }
+    vector<int> results; 
+    int results_num; 
+   
+    
+//    if(typed.find("&") != std::string::npos){
+//        stringstream ss(typed);
+//        string street1, street2;
+//        getline(ss, street1, '&');
+//        ss.ignore(256,' ');
+//        getline(ss, street2);
+//        
+//        results = find_street_ids_from_partial_street_name(street2);
+//        results_num = results.size();
+//        app->refresh_drawing();    
+//        for (int i = 0; i < std::min(5, results_num); i++){
+//        g->set_color(ezgl::WHITE);
+//        g->fill_rectangle({start_point.x, start_point.y+30*(i)+3}, {end_point.x, end_point.y+30*(i)+3});
+//        g->set_color(ezgl::BLACK);
+//        g->draw_text({text_start.x, text_start.y+30*(i)+3}, getStreetName(results[i]));
+//        }
+//    }
+//    else{
+//        results = find_street_ids_from_partial_street_name(typed);
+//        results_num = results.size();
+//        app->refresh_drawing();    
+//        for (int i = 0; i < std::min(5, results_num); i++){
+//        g->set_color(ezgl::WHITE);
+//        g->fill_rectangle({start_point.x, start_point.y+30*(i)+3}, {end_point.x, end_point.y+30*(i)+3});
+//        g->set_color(ezgl::BLACK);
+//        g->draw_text({text_start.x, text_start.y+30*(i)+3}, getStreetName(results[i]));
+//    
+//        }
+//    }
+        stringstream ss(typed);
+        string street1, street2;
+        getline(ss, street1, '&');
+        ss.ignore(256,' ');
+        street2 = street1;
+        getline(ss, street2);
+        
+        results = find_street_ids_from_partial_street_name(street2);
+        results_num = results.size();
+        app->refresh_drawing();    
+        for (int i = 0; i < std::min(5, results_num); i++){
+            g->set_color(ezgl::WHITE);
+            g->fill_rectangle({start_point.x, start_point.y+30*(i)+3}, {end_point.x, end_point.y+30*(i)+3});
+            g->set_color(ezgl::BLACK);
+            g->draw_text({text_start.x, text_start.y+30*(i)+3}, getStreetName(results[i]));
+        }
+    
+    
     g->set_coordinate_system(ezgl::WORLD);
 }
-
-//(34,97,70,1) = (33,54,94,1)
-//(56,145,118,1) = (55,112,143,1)
-//(34,131,116,1) = (34,98,128,1)
-//(104,191,134,1)=(101,180,189,1)
-//(34,97,70,1) = (33,52,94,1)
-//   color-stop(0.0,rgba(34,97,70,1)),
-//             color-stop(0.30,rgba(56,145,118,0.9)),
-//             color-stop(0.81,rgba(34,131,116,0.9)),
-//             color-stop(1.00,rgba(104,191,134,1)));
-
-//   color-stop(0.0,rgba(33,54,94,1)),
-//             color-stop(0.30,rgba(55,112,143,1)),
-//             color-stop(0.81,rgba(34,98,128,1)),
-//             color-stop(1.00,rgba(101,180,189,1)));
