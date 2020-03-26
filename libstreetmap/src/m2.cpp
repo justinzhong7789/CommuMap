@@ -73,20 +73,25 @@ vector<int> found_route_segments;
 vector<int> found_walk_segments;
 int destination_ID;
 int location_ID;
+int pickUp_ID;
+int start_ID;
+int end_ID;
 
 //Created flags
 bool night;
 bool searchingPOI = 0;
 bool searchingIntersections = 0;
 bool searchingStreet = 0;
-bool searchingRoute = true;
-bool searchingWalkPath = true;
+bool searchingRoute = false;
+bool searchingWalkPath = false;
 bool click_OnOff = 0;
 bool text_OnOff = 0;
 bool find_w_click = 0;
 bool load_success;
 bool usingIDs = 0;
 bool nightHover = false;
+bool open= 0;
+
 //void clean_map(ezgl::application *application);
 GtkEntry *textboxGlobal;
 
@@ -132,8 +137,6 @@ void draw_map() {
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world, BACKGROUND);
 
     application.run(initial_setup, act_on_mouse_click, nullptr, act_on_key_press);
-   
-  //  close_M2();
     
 }
 
@@ -166,6 +169,7 @@ void draw_main_canvas(ezgl::renderer *g) {
     }
     if(searchingRoute){
         highlight_route(found_route_segments, g, BLUE);
+     
     }
     if(searchingWalkPath){
         highlight_route(found_walk_segments, g, CYAN);
@@ -179,8 +183,100 @@ void draw_main_canvas(ezgl::renderer *g) {
     if(searchingPOI){
         highlight_POI(g);
     }
+    if(searchingRoute || searchingWalkPath){
+        start_ID = location_ID;
+        end_ID = destination_ID;
+        drawStartEndPoints(g);
+    }
 }
 
+void drawStartEndPoints(ezgl::renderer *g)
+{
+   
+    if(numTimesDrawn != 0){
+        if(searchingWalkPath && found_walk_segments.size() != 0){
+            LatLon  pickUpPos = getIntersectionPosition(pickUp_ID);
+            point2d pickUpCentre (x_from_lon(pickUpPos.lon()),y_from_lat(pickUpPos.lat())); 
+            point2d pickUpText (x_from_lon(pickUpPos.lon()),y_from_lat(pickUpPos.lat())+0.002*(zooms.zcase)/(10-zooms.zcase)); 
+
+            point2d pickUpBackStart (x_from_lon(pickUpPos.lon())-0.005*(zooms.zcase)/(10-zooms.zcase),y_from_lat(pickUpPos.lat())+0.001*(zooms.zcase)/(10-zooms.zcase)); 
+            point2d pickUpBackEnd (x_from_lon(pickUpPos.lon())+0.005*(zooms.zcase)/(10-zooms.zcase),y_from_lat(pickUpPos.lat())+0.003*(zooms.zcase)/(10-zooms.zcase)); 
+            
+            rectangle pickUpRect (pickUpBackStart, pickUpBackEnd);
+            g->set_color(WHITE);
+            g->fill_rectangle(pickUpRect);
+            
+            g->set_color(RED);
+            g->fill_arc(pickUpCentre, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);
+            g->draw_text(pickUpText, "Pick up Location");
+
+            LatLon locPos = getIntersectionPosition(start_ID);
+            point2d locText (x_from_lon(locPos.lon()),y_from_lat(locPos.lat())+0.002*(zooms.zcase)/(10-zooms.zcase)); 
+            point2d locCentre (x_from_lon(locPos.lon()),y_from_lat(locPos.lat())); 
+
+             
+            point2d locBackStart (x_from_lon(locPos.lon())-0.005*(zooms.zcase)/(10-zooms.zcase),y_from_lat(locPos.lat())+0.001*(zooms.zcase)/(10-zooms.zcase)); 
+            point2d locBackEnd (x_from_lon(locPos.lon())+0.005*(zooms.zcase)/(10-zooms.zcase),y_from_lat(locPos.lat())+0.003*(zooms.zcase)/(10-zooms.zcase)); 
+            
+            rectangle locRect (locBackStart, locBackEnd);
+            g->set_color(WHITE);
+            g->fill_rectangle(locRect);
+            
+            
+            g->set_color(CYAN);
+            g->fill_arc(locCentre, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);
+            g->draw_text(locText, "Start");
+        
+        }else if (searchingWalkPath && found_walk_segments.size() == 0){
+            LatLon  pickUpPos = getIntersectionPosition(pickUp_ID);
+            point2d pickUpCentre (x_from_lon(pickUpPos.lon()),y_from_lat(pickUpPos.lat())); 
+            point2d pickUpText (x_from_lon(pickUpPos.lon()),y_from_lat(pickUpPos.lat())+0.002*(zooms.zcase)/(10-zooms.zcase)); 
+            
+            point2d pickUpBackStart (x_from_lon(pickUpPos.lon())-0.005*(zooms.zcase)/(10-zooms.zcase),y_from_lat(pickUpPos.lat())+0.001*(zooms.zcase)/(10-zooms.zcase)); 
+            point2d pickUpBackEnd (x_from_lon(pickUpPos.lon())+0.005*(zooms.zcase)/(10-zooms.zcase),y_from_lat(pickUpPos.lat())+0.003*(zooms.zcase)/(10-zooms.zcase)); 
+            
+            rectangle pickUpRect (pickUpBackStart, pickUpBackEnd);
+            g->set_color(WHITE);
+            g->fill_rectangle(pickUpRect);
+            
+            
+            g->set_color(RED);
+            g->fill_arc(pickUpCentre, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);
+            g->draw_text(pickUpText, "Pick up Location");
+        
+        }else{
+             LatLon locPos = getIntersectionPosition(start_ID);
+            point2d locText (x_from_lon(locPos.lon()),y_from_lat(locPos.lat())+0.002*(zooms.zcase)/(10-zooms.zcase)); 
+            point2d locCentre (x_from_lon(locPos.lon()),y_from_lat(locPos.lat()));
+            
+            point2d locBackStart (x_from_lon(locPos.lon())-0.005*(zooms.zcase)/(10-zooms.zcase),y_from_lat(locPos.lat())+0.001*(zooms.zcase)/(10-zooms.zcase)); 
+            point2d locBackEnd (x_from_lon(locPos.lon())+0.005*(zooms.zcase)/(10-zooms.zcase),y_from_lat(locPos.lat())+0.003*(zooms.zcase)/(10-zooms.zcase)); 
+            
+            rectangle locRect (locBackStart, locBackEnd);
+            g->set_color(WHITE);
+            g->fill_rectangle(locRect);
+            
+            g->set_color(CYAN);
+            g->fill_arc(locCentre, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);
+            g->draw_text(locText, "Start");
+   
+        }
+        LatLon  destPos = getIntersectionPosition(end_ID);
+        point2d destCentre (x_from_lon(destPos.lon()),       y_from_lat(destPos.lat())); 
+        point2d destText (x_from_lon(destPos.lon()),y_from_lat(destPos.lat())+0.002*(zooms.zcase)/(10-zooms.zcase)); 
+        
+        point2d destBackStart (x_from_lon(destPos.lon())-0.005*(zooms.zcase)/(10-zooms.zcase),y_from_lat(destPos.lat())+0.001*(zooms.zcase)/(10-zooms.zcase)); 
+        point2d destBackEnd (x_from_lon(destPos.lon())+0.005*(zooms.zcase)/(10-zooms.zcase),y_from_lat(destPos.lat())+0.003*(zooms.zcase)/(10-zooms.zcase)); 
+
+        rectangle destRect (destBackStart, destBackEnd);
+        g->set_color(WHITE);
+        g->fill_rectangle(destRect);
+        
+        g->set_color(BLUE);
+        g->fill_arc(destCentre, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);
+        g->draw_text(destText, "Destination");
+    }
+}
 
 void clean_map(ezgl::application *application)
 {
@@ -245,7 +341,7 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
    WalkingSpeedGlobal = (GtkEntry *)application->get_object("WalkingSpeed");
    WalkingTimeLimitGlobal = (GtkEntry *)application->get_object("TimeLimit");
    GObject* help = application->get_object("Help");
- //  g_signal_connect(help, "clicked", G_CALLBACK(instructions), application);
+ g_signal_connect(help, "clicked", G_CALLBACK(instructions), application);
   
    GtkWidget *locationComboBox = (GtkWidget*) application->get_object("LocationComboBox");
    GtkWidget *destinationComboBox = (GtkWidget*) application->get_object("DestinationComboBox");
@@ -258,14 +354,25 @@ void initial_setup(ezgl::application *application, bool /*new_window*/){
 }
 void instructions(GtkWidget */*widget*/,ezgl::application *application)
 {
-    if(nightHover){
+    
     string instructions;
-    instructions = "\n\n\n\n\nThis button operates Night Mode!\nWhen it's too dark outside\nand you dont want to hur your eyes\n";
-    GtkLabel* instructionsLabel = (GtkLabel*)application->get_object("ErrorOutput");
+    if(open == 0){
+        instructions = "\nHow to operate Navigation:\n 1)\tType in two intersections, \n\tand separate streets by an '&' sign";
+        instructions +="\n\n2)\tType in beginning of intersection and find any known \n\tstreets in the drop down box.";
+        instructions +="\n\tSelect and continue to type the second street\n\tYou can continue using the drop down box for the second street";
+        instructions +="\n\n3)\tInput intersection Ids for the city \n\t(Only for people who created CommuMaps)";
+        instructions +="\n\tPress the 'Use Id's' button before pressing \n\tchosing the method of navigation";
+        instructions +="\n\n4)\tYou have the choice to choose different methods \n\t(driving or driving and walking)";
+        instructions +="\n\tInput the walking speed, turning time \n\tand walking time limit in the following boxes";
+        open = 1;
+    }else{
+        instructions = "";
+        open = 0;
+    }
+    GtkLabel* instructionsLabel = (GtkLabel*)application->get_object("ScrollLabel");
     const char* print;
     print = instructions.c_str();
     gtk_label_set_text(instructionsLabel, print);
-   }
     nightHover = false;
 }
 
@@ -793,10 +900,14 @@ void search_button(GtkWidget */*widget*/, ezgl::application *application){
     GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
     const char* search_text = gtk_entry_get_text(textEntry);
     
+    const char * errorLabel;
+    string error;
+    GtkLabel *errorOutput = (GtkLabel*)application->get_object("ErrorOutput");    
+    
     std::vector<StreetIndex> street_index = find_street_ids_from_partial_street_name(search_text);
     // check if there are valid results
     if (street_index.size() == 0){
-        cout << "No results found" << endl;
+        error = "\nNo results found\n";
         searchingStreet = false; 
     }
     else {
@@ -809,8 +920,12 @@ void search_button(GtkWidget */*widget*/, ezgl::application *application){
         found_street_segments = find_street_segments_of_street(street_id);
       
     }
+    
+    errorLabel = error.c_str();
+    gtk_label_set_text(errorOutput, errorLabel);
+    
     //Go into draw map so that the flags can actually activate    
-       application->refresh_drawing();
+    application->refresh_drawing();
 }
 
 void highlight_street(std::vector<int> street_seg_ids, ezgl::renderer *g)
@@ -854,8 +969,11 @@ void close_M2(){
 }
 
 void draw_POI(GtkWidget */*widget*/, ezgl::application *application){
-    //ezgl::renderer *g = application->get_renderer();
+    
     GtkEntry *textEntry = (GtkEntry *)application->get_object("SearchBar");
+    const char * errorLabel;
+    string error;
+    GtkLabel *errorOutput = (GtkLabel*)application->get_object("ErrorOutput");    
     // Get string from search bar
     POItext = gtk_entry_get_text(textEntry);
     
@@ -863,9 +981,12 @@ void draw_POI(GtkWidget */*widget*/, ezgl::application *application){
         searchingPOI = true;
     }
     else{
-        cout<<"there is no matching POI type"<<endl;
+        error = "\nThere is no matching POI type\n";
         searchingPOI = false;
     }
+
+    errorLabel = error.c_str();
+    gtk_label_set_text(errorOutput, errorLabel);
     
     //Go into draw map so that the flags can actually activate
     application->refresh_drawing();
@@ -879,12 +1000,13 @@ void highlight_POI(ezgl::renderer * g){
             g->set_color(RED);
             LatLon POIposition = getPointOfInterestPosition(i);
             point2d position(x_from_lon(POIposition.lon()), y_from_lat(POIposition.lat())); 
+            point2d textposition(x_from_lon(POIposition.lon()), y_from_lat(POIposition.lat())+0.002*(zooms.zcase)/(10-zooms.zcase)); 
             g->fill_arc(position, 0.001*(zooms.zcase)/(10-zooms.zcase), 0, 360);//originally 0.002, and zoom in is 0.0007
             g->set_color(BLACK);
             //Change the font size too for each zoom level
-            g->set_font_size(10);
+            g->set_font_size(0.02*(zooms.zcase)/(10-zooms.zcase));
             //Might want to change the position to be a little higher
-            g->draw_text(position, getPointOfInterestName(i));
+            g->draw_text(textposition, getPointOfInterestName(i));
         }
     }
 }

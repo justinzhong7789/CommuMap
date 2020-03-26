@@ -274,7 +274,7 @@ Enter Two Intersections:
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="WalkingTimeLimi">
+              <object class="GtkEntry" id="TimeLimit">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="margin_right">20</property>
@@ -376,6 +376,7 @@ Enter Two Intersections:
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="margin_left">20</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>

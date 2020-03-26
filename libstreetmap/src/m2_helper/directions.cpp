@@ -100,21 +100,21 @@ void walk_button(GtkWidget */*widget*/, ezgl::application *application)
 {
     searchingWalkPath = true;
     searchingRoute = true;
-      if(usingIDs){
-        //gets the initial and final location of the route from the entry
-        string loc = gtk_entry_get_text(LocationIDGlobal);
-        string dest = gtk_entry_get_text(DestinationIDGlobal);
-
-        //enters the value into my global variables
-        std::stringstream ss1;
-        std::stringstream ss2;
-        ss1<<loc;
-        ss2<<dest;
-        ss1>>location_ID;
-        ss2>>destination_ID;
-        usingIDs = false;
-    }
-    else{
+//      if(usingIDs){
+//        //gets the initial and final location of the route from the entry
+//        string loc = gtk_entry_get_text(LocationIDGlobal);
+//        string dest = gtk_entry_get_text(DestinationIDGlobal);
+//
+//        //enters the value into my global variables
+//        std::stringstream ss1;
+//        std::stringstream ss2;
+//        ss1<<loc;
+//        ss2<<dest;
+//        ss1>>location_ID;
+//        ss2>>destination_ID;
+//        usingIDs = false;
+//    }
+//    else{
     
         string locStreets = gtk_entry_get_text(LocationTextGlobal);
         string destStreets = gtk_entry_get_text(DestinationTextGlobal);
@@ -139,7 +139,7 @@ void walk_button(GtkWidget */*widget*/, ezgl::application *application)
             destination_ID = found_intersections[0];
             cout<< "found destination"<<endl;
         }
-    }
+//    }
     
     
     
@@ -191,6 +191,7 @@ void write_walk_path_directions(int location, int destination, std::vector<int>w
     if(walk_seg_ids.size() ==0)
     {
         totalWalk = "Driver will pick you up at your location.\n"; 
+         pickUp_ID = location;
         print = total.c_str();
         gtk_label_set_text(display, print);
         
@@ -229,7 +230,7 @@ void write_walk_path_directions(int location, int destination, std::vector<int>w
         }
 
         middleWalk = write_middle_directions(location, walk_seg_ids, application, &pickUpIntersection);
-
+        pickUp_ID = pickUpIntersection;
         string pickUpName = getIntersectionName(pickUpIntersection);
         
         //Make the last sentence for walk path

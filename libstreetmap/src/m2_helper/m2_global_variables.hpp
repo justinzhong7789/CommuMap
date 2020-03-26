@@ -80,6 +80,7 @@ extern bool usingIDs;
 extern int num_intersections;
 extern int location_ID;
 extern int destination_ID;
+extern int pickUp_ID;
 
 extern string locationText;
 extern string destinationText;
@@ -145,7 +146,9 @@ double get_length_of_segments(int start, std::vector<int> seg_ids, int end);
 std:: string write_middle_directions(int location, std::vector<int> seg_ids, ezgl::application *application,int * lastIntersection);
 void show_destination_autofill(GtkWidget *widget, ezgl::application *application);
 void destination_combo(GtkComboBox *widget, ezgl::application * application);
-void write_walk_path_directions(int location, int destination, std::vector<int>walk_seg_ids, 
-                                    std::vector<int> drive_seg_ids, ezgl::application *application);
+void write_walk_path_directions(int location, int destination, std::vector<int>walk_seg_ids, std::vector<int> drive_seg_ids, ezgl::application *application);
 void show_location_autofill(GtkWidget *widget, ezgl::application *application);
 void write_drive_path_directions(int location, int destination, std::vector<int> seg_ids, ezgl::application *application);
+void drawStartEndPoints(ezgl::renderer *g);
+
+void instructions(GtkWidget */*widget*/,ezgl::application *application);

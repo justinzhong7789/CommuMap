@@ -376,6 +376,7 @@ Enter Two Intersections:
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="margin_left">20</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -661,6 +662,7 @@ Enter Two Intersections:
             <property name="label" translatable="yes">label</property>
             <attributes>
               <attribute name="font-desc" value="Arimo 10"/>
+              <attribute name="foreground" value="#f3f3f3f3f3f3"/>
             </attributes>
           </object>
           <packing>
