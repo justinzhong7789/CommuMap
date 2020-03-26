@@ -324,16 +324,17 @@ std::string write_drive_directions(int location, int destination, std::vector<in
     return total;
 }
 
-std:: string write_middle_directions(int location, std::vector<int> seg_ids, ezgl::application *application, int * lastIntersection)
+std:: string write_middle_directions(int location, std::vector<int> seg_ids, ezgl::application */*application*/, int * lastIntersection)
 {
         //Initializes the start at the initial intersection position
     std::string middle;
     int origFrom = location;
     Direction move1;
     Direction move2;
-    int from1, from2, to1, to2;
-    int lastSegTurnIdx;
-    int prvSegTurnIdx;
+    int from1, from2, to1;
+    int to2 = 0;
+    int lastSegTurnIdx = 0;
+    int prvSegTurnIdx = 0;
     double street_length;
     //Making the middle sentence
     for(int i = 0; (i+1)<seg_ids.size() ; i++){

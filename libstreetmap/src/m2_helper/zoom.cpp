@@ -41,8 +41,6 @@ void zoom(ezgl::renderer *g){
         }
     }
     
- //   cout<<"The zoom level: "<< zooms.level << endl ;
-    
      g->set_color(BACKGROUND);
      g->fill_rectangle(zooms.current.m_first, zooms.current.m_second);
      
