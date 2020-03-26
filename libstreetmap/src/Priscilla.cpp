@@ -59,10 +59,11 @@ vector<Node*> nodeTable;
     // Find absolute distance from source to destination
     double original_dist = find_distance_between_two_points({source, dest});
 
-    double constraint_dist_0 = 1.1* original_dist; // initialize constraint
-    double constraint_dist_1 = 0.75 * original_dist;
-    double constraint_dist_2 = 0.5 * original_dist;
-    double constraint_dist_3 = 0.25 * original_dist;
+    double constraint_dist_0 = 1.25* original_dist; // initialize constraint
+    double constraint_dist_1 = 0.9 * original_dist;
+    double constraint_dist_2 = 0.7 * original_dist;
+    double constraint_dist_3 = 0.5 * original_dist;
+    //double constraint_dist_4 = 0.2 * original_dist;
         
     double constraint_dist = constraint_dist_0;
     
@@ -77,19 +78,11 @@ vector<Node*> nodeTable;
             WaveElem wave = pq.top(); // get next element
             pq.pop(); // remove from wavefront
             Node *currNode = wave.node;
-                       
-            //popped += 1;
-
-            
-            //if (popped > 50000 && wave.directed == 0){
-            //    cout << "second test failed" << endl;
-            //    return false;
-           // }
+                      
             
             if (currNode->id == destID){
-            //    cout << "Nodes popped: " << popped << endl;
                 cout << currNode->bestTime << endl;
-                    return true;
+                return true;
             }
             currNode->set_visited(true);
             for (int i=0; i<currNode->outEdge; i++){      
@@ -129,10 +122,14 @@ vector<Node*> nodeTable;
                         
                     // Testing constraints
                     int constraint = 0;
+                    if (original_dist > 5000){
                     // Update constraints as nodes progress closer to destination. AND condition prevents reassigning constraints to larger number once a smaller number is reached
-                    if (abs_distance < 0.6*original_dist && constraint_dist > constraint_dist_1) constraint_dist = constraint_dist_1;
-                    if (abs_distance < 0.3*original_dist && constraint_dist > constraint_dist_2) constraint_dist = constraint_dist_2;
-                    if (abs_distance < 0.15*original_dist && constraint_dist > constraint_dist_3) constraint_dist = constraint_dist_3;
+                        if (abs_distance < 0.65*original_dist && constraint_dist > constraint_dist_1) constraint_dist = constraint_dist_1;
+                        if (abs_distance < 0.45*original_dist && constraint_dist > constraint_dist_2) constraint_dist = constraint_dist_2;
+                        if (abs_distance < 0.2*original_dist && constraint_dist > constraint_dist_3) constraint_dist = constraint_dist_3;
+                        //if (abs_distance < 0.05*original_dist && constraint_dist > constraint_dist_4) constraint_dist = constraint_dist_4;
+                    }
+                    else constraint_dist = abs_distance*1.15; 
                     
                         if (constraint_dist > abs_distance){ constraint = 1; } 
                     //pq.push(WaveElem(toNode, constraint, time_score)); // 1/100kmh * distance
@@ -174,16 +171,14 @@ vector<StreetSegmentIndex> find_path_between_intersections(
     
     if (found){
         list<StreetSegmentIndex> l = bfsTraceback(intersect_id_end); // Call traceback
-        // Convert list to vector
-        vector<StreetSegmentIndex> v{make_move_iterator(begin(l)), make_move_iterator(end(l))};
+        vector<StreetSegmentIndex> v{make_move_iterator(begin(l)), make_move_iterator(end(l))}; // Convert list to vector
+        // Reset
         reset_nodeTable();
-        // delete_nodeTable();
         return v;
     }
     else {
         reset_nodeTable();
-        // delete_nodeTable();
-         return {};
+        return {};
     }
 }
 
