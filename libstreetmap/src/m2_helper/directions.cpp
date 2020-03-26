@@ -55,14 +55,11 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
     ss2<<dest;
     ss1>>location_ID;
     ss2>>destination_ID;
-    cout<<"Loc: "<<loc<<endl;
-    cout<<"Dest: "<<dest<<endl;
-    cout<<"Turn Penalty: "<<turnEntry<<endl;
     
     //Puts the segments in a vector that will be drawn later
     found_route_segments = find_path_between_intersections(location_ID, destination_ID, turn_penalty_entry);
     //Writes directions
-    write_Directions(location_ID, destination_ID, found_route_segments, application);
+    write_drive_path_directions(location_ID, destination_ID, found_route_segments, application);
     
     //Needs to refresh the drawing to print
     application->refresh_drawing();
@@ -72,118 +69,134 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
 //In progress (for find_with_path_functiion)
 void walk_button(GtkWidget */*widget*/, ezgl::application *application)
 {
-//    searchingWalkPath = true;
-//    found_walk_segments = find_path_with_walk_to_pick_up(location_ID, destination_ID, turn_penalty_entry, 
-//                                                         walking_speed, walking_time_limit).first;   
-//    found_route_segments = find_path_with_walk_to_pick_up(location_ID, destination_ID, turn_penalty_entry, 
-//                                                         walking_speed, walking_time_limit).second;
-//    write_Walk_Path_Directions(location_ID, destination_ID, found_walk_segments, found_route_segments, application);
-//    application->refresh_drawing();
+    searchingWalkPath = true;
+    std::string turnEntry (gtk_entry_get_text(TurnPenaltyGlobal));
+    std::stringstream ss;
+    ss<<turnEntry;
+    ss>>turn_penalty_entry;
+    std::string walkingSpeedEntry (gtk_entry_get_text(TurnPenaltyGlobal));
+    ss<<walkingSpeedEntry;
+    ss>>walking_speed_entry;
+    std::string walkingTimeLimitEntry (gtk_entry_get_text(TurnPenaltyGlobal));
+    ss<<walkingTimeLimitEntry;
+    ss>>walking_time_limit_entry;
+    
+   std::pair<std::vector<int>, std::vector<int>> found_pick_up_route;
+    
+    found_pick_up_route = find_path_with_walk_to_pick_up(location_ID, destination_ID, turn_penalty_entry, walking_speed_entry, walking_time_limit_entry);   
+    found_walk_segments = found_pick_up_route.first;
+    found_route_segments = found_pick_up_route.second;
+    
+    write_walk_path_directions(location_ID, destination_ID, found_pick_up_route.first /*The walk path*/, 
+                                                            found_pick_up_route.second/*The drive path*/,application);
+    application->refresh_drawing();
 }
 
-//The thing that actually draw the path
-void highlight_route(std::vector<int> seg_ids, ezgl::renderer *g, ezgl:: color colour){
-    std::vector<LatLon> node;
-    for(int i = 0; i<seg_ids.size();i++)
-    {
-        node = add_nodes(seg_ids[i]);
-        for (int k=1; k< node.size(); k++){
-            std::pair <float, float> start = {x_from_lon(node[k-1].lon()), y_from_lat(node[k-1].lat())};
-            std::pair <float, float> end = {x_from_lon(node[k].lon()), y_from_lat(node[k].lat())};
-
-            g->set_line_dash(ezgl::line_dash::none);
-            g->set_line_cap(ezgl::line_cap::round);
-
-            //Draw Fill Colour
-            g->set_color(colour);
-            g->set_line_width(8);
-            g->draw_line({start.first, start.second}, {end.first, end.second});
-        }
+void write_walk_path_directions(int location, int destination, std::vector<int>walk_seg_ids, 
+                                    std::vector<int> drive_seg_ids, ezgl::application *application)
+{
+    GtkLabel *display = (GtkLabel *)application->get_object("ScrollLabel");
+ 
+    //Variables, (already kind of have these already though)
+    string initialPoint = getIntersectionName(location);
+    string finalPoint = getIntersectionName(destination);
+    
+    string total, totalWalk, totalDrive;
+    string startWalk, middleWalk, endWalk;
+     string unknown = "<unknown>";
+    int pickUpIntersection;
+    const char * print;
+    
+    
+    if(walk_seg_ids.size() == 0 && drive_seg_ids.size() == 0){
+        total = "\n\n\n\n\nNo directions found\n\n\n\n\n"; 
+        print = total.c_str();
+        gtk_label_set_text(display, print); 
+        return;
     }
+    if(walk_seg_ids.size() ==0)
+    {
+        totalWalk = "Driver will pick you up at your location.\n"; 
+        print = total.c_str();
+        gtk_label_set_text(display, print);
+        
+    }else{
+        //will seg fault if theres no value fo seg_ids[0]
+        auto infoFirst = getInfoStreetSegment(walk_seg_ids[0]);
+        string firstStreet = getStreetName(infoFirst.streetID);
+
+        //Figuring out which from and to is the initial intersection ID
+        int nextInter;
+        if(infoFirst.from == location){
+            nextInter = infoFirst.to;
+        }else{
+            nextInter = infoFirst.from;
+        }
+
+        LatLon locationPos = getIntersectionPosition(location);
+        LatLon nextInterPos = getIntersectionPosition(nextInter);
+
+        //Getting whether you have to first go north south ect.
+        Direction firstMove;
+        firstMove = getDirection(locationPos, nextInterPos);
+
+        //Makes the first sentence for walk path
+       
+        if(initialPoint.find(unknown)!= std::string::npos)
+        {
+            startWalk = "Starting walking path \n";
+        }
+        else {startWalk = "Start walking from " + getIntersectionName(location) +  "\n";}
+
+        if(firstStreet == "<unknown>"){
+            startWalk = startWalk + "Walk " + firstMove.Name + "\n";
+        }else{
+            startWalk = startWalk + "Walk " + firstMove.Name + " along " + firstStreet + "\n";
+        }
+
+        middleWalk = write_middle_directions(location, walk_seg_ids, application, &pickUpIntersection);
+
+        string pickUpName = getIntersectionName(pickUpIntersection);
+        
+        //Make the last sentence for walk path
+        if(pickUpName.find(unknown)!= std::string::npos){
+            endWalk = "Arrived at the pick up location\nWait for the vehicle here\n";
+        }
+        else{endWalk = "Arrived at the pick up location\nWait for the vehicle here, at " + pickUpName + "\n";}
+        
+        totalWalk = startWalk + middleWalk + endWalk;
+    }
+    if(drive_seg_ids.size() ==0){
+        if(finalPoint.find(unknown)!= std::string::npos){
+            endWalk = "Arrived at destination";
+        }
+        else{endWalk = "Arrived at " + finalPoint;}
+    }else{
+        totalDrive = write_drive_directions(location, destination, drive_seg_ids, application);
+    }
+    total = totalWalk + totalDrive;
+    
+    print = total.c_str();
+    gtk_label_set_text(display, print);
 }
 
-//void write_walk_directions(int location, int destination, std::vector<int>drive_seg_ids, std::vector<int> walk_seg_ids, ezgl::application *application)
-//{
-//    GtkLabel *display = (GtkLabel *)application->get_object("ScrollLabel");
-// 
-//    //Variables, (already kind of have these already though)
-//    string initialPoint = getIntersectionName(location);
-//    string finalPoint = getIntersectionName(destination);
-//    string total, totalWalk, totalDrive;
-//    string startWalk, middleWalk, endWalk;
-//    string startDrive, middleDrive, endDrive;
-//    int pickUpIntersection;
-//    const char * print;
-//    
-//    
-//    if(walk_seg_ids.size() == 0 && drive_seg_ids.size() == 0){
-//        total = "No directions found\n"; 
-//        print = total.c_str();
-//        gtk_label_set_text(display, print); 
-//        return;
-//    }
-//    if(walk_seg_ids.size() ==0)
-//    {
-//        totalWalk = "Driver will pick you up at your location.\n"; 
-//        print = total.c_str();
-//        gtk_label_set_text(display, print); 
-//        return;
-//    }
-//
-//    //will seg fault if theres no value fo seg_ids[0]
-//    auto infoFirst = getInfoStreetSegment(seg_ids[0]);
-//    string firstStreet = getStreetName(infoFirst.streetID);
-//    
-//    //Figuring out which from and to is the initial intersection ID
-//    int nextInter;
-//    if(infoFirst.from == location){
-//        nextInter = infoFirst.to;
-//    }else{
-//        nextInter = infoFirst.from;
-//    }
-//    
-//    
-//    LatLon locationPos = getIntersectionPosition(location);
-//    LatLon nextInterPos = getIntersectionPosition(nextInter);
-//    
-//    //Getting whether you have to first go north south ect.
-//    Direction firstMove;
-//    firstMove = getDirection(locationPos, nextInterPos);
-//    
-//    //Makes the first sentence for walk path
-//    string unknown;
-//    if(initialPoint.find(unknown)!= std::string::npos)
-//    {
-//        startWalk = "Starting walking path \n";
-//    }
-//    else {startWalk = "Start walking from " + getIntersectionName(location) +  "\n";}
-//    
-//    if(firstStreet == "<unknown>"){
-//        startWalk = startWalk + "Walk " + firstMove.Name + "\n";
-//    }else{
-//        startWalk = startWalk + "Walk " + firstMove.Name + " along " + firstStreet + "\n";
-//    }
-//    
-//    middleWalk = write_middle_directions(location, walk_seg_ids, application, &pickUpIntersection);
-//   
-//    string pickUpName = getIntersectionName(pickUpIntersection);
-//    //Make the last sentence for walk path
-//    if(pickUpName.find(unknown)!= std::string::npos){
-//        endWalk = "Arrived at the pick up location\nWait for the vehicle here\n";
-//    }
-//    else{endWalk = "Arrived at the pick up location, " + pickUpName + "\nWait for the vehicle here\n";}
-//    
-//  
-//    total = start + middle + end;
-//    print = total.c_str();
-//    gtk_label_set_text(display, print);
-//}
+void write_drive_path_directions(int location, int destination, std::vector<int> seg_ids, ezgl::application *application)
+{
+    GtkLabel *display = (GtkLabel *)application->get_object("ScrollLabel");
+    const char * print;
+    string total;
+    if(seg_ids.size() == 0){
+        total = "\n\n\n\n\nNo directions found\n\n\n\n\n";
+    }else{
+        total= write_drive_directions(location, destination, seg_ids, application);
+    }
+    print = total.c_str();
+    gtk_label_set_text(display, print);
+}
 
 //Writes the directions 
-void write_Directions(int location, int destination, std::vector<int> seg_ids, ezgl::application *application)
+std::string write_drive_directions(int location, int destination, std::vector<int> seg_ids, ezgl::application *application)
 {
-    
-    GtkLabel *display = (GtkLabel *)application->get_object("ScrollLabel");
     
     
     //Variables, (already kind of have these already though)
@@ -213,12 +226,12 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
     firstMove = getDirection(locationPos, nextInterPos);
     
     //Makes the first sentence
-    string unknown;
+    string unknown = "<unknown>";
     if(initialPoint.find(unknown)!= std::string::npos)
     {
-        start = "Beginning route \n";
+        start = "Beginning driving route \n";
     }
-    else {start = "Beginning route at " + getIntersectionName(location) +  "\n";}
+    else {start = "Beginning driving route at " + getIntersectionName(location) +  "\n";}
     if(firstStreet == "<unknown>"){
         start = start + "Go "+firstMove.Name+"\n";
     }else{
@@ -233,10 +246,8 @@ void write_Directions(int location, int destination, std::vector<int> seg_ids, e
 
     middle = write_middle_directions(location, seg_ids, application, &lastIntersect);
    
-    const char * print;
-    string total = start + middle + end;
-    print = total.c_str();
-    gtk_label_set_text(display, print);
+    std::string total = start + middle + end;
+    return total;
 }
 
 std:: string write_middle_directions(int location, std::vector<int> seg_ids, ezgl::application *application, int * lastIntersection)
@@ -411,6 +422,27 @@ double get_length_of_segments(int start, std::vector<int> seg_ids, int end){
         street_length += find_street_segment_length(seg_ids[i]);
     }
     return street_length;
+}
+
+//The thing that actually draw the path
+void highlight_route(std::vector<int> seg_ids, ezgl::renderer *g, ezgl:: color colour){
+    std::vector<LatLon> node;
+    for(int i = 0; i<seg_ids.size();i++)
+    {
+        node = add_nodes(seg_ids[i]);
+        for (int k=1; k< node.size(); k++){
+            std::pair <float, float> start = {x_from_lon(node[k-1].lon()), y_from_lat(node[k-1].lat())};
+            std::pair <float, float> end = {x_from_lon(node[k].lon()), y_from_lat(node[k].lat())};
+
+            g->set_line_dash(ezgl::line_dash::none);
+            g->set_line_cap(ezgl::line_cap::round);
+
+            //Draw Fill Colour
+            g->set_color(colour);
+            g->set_line_width(8);
+            g->draw_line({start.first, start.second}, {end.first, end.second});
+        }
+    }
 }
  
 
