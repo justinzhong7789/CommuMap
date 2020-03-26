@@ -109,11 +109,10 @@ vector<Node*> nodeTable;
                     } else { time_score = find_street_segment_travel_time(outEdge_id); } // If first mode, only count travel time
                   
                 if (time_score < toNode->bestTime){
-                    toNode->set_reachingEdge(outEdge_id);
-                    toNode->set_bestTime(time_score);
-                       
+                      
                     // Update table 
-                    nodeTable[toNode->id] = toNode;
+                    nodeTable[toNode->id]->set_reachingEdge(outEdge_id);
+                    nodeTable[toNode->id]->set_bestTime(time_score);
                     // Update parent_id for reaching edge
                     nodeTable[toNode->id]->set_parent_id(currNode->id);
                     // Find abs distance of this node
