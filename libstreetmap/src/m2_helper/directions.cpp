@@ -100,21 +100,21 @@ void walk_button(GtkWidget */*widget*/, ezgl::application *application)
 {
     searchingWalkPath = true;
     searchingRoute = true;
-//      if(usingIDs){
-//        //gets the initial and final location of the route from the entry
-//        string loc = gtk_entry_get_text(LocationIDGlobal);
-//        string dest = gtk_entry_get_text(DestinationIDGlobal);
-//
-//        //enters the value into my global variables
-//        std::stringstream ss1;
-//        std::stringstream ss2;
-//        ss1<<loc;
-//        ss2<<dest;
-//        ss1>>location_ID;
-//        ss2>>destination_ID;
-//        usingIDs = false;
-//    }
-//    else{
+      if(usingIDs){
+        //gets the initial and final location of the route from the entry
+        string loc = gtk_entry_get_text(LocationIDGlobal);
+        string dest = gtk_entry_get_text(DestinationIDGlobal);
+
+        //enters the value into my global variables
+        std::stringstream ss1;
+        std::stringstream ss2;
+        ss1<<loc;
+        ss2<<dest;
+        ss1>>location_ID;
+        ss2>>destination_ID;
+        usingIDs = false;
+    }
+    else{
     
         string locStreets = gtk_entry_get_text(LocationTextGlobal);
         string destStreets = gtk_entry_get_text(DestinationTextGlobal);
@@ -139,9 +139,8 @@ void walk_button(GtkWidget */*widget*/, ezgl::application *application)
             destination_ID = found_intersections[0];
             cout<< "found destination"<<endl;
         }
-//    }
     
-    
+    }
     
     std::string turnEntry (gtk_entry_get_text(TurnPenaltyGlobal));
     std::stringstream ss;

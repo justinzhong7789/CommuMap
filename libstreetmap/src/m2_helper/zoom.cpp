@@ -183,9 +183,7 @@ void nameStreets(ezgl::renderer *g){
 
 
 void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int distance){
-    
 
-    
     for (size_t i=0; i<streets.size(); i++){
         int drawn = 0;
         string street_name = streets[i].name;
@@ -230,56 +228,6 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
         }
     }
 }
-
-//////////////////
-
-//void drawStreetNames(ezgl::renderer *g) {
-//    if (map.currentXYDiagonal < CURRENT_XY_DIAGONAL_STREET_NAMES) {
-//        g->format_font("sans serif", ezgl::font_slant::normal, ezgl::font_weight::normal);
-//        g->set_font_size(10);
-//        g->set_color(STREET_NAMES);
-//
-//        for (int streetIdx = 1; streetIdx < getNumStreets(); ++streetIdx) {
-//            std::vector<StreetSegmentIndex> streetSegmentsOfStreet = find_street_segments_of_street(streetIdx);
-//
-//            for (int streetSegIdx = 0; streetSegIdx < streetSegmentsOfStreet.size(); ++streetSegIdx) {
-//                drawStreetNameOnStreetSegment(g, streetIdx, streetSegmentsOfStreet[streetSegIdx]);
-//            }
-//        }
-//    }
-//}
-//
-//void drawStreetNameOnStreetSegment(ezgl::renderer *g, StreetIndex streetIdx, StreetSegmentIndex streetSegIdx) {
-//    double streetSegLength = find_street_segment_length(streetSegIdx);
-//
-//    if (streetSegLength > map.currentXYDiagonal / 18.0) {
-//        InfoStreetSegment segInfo = getInfoStreetSegment(streetSegIdx);
-//
-//        LatLon fromLatLon = getIntersectionPosition(segInfo.from);
-//        LatLon toLatLon = getIntersectionPosition(segInfo.to);
-//
-//        if (withinCurrentMapLatLon(fromLatLon) || withinCurrentMapLatLon(toLatLon)) {
-//            std::string name = getStreetName(streetIdx);
-//
-//            ezgl::point2d from = point2dFromLatLon(fromLatLon);
-//            ezgl::point2d to = point2dFromLatLon(toLatLon);
-//
-//            double xDistance = from.x - to.x;
-//            double yDistance = from.y - to.y;
-//
-//            double textRotationAngle = atan(yDistance / xDistance) * RADIAN_TO_DEGREE;
-//           
-////            g->set_text_rotation(textRotationAngle);
-//            g->set_text_rotation(0);
-//
-//            ezgl::point2d textLocation = {(from.x + to.x) / 2, (from.y + to.y) / 2};
-//            g->draw_text(textLocation, name);
-//        }
-//    }
-//}
-
-/////////////////
-
 
 
 void drawSegmentName(StreetSegmentsData segData, renderer *g, int font_size, string street_name, int angle, point2d segmentMid){
