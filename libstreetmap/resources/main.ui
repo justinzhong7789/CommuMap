@@ -132,6 +132,7 @@ Enter Two Intersections:
             <property name="margin_left">20</property>
             <property name="margin_right">20</property>
             <property name="primary_icon_stock">gtk-home</property>
+            <property name="placeholder_text" translatable="yes">Your Location</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -152,7 +153,7 @@ Enter Two Intersections:
             <child internal-child="entry">
               <object class="GtkEntry" id="LocationComboEntry">
                 <property name="can_focus">False</property>
-                <property name="placeholder_text" translatable="yes">Possible locations...</property>
+                <property name="placeholder_text" translatable="yes">Press Enter to see possible locations...</property>
               </object>
             </child>
           </object>
@@ -183,6 +184,7 @@ Enter Two Intersections:
             <property name="margin_left">20</property>
             <property name="margin_right">20</property>
             <property name="primary_icon_stock">gtk-find</property>
+            <property name="placeholder_text" translatable="yes">Your Destination</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -202,7 +204,7 @@ Enter Two Intersections:
             <child internal-child="entry">
               <object class="GtkEntry" id="DestinationComboEntry">
                 <property name="can_focus">False</property>
-                <property name="placeholder_text" translatable="yes">Possible destinations...</property>
+                <property name="placeholder_text" translatable="yes">Press Enter to see possible destinations...</property>
               </object>
             </child>
           </object>
@@ -272,7 +274,7 @@ Enter Two Intersections:
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="WalkingTimeLimi">
+              <object class="GtkEntry" id="TimeLimit">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="margin_right">20</property>
@@ -379,6 +381,15 @@ Enter Two Intersections:
                 <property name="left_attach">0</property>
                 <property name="top_attach">0</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -577,6 +588,30 @@ Enter Two Intersections:
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">10</property>
+                <property name="width">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="A">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">13</property>
+                <property name="width">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="Help">
+                <property name="label" translatable="yes">Help</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">12</property>
                 <property name="width">3</property>
               </packing>
             </child>

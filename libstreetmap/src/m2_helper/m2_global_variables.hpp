@@ -76,7 +76,6 @@ extern bool searchingWalkPath;
 extern bool click_OnOff;
 extern bool text_OnOff;
 extern bool find_w_click;
-extern bool usingIDs;
 extern int num_intersections;
 extern int location_ID;
 extern int destination_ID;
@@ -86,17 +85,12 @@ extern string destinationText;
 
 extern GtkEntry *LocationTextGlobal;
 extern GtkEntry *DestinationTextGlobal;
-extern GtkEntry *LocationIDGlobal;
-extern GtkEntry *DestinationIDGlobal;
 extern GtkEntry *TurnPenaltyGlobal;
 extern GtkEntry *WalkingSpeedGlobal;
 extern GtkEntry *WalkingTimeLimitGlobal;
-extern GtkEntry *LocationComboEntry;
-extern GtkEntry *DestinationComboEntry;
 
 extern vector<int> found_route_segments;
 extern vector<int> found_walk_segments;
-extern vector<int> found_intersections;
 extern double turn_penalty_entry;
 extern double walking_speed_entry;
 extern double walking_time_limit_entry;
@@ -132,20 +126,18 @@ void draw_POI(GtkWidget */*widget*/, ezgl::application *application);
 void close_button(GtkWidget */*widget*/, ezgl::application *application);
 void location_entry(GtkWidget */*widget*/, ezgl::application *application);
 void destination_entry(GtkWidget */*widget*/, ezgl::application *application);
-void location_combo(GtkComboBox *widget, ezgl::application * application);
+
 void search_bar(GtkWidget */*widget*/,ezgl::application *application);
-void combo_entry(GtkComboBox *widget, ezgl::application * application);
-
-
-bool validIntersection(std::string street1, std::string street2, ezgl::application *application);
-void useIDs_button(GtkWidget *widget, ezgl::application *application);
 
 void clean_map(ezgl:: application* application);
 double get_length_of_segments(int start, std::vector<int> seg_ids, int end);
 std:: string write_middle_directions(int location, std::vector<int> seg_ids, ezgl::application *application,int * lastIntersection);
-void show_destination_autofill(GtkWidget *widget, ezgl::application *application);
-void destination_combo(GtkComboBox *widget, ezgl::application * application);
+
 void write_walk_path_directions(int location, int destination, std::vector<int>walk_seg_ids, 
                                     std::vector<int> drive_seg_ids, ezgl::application *application);
-void show_location_autofill(GtkWidget *widget, ezgl::application *application);
+
+
+void hover_nightMode(GtkWidget */*widget*/,ezgl::application *application);
+void write_instructions(ezgl::application* application);
+void instructions(GtkWidget */*widget*/,ezgl::application *application);
 void write_drive_path_directions(int location, int destination, std::vector<int> seg_ids, ezgl::application *application);

@@ -59,7 +59,7 @@ void drive_button(GtkWidget */*widget*/, ezgl::application *application)
     usingIDs = false;
     }
     else{
-
+    
         string locStreets = gtk_entry_get_text(LocationTextGlobal);
         string destStreets = gtk_entry_get_text(DestinationTextGlobal);
         string locStreet1, locStreet2, destStreet1, destStreet2;
@@ -480,4 +480,4 @@ void highlight_route(std::vector<int> seg_ids, ezgl::renderer *g, ezgl:: color c
         }
     }
 }
-
+ 
