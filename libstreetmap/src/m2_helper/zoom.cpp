@@ -164,25 +164,25 @@ void nameStreets(ezgl::renderer *g){
         case 1: //empty case for future purposes
         case 2:
         case 3:
-            drawStreetNames(streetsizes.local, g , width,10);
+            drawStreetNames(streetsizes.local, g , width,2);
         case 4:
            // drawStreetNames(streetsizes.local, g , width,10);
-            drawStreetNames(streetsizes.minor, g , width,40);
-            drawStreetNames(streetsizes.major, g , width,60);
+            drawStreetNames(streetsizes.minor, g , width,1);
+            drawStreetNames(streetsizes.major, g , width,1);
             
         case 5:
-            drawStreetNames(streetsizes.highway, g, width,100);
+            drawStreetNames(streetsizes.highway, g, width,4);
             if(zooms.zcase <= 3) drawOneWay(g);
             break;
             
         default: 
-            drawStreetNames(streetsizes.highway, g, width, 100);
+            drawStreetNames(streetsizes.highway, g, width, 4);
             break;
     }
 }
 
 
-void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int /*distance*/){
+void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int distance){
     
 
     
@@ -191,7 +191,7 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
         string street_name = streets[i].name;
        
         int j, next;
-        for (j=0, next = 1; (j<streets[i].segments.size()) && (drawn <1) &&( next<streets[i].segments.size()); j++, next = next+2){//used to be 10
+        for (j=0, next = 1; (j<streets[i].segments.size()) && (drawn <1) &&( next<streets[i].segments.size()); j++, next = next+distance){//used to be 10
             if(street_name == "<unknown>"){
                 break;
             }

@@ -194,6 +194,7 @@ public:
   void colourZoomInButton(application *application);
   void colourZoomFitButton(application *application);
   void colourZoomOutButton(application *application);
+  void colourGrid(application *app);
   
   
   /**
