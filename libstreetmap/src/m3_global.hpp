@@ -110,7 +110,7 @@ extern vector<Node*> nodeTable;
 
 // Pathfinding Functions
  bool there_is_turn(int from_seg_id, int to_seg_id);
- bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty);
+ bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty, double walking_speed);
  Node* getNodebyID(IntersectionIndex sourceID);
  bool bfsPath(Node* sourceNode, int destID, double turn_penalty);
  double travelTime(StreetSegmentIndex segID);
