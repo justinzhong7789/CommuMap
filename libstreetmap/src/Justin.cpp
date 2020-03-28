@@ -58,7 +58,7 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
     Node* sourceNode = getNodebyID(start_intersection);
     bool pathFound = false;
     if(sourceNode != nullptr){
-        pathFound = bfs_find_walk_path(sourceNode, end_intersection, turn_penalty);
+        pathFound = bfs_find_walk_path(sourceNode, end_intersection, turn_penalty, walking_speed);
     
         if(pathFound){
             completeWalkPath = bfsTraceback(end_intersection);
@@ -106,6 +106,7 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
         
         //cout<< drive_portion.size()<<endl;
         reset_nodeTable();
+        cout<< "walk time"<< compute_path_walking_time(walkPortion, walking_speed, turn_penalty)<<endl;
         return make_pair(walkPortion, drive_portion);
     }
     else{
@@ -118,7 +119,7 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
 
 //this is completely Priscilla's code. I only changed part so that the function
 //does not consider one-way streets
-bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
+bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty, double walking_speed){
         // vector<WaveElem> wavefront;
     // Establish min heap
     // Establish min heap
@@ -174,7 +175,7 @@ bool bfs_find_walk_path(Node* sourceNode, int destID, double turn_penalty){
                    double time_score;
                    // Calculate score using travel time and turn time
                     if (currNode->reachingEdge != NO_EDGE){
-                        time_score = currNode->bestTime + find_street_segment_travel_time(outEdge_id)+turn_penalty*there_is_turn(currNode->reachingEdge, outEdge_id);
+                        time_score = currNode->bestTime + find_street_segment_length(outEdge_id)/walking_speed+turn_penalty*there_is_turn(currNode->reachingEdge, outEdge_id);
                     } else { time_score = find_street_segment_travel_time(outEdge_id); } // If first mode, only count travel time
                   
                 if (time_score < toNode->bestTime){
