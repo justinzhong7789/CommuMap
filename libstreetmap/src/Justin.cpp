@@ -48,6 +48,8 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
                           const double turn_penalty,
                           const double walking_speed, 
                           const double walking_time_limit){
+
+    
     if(nodeTable.size()==0){
         makeNodeTable();
     }
@@ -105,7 +107,6 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
         
         
         //cout<< drive_portion.size()<<endl;
-        reset_nodeTable();
         cout<< "walk time"<< compute_path_walking_time(walkPortion, walking_speed, turn_penalty)<<endl;
         return make_pair(walkPortion, drive_portion);
     }
@@ -113,7 +114,6 @@ std::pair<std::vector<StreetSegmentIndex>, std::vector<StreetSegmentIndex>>
         reset_nodeTable();
         return {{},{}};
     }
-    return {{},{}};
 }
 
 
