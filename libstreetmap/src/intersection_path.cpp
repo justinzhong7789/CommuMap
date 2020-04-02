@@ -50,23 +50,22 @@ vector<Node*> nodeTable;
  // Updates the node table so that if a path is found, ids and parent ids can be found easily for traceback
  bool bfsPath (Node* sourceNode, int destID, double turn_penalty){
     // Establish min heap
-    priority_queue <WaveElem, vector<WaveElem>, comparatorWE> pq;
+    //priority_queue <WaveElem, vector<WaveElem>, comparatorWE> pq;
+     priority_queue <WaveElem, vector<WaveElem>, greaterWE> pq;
     
-    // int popped = 0;
-    
-    LatLon source = getIntersectionPosition(sourceNode->id);
-    LatLon dest = getIntersectionPosition(destID);
+    //LatLon source = getIntersectionPosition(sourceNode->id);
+    //LatLon dest = getIntersectionPosition(destID);
     // Find absolute distance from source to destination
-    double original_dist = find_distance_between_two_points({source, dest});
+    //double original_dist = find_distance_between_two_points({source, dest});
 
-    double constraint_dist_0 = 1.25* original_dist; // initialize constraint
+    /*double constraint_dist_0 = 1.25* original_dist; // initialize constraint
     double constraint_dist_1 = 0.9 * original_dist;
     double constraint_dist_2 = 0.7 * original_dist;
     double constraint_dist_3 = 0.5 * original_dist;
-    //double constraint_dist_4 = 0.2 * original_dist;
+    //double constraint_dist_4 = 0.2 * original_dist;*/
         
-    double constraint_dist = constraint_dist_0;
-    
+    //double constraint_dist = constraint_dist_0;
+    //double constraint_dist;
     /*if(original_dist < 1500){
         constraint_dist = 2.5 * original_dist; // short routes have more flexibility, up to 250%
     } else { constraint_dist = original_dist * 1.25; }*/
@@ -116,25 +115,26 @@ vector<Node*> nodeTable;
                     // Update parent_id for reaching edge
                     nodeTable[toNode->id]->set_parent_id(currNode->id);
                     // Find abs distance of this node
-                    LatLon current = getIntersectionPosition(toNode->id);
-                    double abs_distance = find_distance_between_two_points({current, dest});
+                    //LatLon current = getIntersectionPosition(toNode->id);
+                    //double abs_distance = find_distance_between_two_points({current, dest});
                         
                     // Testing constraints
-                    int constraint = 0;
-                    if (original_dist > 5000){
+                    //int constraint = 0;
+                    /*if (original_dist > 5000){
                     // Update constraints as nodes progress closer to destination. AND condition prevents reassigning constraints to larger number once a smaller number is reached
                         if (abs_distance < 0.65*original_dist && constraint_dist > constraint_dist_1) constraint_dist = constraint_dist_1;
                         if (abs_distance < 0.45*original_dist && constraint_dist > constraint_dist_2) constraint_dist = constraint_dist_2;
                         if (abs_distance < 0.2*original_dist && constraint_dist > constraint_dist_3) constraint_dist = constraint_dist_3;
                         //if (abs_distance < 0.05*original_dist && constraint_dist > constraint_dist_4) constraint_dist = constraint_dist_4;
                     }
-                    else constraint_dist = abs_distance*1.15; 
+                    else constraint_dist = abs_distance*1.15; */
+                    //constraint_dist = original_dist*1.25;
                     
-                        if (constraint_dist > abs_distance){ constraint = 1; } 
+                    //    if (constraint_dist > abs_distance){ constraint = 1; } 
                     //pq.push(WaveElem(toNode, constraint, time_score)); // 1/100kmh * distance
                     
-                    // lets try another heuristic lol
-                    pq.push(WaveElem(toNode, constraint, time_score /*+ 0.75*abs_distance/(info_outEdge.speedLimit * 0.27778)*/));
+                    //pq.push(WaveElem(toNode, constraint, time_score /*+ 0.75*abs_distance/(info_outEdge.speedLimit * 0.27778)*/));
+                    pq.push(WaveElem(toNode, 1, time_score));
                     }
                 }
             }

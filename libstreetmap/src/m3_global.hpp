@@ -91,9 +91,15 @@ struct WaveElem{
 };
 
 struct comparatorWE{
-    bool operator() (const WaveElem& we1, const WaveElem we2){
+    bool operator() (const WaveElem& we1, const WaveElem& we2){
         return ((we1.directed < we2.directed) || ((we1.directed == we2.directed) && 
                 (we1.score > we2.score)));
+    }
+};
+
+struct greaterWE{
+    bool operator() (const WaveElem& we1, const WaveElem& we2){
+        return (we1.score > we2.score);
     }
 };
 /***************** global variable*********************/
