@@ -260,5 +260,9 @@ void make_deliveries(GtkWidget */*widget*/,ezgl::application */*application*/)
 {
    //subpathShow = traveling_courier(deliveriesShow, depotsShow, turnPenaltyShow, truckCapacityShow);
     cout<<"Making deliveries now"<<endl;
+    for(int i =0; i< deliveriesShow.size(); i++){
+        cout<<"Delivery "<<i<<": Pick up = "<<deliveriesShow[i].pickUp<< " Drop off = "<<deliveriesShow[i].dropOff<< " Weight = "<<deliveriesShow[i].itemWeight<<endl;
+    }
+
 }
 
