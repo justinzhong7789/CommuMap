@@ -15,7 +15,7 @@
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="MakeDelivery">
                 <property name="label" translatable="yes">Go!</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -28,7 +28,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="DeliveryClose">
                 <property name="label" translatable="yes">Close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -117,7 +117,7 @@ and press enter:</property>
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="NumDepoEntry">
+              <object class="GtkEntry" id="NumDepotsEntry">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="placeholder_text" translatable="yes">Number of depots</property>
@@ -307,6 +307,8 @@ and press enter:</property>
               <object class="GtkLabel" id="Weight">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
               </object>
               <packing>
                 <property name="left_attach">3</property>
@@ -317,6 +319,8 @@ and press enter:</property>
               <object class="GtkLabel" id="DropOffs">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
               </object>
               <packing>
                 <property name="left_attach">2</property>
@@ -327,6 +331,8 @@ and press enter:</property>
               <object class="GtkLabel" id="PickUps">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -382,6 +388,8 @@ and press enter:</property>
               <object class="GtkLabel" id="DeliveryIndex">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>

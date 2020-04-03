@@ -98,11 +98,6 @@ extern GtkEntry *WalkingTimeLimitGlobal;
 extern GtkEntry *LocationComboEntry;
 extern GtkEntry *DestinationComboEntry;
 
-//GtkEntries for deliveries
-extern GtkEntry *TruckCapacityGlobal;
-extern GtkEntry *DeliveryTextGlobal;
-
-
 extern vector<int> found_route_segments;
 extern vector<int> found_walk_segments;
 extern vector<int> found_intersections;
@@ -163,35 +158,42 @@ void instructions(GtkWidget */*widget*/,ezgl::application *application);
 
 
 //Global drawing deliveries
-extern bool making_deliveries;
-extern bool set_depots;
-extern bool set_deliveries;
-extern bool set_pickups;
-extern bool set_dropoffs;
-extern bool set_weight;
-extern int numDepots;
-extern int numDeliveries;
-extern int weight;
-extern int pickUp;
-extern int dropOff;
-extern std::vector<int> depotsIntersection;
-extern std::vector<DeliveryInfo> depotsIntersection;
-extern std::vector<int> pickupsIntersection; //store all intersections to display on the
-extern std::vector<int> dropoffsIntersection; //store all drop off intersections
-extern std::vector<float> weight; //weight?
-extern string allDepots;
-extern string allPickUps;
-extern string allDropOffs;
-extern string allWeight;
-extern string allIndex;
-
+extern bool making_deliveries_show;
+extern bool set_depots_show;
+extern bool set_deliveries_show;
+extern bool set_pickups_show;
+extern bool set_dropoffs_show;
+extern bool set_weight_show;
+extern int numDepotsShow;
+extern int numDeliveriesShow;
+extern int weightShow;
+extern int pickUpShow;
+extern int dropOffShow;
+extern int indexShow;
+extern std::vector<int> depotsShow;
+extern std::vector<DeliveryInfo> deliveriesShow;
+//extern std::vector<int> pickupsIntersectionShow; //store all intersections to display on the
+//extern std::vector<int> dropoffsIntersectionShow; //store all drop off intersections
+extern std::vector<CourierSubpath> subpathShow;
+extern string allDepotsShow;
+extern string allPickUpsShow;
+extern string allDropOffsShow;
+extern string allWeightShow;
+extern string allIndexShow;
+extern string indexString;
+extern float turnPenaltyShow;
+extern float truckCapacityShow;
+//GtkEntries for deliveries
+extern GtkEntry *TruckCapacityGlobal;
+extern GtkEntry *DeliveryTextGlobal;
 
 //Call back functions for the delivery window
+void delivery_button(GtkWidget */*widget*/, ezgl::application *application);
 void delivery_entry(GtkWidget */*widget*/, ezgl::application *application);
 void num_depots_entry(GtkWidget */*widget*/, ezgl::application *application);
 void num_delivery_entry(GtkWidget */*widget*/, ezgl::application *application);
-void depots_done(GtkComboBox *widget, ezgl::application * application);
-void pickups_done(GtkWidget */*widget*/,ezgl::application *application);
-void dropoffs_done(GtkWidget */*widget*/,ezgl::application *application);
-void weight_done(GtkWidget */*widget*/,ezgl::application *application);
-void make_deliveries(GtkWidget */*widget*/,ezgl::application *application);
+void depots_done(GtkComboBox /**widget*/, ezgl::application * /*application*/);
+void pickups_done(GtkWidget */*widget*/,ezgl::application */*application*/);
+void make_deliveries(GtkWidget */*widget*/,ezgl::application */*application*/);
+void close_button_delivery(GtkWidget */*widget*/, ezgl::application *application);
+//void weight_done(GtkWidget */*widget*/,ezgl::application *application);

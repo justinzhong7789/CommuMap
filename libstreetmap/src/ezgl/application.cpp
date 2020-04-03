@@ -347,7 +347,7 @@ void application::colourNavigationButton(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/nightMode.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/nightMode.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
@@ -365,7 +365,7 @@ void application::colourDeliveryButton(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/nightMode.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/nightMode.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
@@ -383,7 +383,7 @@ void application::colourNightModeButton(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/nightMode.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/nightMode.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
@@ -401,7 +401,7 @@ void application::colourUpButton(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/button.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/button.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
@@ -418,7 +418,7 @@ void application::colourDownButton(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/button.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/button.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
@@ -435,7 +435,7 @@ void application::colourRightButton(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/button.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/button.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
@@ -452,7 +452,7 @@ void application::colourLeftButton(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/button.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/button.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
@@ -469,7 +469,7 @@ void application::colourZoomInButton(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/zoom.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/zoom.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
@@ -486,7 +486,7 @@ void application::colourZoomOutButton(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/zoom.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/zoom.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
@@ -503,7 +503,7 @@ void application::colourZoomFitButton(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(new_button);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/zoom.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/zoom.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,
@@ -520,7 +520,7 @@ void application::colourGrid(application *app)
         //get the file you want to attach to the button css stuff
         GtkStyleContext *context = gtk_widget_get_style_context(grid);
         GtkCssProvider *provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/gridColour.css", NULL);
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/resources/gridColour.css", NULL);
         
         //attach it to the button
         gtk_style_context_add_provider (context,

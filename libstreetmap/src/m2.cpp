@@ -88,31 +88,35 @@ bool searchingWalkPath = false;
 bool click_OnOff = false;
 bool text_OnOff = false;
 bool find_w_click = false;
-bool make_deliveries = false;
 bool load_success;
 bool usingIDs = false;
 bool nightHover = false;
 bool open = false;
 
-//global variables to draw deliveries
-bool set_depots = false;
-bool set_deliveries = false;
-int numDepots;
-int numDeliveries;
-bool set_pickups = false;
-bool set_dropoffs = false;
-bool set_weight = false;
-std::vector<int> depotsIntersection;
-std::vector<DeliveryInfo> depotsIntersection;
-std::vector<int> pickupsIntersection; //store all intersections to display on the
-std::vector<int> dropoffsIntersection; //store all drop off intersections
-std::vector<float> weight; //weight?
-string allDepots;
-string allPickUps;
-string allDropOffs;
-string allWeight;
-string allIndex;
-
+////global variables to draw deliveries
+//bool set_depots_show = false;
+//bool set_deliveries_show = false;
+//int numDepots_show;
+//int numDeliveries_show;
+//bool set_pickups_show = false;
+//bool set_dropoffs_show = false;
+//bool set_weight_show = false;
+//bool making_deliveries_show = false;
+//float turnPenaltyShow;
+//float truckCapacityShow;
+//std::vector<int> depotsShow;
+//std::vector<DeliveryInfo> deliveriesShow;
+////std::vector<int> pickupsIntersectionShow; //store all intersections to display on the
+////std::vector<int> dropoffsIntersectionShow; //store all drop off intersections
+////std::vector<float> weightShow; //weight?
+//std::vector<CourierSubpath> subpathShow;
+//string allDepotsShow;
+//string allPickUpsShow;
+//string allDropOffsShow;
+//string allWeightShow;
+//string allIndexShow;
+//GtkEntry *DeliveryTextGlobal;
+//GtkEntry *TruckCapacityGlobal;
 
 
 //GTK global variables
@@ -126,8 +130,6 @@ GtkEntry *WalkingSpeedGlobal;
 GtkEntry *WalkingTimeLimitGlobal;
 GtkEntry *LocationComboEntry;
 GtkEntry *DestinationComboEntry;
-GtkEntry *DeliveryTextGlobal;
-GtkEntry *TruckCapacityGlobal;
 
 void draw_map() {
 
@@ -330,7 +332,9 @@ void initial_setup(ezgl::application *application, bool /*new_window*/) {
     GObject *navigationWindow = application->get_object("Window");
     g_signal_connect(navigationWindow, "clicked", G_CALLBACK(window_button), application);
     
-    GObject *deliveryButton = application->get_object("Window");
+    
+    //Opens by clicking navigation
+    GObject *deliveryButton = application->get_object("DeliveryButton");
     g_signal_connect(deliveryButton, "clicked", G_CALLBACK(delivery_button), application);
     
     GtkEntry *SearchBar = (GtkEntry *) application->get_object("SearchBar");

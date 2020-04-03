@@ -307,6 +307,8 @@ and press enter:</property>
               <object class="GtkLabel" id="Weight">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
               </object>
               <packing>
                 <property name="left_attach">3</property>
@@ -317,6 +319,8 @@ and press enter:</property>
               <object class="GtkLabel" id="DropOffs">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
               </object>
               <packing>
                 <property name="left_attach">2</property>
@@ -327,6 +331,8 @@ and press enter:</property>
               <object class="GtkLabel" id="PickUps">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -382,6 +388,8 @@ and press enter:</property>
               <object class="GtkLabel" id="DeliveryIndex">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1054,8 +1062,6 @@ Enter Two Intersections:
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="margin_left">10</property>
-                <property name="margin_right">10</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1182,6 +1188,8 @@ Enter Two Intersections:
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
+            <property name="margin_left">10</property>
+            <property name="margin_right">10</property>
           </object>
           <packing>
             <property name="left_attach">2</property>
