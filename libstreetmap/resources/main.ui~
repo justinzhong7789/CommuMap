@@ -2,6 +2,447 @@
 <!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.0"/>
+  <object class="GtkDialog" id="DeliveryWindow">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Go!</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkGrid">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkEntry" id="DeliveryEntry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="placeholder_text" translatable="yes">Intersection Ids or Weight</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Enter Values:</property>
+                <attributes>
+                  <attribute name="font-desc" value="Bitstream Vera Sans Mono Bold 11"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Chosen Depots:</property>
+                <attributes>
+                  <attribute name="font-desc" value="cmr10 Bold 13"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="ChosenDepots">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="LabelDepot">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="margin_left">5</property>
+                <property name="margin_right">5</property>
+                <property name="margin_top">5</property>
+                <property name="margin_bottom">5</property>
+                <property name="label" translatable="yes">Type NUM DEPOTS
+and press enter:</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="NumDepoEntry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="placeholder_text" translatable="yes">Number of depots</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="Instructions1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">
+Deliveries:
+</property>
+                <attributes>
+                  <attribute name="font-desc" value="Cousine Bold 15"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="margin_left">5</property>
+                <property name="margin_right">5</property>
+                <property name="margin_top">5</property>
+                <property name="margin_bottom">5</property>
+                <property name="label" translatable="yes">Type NUM DELIVERIES
+and press enter:</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="NumDeliveriesEntry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="placeholder_text" translatable="yes">Number of deliveries</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="PickUpsDone">
+                <property name="label" translatable="yes">Done Pick Ups</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="DropOffsDone">
+                <property name="label" translatable="yes">Done Drop Offs</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="WeightDone">
+                <property name="label" translatable="yes">Done Weight</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="top_attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="DepotsDone">
+                <property name="label" translatable="yes">Done Depots</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="top_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Turn Penalty</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="DeliveryTurnPenalty">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="placeholder_text" translatable="yes">Turn Penalty</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Truck Capacity</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">10</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="TruckCapacity">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="placeholder_text" translatable="yes">Truck Capacity</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">10</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">-------------------------------------------------------</property>
+                <attributes>
+                  <attribute name="font-desc" value="Accanthis ADF Std No2 Bold Italic 10"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">4</property>
+                <property name="width">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="NumDepots">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <attributes>
+                  <attribute name="font-desc" value="Bitstream Vera Sans Bold 15"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="top_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="NumDeliveries">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <attributes>
+                  <attribute name="font-desc" value="Bitstream Vera Serif Bold 15"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="top_attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="Weight">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="top_attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="DropOffs">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="PickUps">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="margin_top">7</property>
+                <property name="label" translatable="yes">Weight: </property>
+                <attributes>
+                  <attribute name="font-desc" value="cmr10 Bold 13"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="top_attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="margin_top">7</property>
+                <property name="label" translatable="yes">Drop Offs:</property>
+                <attributes>
+                  <attribute name="font-desc" value="cmr10 Bold 13"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="top_attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="margin_top">7</property>
+                <property name="label" translatable="yes">Pick Ups:</property>
+                <attributes>
+                  <attribute name="font-desc" value="cmr10 Bold 13"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="DeliveryIndex">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkListStore" id="DestinationListstore">
     <columns>
       <!-- column-name gchararray1 -->
@@ -383,15 +824,6 @@ Enter Two Intersections:
                 <property name="top_attach">0</property>
               </packing>
             </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -599,7 +1031,7 @@ Enter Two Intersections:
               </object>
               <packing>
                 <property name="left_attach">0</property>
-                <property name="top_attach">13</property>
+                <property name="top_attach">14</property>
                 <property name="width">3</property>
               </packing>
             </child>
@@ -609,6 +1041,21 @@ Enter Two Intersections:
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">13</property>
+                <property name="width">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="Window">
+                <property name="label" translatable="yes">Navigate</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -662,6 +1109,7 @@ Enter Two Intersections:
             <property name="label" translatable="yes">label</property>
             <attributes>
               <attribute name="font-desc" value="Arimo 10"/>
+              <attribute name="foreground" value="#f3f3f3f3f3f3"/>
             </attributes>
           </object>
           <packing>
@@ -729,13 +1177,11 @@ Enter Two Intersections:
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="Window">
-            <property name="label" translatable="yes">Navigate</property>
+          <object class="GtkButton" id="DeliveryButton">
+            <property name="label" translatable="yes">Make Deliveries!</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
-            <property name="margin_left">10</property>
-            <property name="margin_right">10</property>
           </object>
           <packing>
             <property name="left_attach">2</property>

@@ -2,6 +2,7 @@
 
 #include "m1.h"
 #include "m2.h"
+#include "m4.h"
 #include "global_variables.hpp"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
@@ -82,6 +83,8 @@ extern int location_ID;
 extern int destination_ID;
 extern int pickUp_ID;
 
+
+
 extern string locationText;
 extern string destinationText;
 
@@ -94,6 +97,11 @@ extern GtkEntry *WalkingSpeedGlobal;
 extern GtkEntry *WalkingTimeLimitGlobal;
 extern GtkEntry *LocationComboEntry;
 extern GtkEntry *DestinationComboEntry;
+
+//GtkEntries for deliveries
+extern GtkEntry *TruckCapacityGlobal;
+extern GtkEntry *DeliveryTextGlobal;
+
 
 extern vector<int> found_route_segments;
 extern vector<int> found_walk_segments;
@@ -151,3 +159,39 @@ void write_drive_path_directions(int location, int destination, std::vector<int>
 void drawStartEndPoints(ezgl::renderer *g);
 
 void instructions(GtkWidget */*widget*/,ezgl::application *application);
+
+
+
+//Global drawing deliveries
+extern bool making_deliveries;
+extern bool set_depots;
+extern bool set_deliveries;
+extern bool set_pickups;
+extern bool set_dropoffs;
+extern bool set_weight;
+extern int numDepots;
+extern int numDeliveries;
+extern int weight;
+extern int pickUp;
+extern int dropOff;
+extern std::vector<int> depotsIntersection;
+extern std::vector<DeliveryInfo> depotsIntersection;
+extern std::vector<int> pickupsIntersection; //store all intersections to display on the
+extern std::vector<int> dropoffsIntersection; //store all drop off intersections
+extern std::vector<float> weight; //weight?
+extern string allDepots;
+extern string allPickUps;
+extern string allDropOffs;
+extern string allWeight;
+extern string allIndex;
+
+
+//Call back functions for the delivery window
+void delivery_entry(GtkWidget */*widget*/, ezgl::application *application);
+void num_depots_entry(GtkWidget */*widget*/, ezgl::application *application);
+void num_delivery_entry(GtkWidget */*widget*/, ezgl::application *application);
+void depots_done(GtkComboBox *widget, ezgl::application * application);
+void pickups_done(GtkWidget */*widget*/,ezgl::application *application);
+void dropoffs_done(GtkWidget */*widget*/,ezgl::application *application);
+void weight_done(GtkWidget */*widget*/,ezgl::application *application);
+void make_deliveries(GtkWidget */*widget*/,ezgl::application *application);

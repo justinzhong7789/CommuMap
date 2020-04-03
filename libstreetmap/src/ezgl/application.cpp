@@ -357,6 +357,25 @@ void application::colourNavigationButton(application *app)
         // show the button (idk if you need this step)
         gtk_widget_show(new_button);
 }
+
+void application::colourDeliveryButton(application *app)
+{
+        //get pointer to the button using gtk_get_object or something i dont remember
+        GtkWidget * new_button = (GtkWidget*) app->get_object("DeliveryButton");
+        //get the file you want to attach to the button css stuff
+        GtkStyleContext *context = gtk_widget_get_style_context(new_button);
+        GtkCssProvider *provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_path (provider, "/nfs/ug/homes-2/c/cuevasm2/ece297/work/mapper/libstreetmap/src/m2_helper/nightMode.css", NULL);
+        
+        //attach it to the button
+        gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER(provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+        // show the button (idk if you need this step)
+        gtk_widget_show(new_button);
+}
+
 void application::colourNightModeButton(application *app)
 {
         //get pointer to the button using gtk_get_object or something i dont remember

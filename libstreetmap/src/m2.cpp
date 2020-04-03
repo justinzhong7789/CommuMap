@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include "m2.h"
+#include "m4.h"
 
 //HEADER FILES
 #include "m2_helper/directions.hpp"
@@ -79,18 +80,40 @@ double walking_time_limit_entry = 0;
 
 //Created flags
 bool night;
-bool searchingPOI = 0;
-bool searchingIntersections = 0;
-bool searchingStreet = 0;
+bool searchingPOI = false;
+bool searchingIntersections = false;
+bool searchingStreet = false;
 bool searchingRoute = false;
 bool searchingWalkPath = false;
-bool click_OnOff = 0;
-bool text_OnOff = 0;
-bool find_w_click = 0;
+bool click_OnOff = false;
+bool text_OnOff = false;
+bool find_w_click = false;
+bool make_deliveries = false;
 bool load_success;
-bool usingIDs = 0;
+bool usingIDs = false;
 bool nightHover = false;
-bool open = 0;
+bool open = false;
+
+//global variables to draw deliveries
+bool set_depots = false;
+bool set_deliveries = false;
+int numDepots;
+int numDeliveries;
+bool set_pickups = false;
+bool set_dropoffs = false;
+bool set_weight = false;
+std::vector<int> depotsIntersection;
+std::vector<DeliveryInfo> depotsIntersection;
+std::vector<int> pickupsIntersection; //store all intersections to display on the
+std::vector<int> dropoffsIntersection; //store all drop off intersections
+std::vector<float> weight; //weight?
+string allDepots;
+string allPickUps;
+string allDropOffs;
+string allWeight;
+string allIndex;
+
+
 
 //GTK global variables
 GtkEntry *textboxGlobal;
@@ -103,6 +126,8 @@ GtkEntry *WalkingSpeedGlobal;
 GtkEntry *WalkingTimeLimitGlobal;
 GtkEntry *LocationComboEntry;
 GtkEntry *DestinationComboEntry;
+GtkEntry *DeliveryTextGlobal;
+GtkEntry *TruckCapacityGlobal;
 
 void draw_map() {
 
@@ -289,6 +314,7 @@ void initial_setup(ezgl::application *application, bool /*new_window*/) {
     application->create_button("Find Intersections", 9, find_button);
     application->create_button("Load City", 7, Load_Map);
     application->colourNavigationButton(application);
+    application->colourDeliveryButton(application);
     application->colourUpButton(application);
     application->colourDownButton(application);
     application->colourRightButton(application);
@@ -301,10 +327,12 @@ void initial_setup(ezgl::application *application, bool /*new_window*/) {
     GtkLabel *error = (GtkLabel*) application->get_object("ErrorOutput");
     gtk_label_set_text(error, "\nWelcome to CommuMaps!\n");
 
-
     GObject *navigationWindow = application->get_object("Window");
     g_signal_connect(navigationWindow, "clicked", G_CALLBACK(window_button), application);
-
+    
+    GObject *deliveryButton = application->get_object("Window");
+    g_signal_connect(deliveryButton, "clicked", G_CALLBACK(delivery_button), application);
+    
     GtkEntry *SearchBar = (GtkEntry *) application->get_object("SearchBar");
     g_signal_connect(SearchBar, "activate", G_CALLBACK(search_bar), application);
 

@@ -186,6 +186,7 @@ public:
    * Testing colour settings
    */
   void colourNavigationButton(application *application);
+  void application::colourDeliveryButton(application *app);
   void colourNightModeButton(application *application);
   void colourUpButton(application *application);
   void colourDownButton(application *application);
