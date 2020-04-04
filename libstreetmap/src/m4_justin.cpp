@@ -245,3 +245,203 @@ bool precompute_all_paths(const std::vector<DeliveryInfo>& deliveries, const std
             && make_PU_to_other_points(deliveries, turn_penalty)
             && make_DO_to_points(deliveries,depots, turn_penalty));
 }
+
+std::vector<CourierSubpath> traveling_courier(
+		            const std::vector<DeliveryInfo>& deliveries,
+	       	        const std::vector<int>& depots, 
+		            const float turn_penalty, 
+		            const float truck_capacity){
+    vector<CourierSubpath> shortest = greedy(deliveries, depots,
+                                            turn_penalty, truck_capacity, 0);
+    
+    for(int i =0;i<depots.size();i++){
+        vector<CourierSubpath> temp = greedy(deliveries, depots,
+                                            turn_penalty, truck_capacity, 0);
+        if(computeCourierPathTravelTime(turn_penalty,shortest) 
+           > computeCourierPathTravelTime(turn_penalty, temp)){
+            shortest = temp;
+        }
+    }
+    return shortest;
+    
+}
+
+
+vector<CourierSubpath> greedy(const std::vector<DeliveryInfo>& deliveries,
+	       	        const std::vector<int>& depots, 
+		            const float turn_penalty, 
+		            const float truck_capacity,
+                            int startdepotIndex){
+    int deliNum = deliveries.size();
+    truck status(deliveries);
+    vector<CourierSubpath> best; //stores best courier path
+    
+    if(best.size()==0){ // add the starting path
+            
+        pathInfo closest_path = depots_to_all_PU[startdepotIndex][0];
+        for(int i=0;i<deliNum;i++){
+            if(closest_path > depots_to_all_PU[startdepotIndex][i]){
+                closest_path = depots_to_all_PU[startdepotIndex][i];
+            }
+        }
+        CourierSubpath start = initializeSubpath(depots[startdepotIndex], getEndInter(closest_path.the_path), closest_path.the_path,{});
+        best.push_back(start);
+    }
+    while(!status.all_done()){
+        CourierSubpath subpath;
+        int subpathSize = best.size();
+        vector<deliIndex> at_pu, at_do;
+        //legal drop offs we can go are the ones we are carrying
+        at_pu = find_indices_of_pu(best[subpathSize-1].end_intersection, deliveries);
+        for(int i=0;i<at_pu.size(); i++){
+            //if we are at an intersection that is a pick up, check its weight 
+            //and modify subpath
+            if(status.currWeight+deliveries[at_pu[i]].itemWeight < truck_capacity){
+                subpath.pickUp_indices.push_back(at_pu[i]);
+                status.onBoard.push_back(at_pu[i]);
+            }
+        }
+        at_do = find_indices_of_do(best[subpathSize-1].end_intersection, deliveries);
+        //check if we are at a drop off location, then we need to drop off things
+        // from the truck object
+        for(int i=0;i<at_do.size(); i++){
+            for(int j=0;j<status.onBoard.size();i++){
+                if(status.item_is_onBoard(at_do[i])){
+                    //if a corresponding item is on board when we reach its drop off location
+                    //then drop it
+                    status.one_deli_done(at_do[i]);
+                }
+            }
+        }
+        vector<deliIndex> legal_do_for_next, legal_pu_for_next;
+        legal_do_for_next = status.onBoard; //legal drop off are what we have on truck
+        for(int i=0;i<status.undone.size();i++){
+            //legal pickups are what's in undone and not on the truck
+            //and satisfies weight condition
+            if(!status.item_is_on_board(status.undone[i])){
+                if(status.currWeight + deliveries[status.undone[i]].itemWeight <truck_capacity){
+                    legal_pu_for_next.push_back(status.undone[i]);
+                }
+            }
+        }
+        if(at_pu.size()!=0){
+            //we are at a pickup location
+            vector<pair<pathInfo,pathInfo>> current_point_to_all_points = all_PU_to_other_points[at_pu[0]];
+            if(legal_pu_for_next.size()!=0){
+                pathInfo shortest_path = current_point_to_all_points[legal_pu_for_next[0]].first;
+                for(int i=0;i<legal_pu_for_next.size();i++){
+                    if(shortest_path > current_point_to_all_points[legal_pu_for_next[i]].first){
+                        shortest_path = current_point_to_all_points[legal_pu_for_next[i]].first;
+                    }
+                }
+                for(int i=0; i< legal_do_for_next.size();i++){
+                    if(shortest_path > current_point_to_all_points[legal_do_for_next[i]].second){
+                        shortest_path = current_point_to_all_points[legal_do_for_next[i]].second;
+                    }
+                }
+                subpath.subpath = shortest_path.the_path;
+                subpath.end_intersection = getEndInter(shortest_path.the_path);
+                subpath.start_intersection = getStartInter(shortest_path.the_path);
+            }
+            
+        }
+        if(at_do.size()!=0){
+            //we are at a drop off location
+            vector<pair<pathInfo, pathInfo>> current_to_all_points = all_DO_to_other_points[at_do[0]];
+            if(legal_pu_for_next.size()!=0){
+                pathInfo shortest_path = current_to_all_points[legal_pu_for_next[0]].first;
+                for(int i=0;i<legal_pu_for_next.size();i++){
+                    if(shortest_path > current_to_all_points[legal_pu_for_next[i]].first){
+                        shortest_path = current_to_all_points[legal_pu_for_next[i]].first;
+                    }
+                }
+                for(int i=0; i< legal_do_for_next.size();i++){
+                    if(shortest_path > current_to_all_points[legal_do_for_next[i]].second){
+                        shortest_path = current_to_all_points[legal_do_for_next[i]].second;
+                    }
+                }
+                subpath.subpath = shortest_path.the_path;
+                subpath.end_intersection = getEndInter(shortest_path.the_path);
+                subpath.start_intersection = getStartInter(shortest_path.the_path);
+            }        
+            
+        }
+        best.push_back(subpath);
+    }
+    int bestNum = best.size();
+    vector<int> final_drop_off = find_indices_of_do(best[bestNum-1].end_intersection, deliveries);
+    
+    if(final_drop_off.size()!=0){
+        vector<pathInfo> DO_to_all_depots = all_DO_to_depots[final_drop_off[0]];
+        pathInfo shortest_to_depot =DO_to_all_depots[0];
+        for(int i= 0;i<DO_to_all_depots.size();i++){
+            if(shortest_to_depot > DO_to_all_depots[i]){
+                shortest_to_depot = DO_to_all_depots[i];
+            }
+        }
+        CourierSubpath end_at_depot;
+        end_at_depot.end_intersection = getEndInter(shortest_to_depot.the_path);
+        end_at_depot.start_intersection = getStartInter(shortest_to_depot.the_path);
+        end_at_depot.subpath = shortest_to_depot.the_path;
+        best.push_back(end_at_depot);
+        return best;
+    }
+    return best;
+}
+
+CourierSubpath initializeSubpath(IntersectionIndex start, IntersectionIndex end, path path_, vector<unsigned> pickupIndex){
+    CourierSubpath a;
+    a.start_intersection = start;
+    a.end_intersection = end;
+    a.subpath = path_;
+    a.pickUp_indices = pickupIndex;
+}
+IntersectionIndex getStartInter(path path_){
+    int size = path_.size();
+    InfoStreetSegment first = getInfoStreetSegment(path_[0]);
+    
+    InfoStreetSegment second = getInfoStreetSegment(path_[1]);
+    
+    if(first.from == second.to || first.from == second.from){
+        return first.to;
+    }
+    else {return first.from;}
+}
+IntersectionIndex getEndInter(path path_){
+    int size = path_.size();
+    InfoStreetSegment last = getInfoStreetSegment(path_[size-1]);
+    InfoStreetSegment second_to_last = getInfoStreetSegment(path_[size-2]);
+    if(last.from == second_to_last.from || last.from == second_to_last.to){
+        return last.to;
+    }
+    else{
+        return last.from;
+    }
+}
+
+/*pass in a intersection index and deliveries. return a vector that contains 
+ * the indices of deliveries that have their pickup location at this intersection*/
+vector<int> find_indices_of_pu(IntersectionIndex index, const std::vector<DeliveryInfo>& deliveries){
+    vector <int> a;
+    for(int i=0;i<deliveries.size();i++){
+        if(index == deliveries[i].pickUp){
+            a.push_back(i);
+        }
+    }
+}
+
+vector<int> find_indices_of_do(IntersectionIndex index, const std::vector<DeliveryInfo>& deliveries){
+    vector <int> a;
+    for(int i=0;i<deliveries.size();i++){
+        if(index == deliveries[i].dropOff){
+            a.push_back(i);
+        }
+    }
+}
+double computeCourierPathTravelTime(double turn_penalty, vector<CourierSubpath> a){
+    double travelTime= 0;
+    for(int i=0;i< a.size();i++){
+        travelTime+=compute_path_travel_time(a[i].subpath, turn_penalty);
+    }
+    return travelTime;
+}
