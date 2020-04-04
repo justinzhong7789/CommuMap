@@ -55,18 +55,6 @@ void delivery_button(GtkWidget */*widget*/, ezgl::application *application)
      cout<<"Got these objects"<<endl;
     TruckCapacityGlobal = (GtkEntry *) application->get_object("TruckCapacity");
 
-    GObject *depotsDone = application->get_object("DepotsDone");
-    g_signal_connect(depotsDone, "clicked", G_CALLBACK(depots_done), application);
-
-    GObject *pickUpsDone = application->get_object("PickUpsDone");
-    g_signal_connect(pickUpsDone, "clicked", G_CALLBACK(pickups_done), application);
-
-//    GObject *dropOffsDone = application->get_object("DropOffsDone");
-//    g_signal_connect(dropOffsDone, "clicked", G_CALLBACK(dropoffs_done), application);
-    
-//    GObject *weightDone = application->get_object("WeightDone");
-//    g_signal_connect(weightDone, "clicked", G_CALLBACK(weight_done), application);
-    
     GObject *deliverButton = application->get_object("MakeDelivery");
     g_signal_connect(deliverButton, "clicked", G_CALLBACK(make_deliveries), application);
     
@@ -79,7 +67,6 @@ void close_button_delivery(GtkWidget */*widget*/, ezgl::application *application
 {
     GtkWidget * dialog = (GtkWidget *) application -> get_object("DeliveryWindow");
     gtk_widget_hide_on_delete(dialog);
-
     clean_map(application);
 }
 
@@ -134,15 +121,6 @@ void delivery_entry(GtkWidget */*widget*/, ezgl::application *application)
                 set_pickups_show = false;
                 set_dropoffs_show = true;
                 
-//                label = (GtkLabel*) application->get_object("DeliveryIndex");
-//                ss<<indexShow;
-//                cout<<indexShow<<endl;
-//                ss>>indexString;
-//                cout<<"String: "<<indexString<<endl;
-//                allIndexShow = allIndexShow + indexString + "\n";
-//                print = allIndexShow.c_str();
-//                gtk_label_set_text(label, print);
-//                indexShow++;
             }
             else if(set_dropoffs_show){
                 
@@ -188,7 +166,7 @@ void delivery_entry(GtkWidget */*widget*/, ezgl::application *application)
                     set_pickups_show = true;
                 }
             }
-        }
+        }else set_deliveries_show = false;
     }
     else{
         text = gtk_entry_get_text(TruckCapacityGlobal);
@@ -241,28 +219,143 @@ void num_delivery_entry(GtkWidget */*widget*/, ezgl::application *application){
     GtkLabel* numDeliveriesLabel = (GtkLabel*) application->get_object("NumDeliveries");
     const char* print = numDeliveriesText.c_str();
     gtk_label_set_text(numDeliveriesLabel, print);
+    
+    GtkLabel * label;
+    label = (GtkLabel*)application->get_object("PickUps");
+    print = allPickUpsShow.c_str();
+    gtk_label_set_text(label, print);
+    
+    label = (GtkLabel*)application->get_object("DropOffs");
+    print = allDropOffsShow.c_str();
+    gtk_label_set_text(label, print);
+    
+    label = (GtkLabel*)application->get_object("Weight");
+    print = allWeightShow.c_str();
+    gtk_label_set_text(label, print);
+    
 }
 
-void depots_done(GtkComboBox /**widget*/, ezgl::application * /*application*/)
+void make_deliveries(GtkWidget */*widget*/,ezgl::application *application)
 {
-    set_depots_show = false;
-}
-
-void pickups_done(GtkWidget */*widget*/,ezgl::application */*application*/)
-{
-    set_pickups_show = false;
-    set_dropoffs_show = false;
-    set_weight_show = false;
-    set_deliveries_show = false;
-}
-
-void make_deliveries(GtkWidget */*widget*/,ezgl::application */*application*/)
-{
-   //subpathShow = traveling_courier(deliveriesShow, depotsShow, turnPenaltyShow, truckCapacityShow);
+    searchingDeliveryPath = true;
+    //subpathShow = traveling_courier(deliveriesShow, depotsShow, turnPenaltyShow, truckCapacityShow);
+    
     cout<<"Making deliveries now"<<endl;
     for(int i =0; i< deliveriesShow.size(); i++){
         cout<<"Delivery "<<i<<": Pick up = "<<deliveriesShow[i].pickUp<< " Drop off = "<<deliveriesShow[i].dropOff<< " Weight = "<<deliveriesShow[i].itemWeight<<endl;
     }
+    for(int i = 0; i< depotsShow.size(); i++){
+        cout<<"Depots "<<i<<": "<< depotsShow[i]<<endl;
+    }
+    cout<<"TurnPenalty: "<<turnPenaltyShow<<endl;
+    cout<<"TruckCapacity: "<<truckCapacityShow<<endl;
+    application->refresh_drawing();
+}
 
+void highlight_deliveries(ezgl::renderer * g)
+{
+    //std::vector<int> depotsShow
+    //std::vector<DeliveryInfo> deliveriesShow
+    //std::vector<CourierPath> subpathShow
+    
+    ezgl::color colour[10]= {YELLOW, PINK, PLUM, BLACK, CYAN, CORAL, GREEN};
+    
+    char name = 'A';
+    
+    for(int i =0; i< subpathShow.size(); i++){
+        highlight_route(subpathShow[i].subpath, g, colour[i]);
+    }
+    
+    for(int i = 0; i< deliveriesShow.size(); i++){
+        highlightDropOff(g, deliveriesShow[i].dropOff, name+i);
+        highlightPickUp(g, deliveriesShow[i].pickUp, name+i);
+    }
+    
+    for(int i = 0 ; i< depotsShow.size() ; i++){
+        highlightDepot(g, depotsShow[i], name+i);
+    }
+    
+}
+
+void highlightDropOff(ezgl::renderer *g, int intersectionID, char num)
+{
+    stringstream ss;
+    const char * name;
+    string nameString;
+    ss<<num;
+    ss>>nameString;
+    name = nameString.c_str();
+    
+    LatLon locPos = getIntersectionPosition(intersectionID);
+    point2d locText(x_from_lon(locPos.lon()), y_from_lat(locPos.lat()) + 0.002 * (zooms.zcase) / (10 - zooms.zcase));
+    point2d locCentre(x_from_lon(locPos.lon()), y_from_lat(locPos.lat()));
+
+
+    point2d locBackStart(x_from_lon(locPos.lon()) - 0.005 * (zooms.zcase) / (10 - zooms.zcase), y_from_lat(locPos.lat()) + 0.001 * (zooms.zcase) / (10 - zooms.zcase));
+    point2d locBackEnd(x_from_lon(locPos.lon()) + 0.005 * (zooms.zcase) / (10 - zooms.zcase), y_from_lat(locPos.lat()) + 0.003 * (zooms.zcase) / (10 - zooms.zcase));
+
+    rectangle locRect(locBackStart, locBackEnd);
+    g->set_color(WHITE);
+    g->fill_rectangle(locRect);
+
+
+    g->set_color(BLUE);
+    g->fill_arc(locCentre, 0.001 * (zooms.zcase) / (10 - zooms.zcase), 0, 360);
+    g->draw_text(locText, name);
+}
+
+void highlightPickUp (ezgl::renderer *g, int intersectionID, char num)
+{
+    stringstream ss;
+    const char * name;
+    string nameString;
+    ss<<num;
+    ss>>nameString;
+    name = nameString.c_str();
+    
+    LatLon locPos = getIntersectionPosition(intersectionID);
+    point2d locText(x_from_lon(locPos.lon()), y_from_lat(locPos.lat()) + 0.002 * (zooms.zcase) / (10 - zooms.zcase));
+    point2d locCentre(x_from_lon(locPos.lon()), y_from_lat(locPos.lat()));
+
+
+    point2d locBackStart(x_from_lon(locPos.lon()) - 0.005 * (zooms.zcase) / (10 - zooms.zcase), y_from_lat(locPos.lat()) + 0.001 * (zooms.zcase) / (10 - zooms.zcase));
+    point2d locBackEnd(x_from_lon(locPos.lon()) + 0.005 * (zooms.zcase) / (10 - zooms.zcase), y_from_lat(locPos.lat()) + 0.003 * (zooms.zcase) / (10 - zooms.zcase));
+
+    rectangle locRect(locBackStart, locBackEnd);
+    g->set_color(WHITE);
+    g->fill_rectangle(locRect);
+
+
+    g->set_color(RED);
+    g->fill_arc(locCentre, 0.001 * (zooms.zcase) / (10 - zooms.zcase), 0, 360);
+    g->draw_text(locText, name);
+}
+
+void highlightDepot (ezgl::renderer *g, int intersectionID, char num)
+{
+    stringstream ss;
+    const char * name;
+    string nameString;
+    ss<<num;
+    ss>>nameString;
+    name = nameString.c_str();
+    
+    
+    LatLon locPos = getIntersectionPosition(intersectionID);
+    point2d locText(x_from_lon(locPos.lon()), y_from_lat(locPos.lat()) + 0.002 * (zooms.zcase) / (10 - zooms.zcase));
+    point2d locCentre(x_from_lon(locPos.lon()), y_from_lat(locPos.lat()));
+
+
+    point2d locBackStart(x_from_lon(locPos.lon()) - 0.005 * (zooms.zcase) / (10 - zooms.zcase), y_from_lat(locPos.lat()) + 0.001 * (zooms.zcase) / (10 - zooms.zcase));
+    point2d locBackEnd(x_from_lon(locPos.lon()) + 0.005 * (zooms.zcase) / (10 - zooms.zcase), y_from_lat(locPos.lat()) + 0.003 * (zooms.zcase) / (10 - zooms.zcase));
+
+    rectangle locRect(locBackStart, locBackEnd);
+    g->set_color(WHITE);
+    g->fill_rectangle(locRect);
+
+
+    g->set_color(PURPLE);
+    g->fill_arc(locCentre, 0.001 * (zooms.zcase) / (10 - zooms.zcase), 0, 360);
+    g->draw_text(locText, name );
 }
 

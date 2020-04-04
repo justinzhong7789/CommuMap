@@ -164,6 +164,7 @@ extern bool set_deliveries_show;
 extern bool set_pickups_show;
 extern bool set_dropoffs_show;
 extern bool set_weight_show;
+extern bool searchingDeliveryPath;
 extern int numDepotsShow;
 extern int numDeliveriesShow;
 extern int weightShow;
@@ -197,3 +198,8 @@ void pickups_done(GtkWidget */*widget*/,ezgl::application */*application*/);
 void make_deliveries(GtkWidget */*widget*/,ezgl::application */*application*/);
 void close_button_delivery(GtkWidget */*widget*/, ezgl::application *application);
 //void weight_done(GtkWidget */*widget*/,ezgl::application *application);
+
+void highlight_deliveries(ezgl::renderer * g);
+void highlightDropOff(ezgl::renderer *g, int intersectionID, char num);
+void highlightPickUp (ezgl::renderer *g, int intersectionID, char num);
+void highlightDepot (ezgl::renderer *g, int intersectionID, char num);

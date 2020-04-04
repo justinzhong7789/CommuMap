@@ -117,7 +117,7 @@ bool open = false;
 //string allIndexShow;
 //GtkEntry *DeliveryTextGlobal;
 //GtkEntry *TruckCapacityGlobal;
-
+bool searchingDeliveryPath = false;
 
 //GTK global variables
 GtkEntry *textboxGlobal;
@@ -211,6 +211,11 @@ void draw_main_canvas(ezgl::renderer *g) {
         end_ID = destination_ID;
         drawStartEndPoints(g);
     }
+    
+    if(searchingDeliveryPath){
+        highlight_deliveries(g);
+    }
+    
 }
 
 void drawStartEndPoints(ezgl::renderer *g) {
@@ -306,6 +311,7 @@ void clean_map(ezgl::application *application) {
     searchingStreet = false;
     searchingRoute = false;
     searchingWalkPath = false;
+    searchingDeliveryPath = false;
     found_intersections.clear();
     found_street_segments.clear();
     application->refresh_drawing();
@@ -846,8 +852,6 @@ void highlight_intersections(vector<int> intersection_ids, ezgl::renderer *g) {
 
     if (find_w_click) {
         for (int i = 0; i < intersection_ids.size(); i++) {
-
-
 
             LatLon intersection_position = getIntersectionPosition(intersection_ids[i]);
             g->fill_arc({x_from_lon(intersection_position.lon()), y_from_lat(intersection_position.lat())}, 0.001 * (zooms.zcase) / (10 - zooms.zcase), 0, 360);
