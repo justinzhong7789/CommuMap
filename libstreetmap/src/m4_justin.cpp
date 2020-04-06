@@ -19,7 +19,24 @@
 
 using namespace std;
 
+vector<list<StreetSegmentIndex>> tracebackTemp; // Used to store bfsTraceback paths
+
 bool one_source_multi_dest(Node* sourceNode, vector<IntersectionIndex> destinations, double turn_penalty){
+    makeNodeTable();
+
+    for (int i=0; i<destinations.size(); i++){
+        if (!bfsPath(sourceNode, destinations[i],turn_penalty)){
+            tracebackTemp.clear();
+            return false;
+        }
+        // Store the traceback paths into a global variable
+        else tracebackTemp.push_back(bfsTraceback(destinations[i]));
+        reset_nodeTable();
+    }
+    return true;
+}
+
+/*bool one_source_multi_dest(Node* sourceNode, vector<IntersectionIndex> destinations, double turn_penalty){
         // Establish min heap
     //priority_queue <WaveElem, vector<WaveElem>, comparatorWE> pq;
     priority_queue <WaveElem, vector<WaveElem>, greaterWE> pq;
@@ -33,7 +50,7 @@ bool one_source_multi_dest(Node* sourceNode, vector<IntersectionIndex> destinati
             WaveElem wave = pq.top(); // get next element
             pq.pop(); // remove from wavefront
             Node *currNode = wave.node;
-            /*set element of dummy destination to invalid if its found */
+            //set element of dummy destination to invalid if its found
             for(int i =0;i<destNum;i++){
                 if(dummyDest[i] != invalid){
                     done = false;
@@ -86,7 +103,7 @@ bool one_source_multi_dest(Node* sourceNode, vector<IntersectionIndex> destinati
     }
     return false;
 
-}
+}*/
 
 bool make_depot_to_PU(const std::vector<DeliveryInfo>& deliveries, const std::vector<int>& depots, double turn_penalty){
     int depotNum = depots.size();
@@ -97,7 +114,7 @@ bool make_depot_to_PU(const std::vector<DeliveryInfo>& deliveries, const std::ve
         PU_loc.push_back(deliveries[i].pickUp);
     }
     
-    for(int i=0; i< depotNum;i++){
+    /*for(int i=0; i< depotNum;i++){
         bool all_path_found = false;
         Node* source = getNodebyID(depots[i]);
         all_path_found = one_source_multi_dest(source, PU_loc, turn_penalty);
@@ -111,9 +128,26 @@ bool make_depot_to_PU(const std::vector<DeliveryInfo>& deliveries, const std::ve
             }
         
         }
-        else{return false;}
+        else{return false;}*/
+    for (int i=0; i< depotNum; i++){
+        Node* source = getNodebyID(depots[i]);
+        bool all_path_found = one_source_multi_dest(source, PU_loc, turn_penalty);
+        vector<pathInfo> one_depot_to_all_PU;
+        
+        if (all_path_found){
+            for (int j=0; j < PU_loc.size(); j++){
+                path to_one_PU = convertListToVec(tracebackTemp[j]);
+                pathInfo one_path(to_one_PU, compute_path_travel_time(to_one_PU, turn_penalty));
+                one_depot_to_all_PU.push_back(one_path);
+            }
+            tracebackTemp.clear();
+        } else {
+            tracebackTemp.clear();
+            return false;
+        }   
+        
         depots_to_all_PU.push_back(one_depot_to_all_PU);
-        reset_nodeTable();
+        //reset_nodeTable();
     }
     return true;
 }
@@ -136,13 +170,36 @@ bool make_PU_to_other_points(const std::vector<DeliveryInfo>& deliveries, double
         all.push_back(deliveries[i].pickUp);
         all.push_back(deliveries[i].dropOff);
     }
-    for(int i=0;i<deliNum ;i++){
-        Node * source = getNodebyID(PU[i]);
-        bool all_path_found = false;
-        vector<pair<pathInfo, pathInfo>> one_pu_to_all_points;
+    
+    vector<pair<pathInfo, pathInfo>> one_pu_to_all_points;
+    for(int i=0; i<deliNum; i++){
+        Node *source = getNodebyID(PU[i]);
         
-        all_path_found = one_source_multi_dest(source, all, turn_penalty);
-        if(all_path_found){
+        bool all_path_found = one_source_multi_dest(source, all, turn_penalty);
+        
+        // Vector traceback will have alternating pickup/dropoff locations
+        vector<list<StreetSegmentIndex>> PU_paths, DO_paths;
+        for (int j=0; j < tracebackTemp.size(); j++){
+            if (j % 2 == 0) PU_paths.push_back(tracebackTemp[j]);
+            else DO_paths.push_back(tracebackTemp[j]);
+        }
+        tracebackTemp.clear(); // No longer need this vector
+        
+        if (all_path_found){
+            for (int j=0; j < deliNum; j++){
+                path to_pu = convertListToVec(PU_paths[i]);
+                path to_do = convertListToVec(DO_paths[i]);
+                
+                pathInfo path_to_pu(to_pu, compute_path_travel_time(to_pu, turn_penalty));
+                pathInfo path_to_do(to_do, compute_path_travel_time(to_do, turn_penalty));
+                
+                one_pu_to_all_points.push_back(make_pair(path_to_pu, path_to_do));
+            }
+        } else {
+            return false;
+        }
+        
+        /*if(all_path_found){
             for(int j=0;j< deliNum;j++){
                 path to_pu = convertListToVec(bfsTraceback(PU[i]));
                 path to_do = convertListToVec(bfsTraceback(DO[i]));
@@ -152,13 +209,12 @@ bool make_PU_to_other_points(const std::vector<DeliveryInfo>& deliveries, double
             }
             
         }
-        else {return false;}
+        else {return false;}*/
+
         all_PU_to_other_points.push_back(one_pu_to_all_points);
-        reset_nodeTable();
+        //reset_nodeTable();
     }
-    
-    return true;
-    
+    return true;  
 }
 
 bool make_DO_to_points(const std::vector<DeliveryInfo>& deliveries,const std::vector<int>& depots, double turn_penalty){
@@ -181,7 +237,40 @@ bool make_DO_to_points(const std::vector<DeliveryInfo>& deliveries,const std::ve
         all_paths_found = one_source_multi_dest(source, all, turn_penalty);
         vector<pair<pathInfo,pathInfo>> one_DO_to_all_points;
         vector<pathInfo> one_DO_to_all_depots;
-        if(all_paths_found){
+        
+        // Vector traceback will have alternating pickup/dropoff locations
+        // Start of vector has deliveries
+        // End of vector has depots
+        vector<list<StreetSegmentIndex>> PU_paths, DO_paths, depot_paths;
+        for (int j=0; j < deliveries.size() * 2; j++){
+            if (j % 2 == 0) PU_paths.push_back(tracebackTemp[j]);
+            else DO_paths.push_back(tracebackTemp[j]);
+        }
+        for (int j=deliveries.size() * 2; j < tracebackTemp.size(); j++){
+            depot_paths.push_back(tracebackTemp[j]);
+        }
+        tracebackTemp.clear();
+        
+        if (all_paths_found){
+            for (int j=0; (j<deliNum)&&(j<depotNum); j++){
+                if (j < deliNum){
+                    path one_do_to_one_pu = convertListToVec(PU_paths[i]);
+                    path one_do_to_one_do = convertListToVec(DO_paths[i]);
+                    
+                    pathInfo to_one_pu(one_do_to_one_pu, compute_path_travel_time(one_do_to_one_pu, turn_penalty));
+                    pathInfo to_one_do(one_do_to_one_do, compute_path_travel_time(one_do_to_one_do, turn_penalty));
+                    
+                    one_DO_to_all_points.push_back(make_pair(to_one_pu, to_one_do));
+                }
+                if (j < depotNum){
+                    path one_do_to_one_depot = convertListToVec(depot_paths[i]);
+                    pathInfo to_one_depot(one_do_to_one_depot, compute_path_travel_time(one_do_to_one_depot, turn_penalty));
+                    one_DO_to_all_depots.push_back(to_one_depot);
+                }
+            }
+        } else { return false; }
+        
+        /*if(all_paths_found){
             for(int j =0; (j<deliNum)&& (j<depotNum);j++){
                 if(j<deliNum){
                     path one_do_to_one_pu = convertListToVec(bfsTraceback(PU[i]));
@@ -201,8 +290,8 @@ bool make_DO_to_points(const std::vector<DeliveryInfo>& deliveries,const std::ve
         else{
             reset_nodeTable();
             return false;
-        }
-        reset_nodeTable();//reset node table for every loop
+        }*/
+        //reset_nodeTable();//reset node table for every loop
         if(i<deliNum){
             all_DO_to_other_points.push_back(one_DO_to_all_points);
         }
@@ -421,7 +510,9 @@ vector<int> find_indices_of_do(IntersectionIndex index, const std::vector<Delive
             a.push_back(i);
         }
     }
+    return a;
 }
+
 double computeCourierPathTravelTime(double turn_penalty, vector<CourierSubpath> a){
     double travelTime= 0;
     for(int i=0;i< a.size();i++){
