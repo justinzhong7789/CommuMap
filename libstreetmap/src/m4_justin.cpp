@@ -24,8 +24,7 @@ bool one_source_multi_dest(Node* sourceNode, vector<IntersectionIndex> destinati
     //priority_queue <WaveElem, vector<WaveElem>, comparatorWE> pq;
     priority_queue <WaveElem, vector<WaveElem>, greaterWE> pq;
     pq.push(WaveElem(sourceNode, 1, 0));
-    
-    
+       
     
     while (!pq.empty()){
             bool done = true;
