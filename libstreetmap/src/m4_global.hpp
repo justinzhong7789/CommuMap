@@ -120,7 +120,7 @@ vector<int> find_indices_of_pu(IntersectionIndex index, const std::vector<Delive
 
 IntersectionIndex getStartInter(path path_);
 IntersectionIndex getEndInter(path path_);
-
+void clear_all_precomputed_paths();
 vector<CourierSubpath> greedy(const std::vector<DeliveryInfo>& deliveries,
 	       	        const std::vector<int>& depots, 
 		            const float turn_penalty, 
