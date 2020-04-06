@@ -24,15 +24,18 @@ bool one_source_multi_dest(Node* sourceNode, vector<IntersectionIndex> destinati
     //priority_queue <WaveElem, vector<WaveElem>, comparatorWE> pq;
     priority_queue <WaveElem, vector<WaveElem>, greaterWE> pq;
     pq.push(WaveElem(sourceNode, 1, 0));
-       
+
+    vector<IntersectionIndex> dummyDest = destinations;
+    int destNum = dummyDest.size();
     
     while (!pq.empty()){
             bool done = true;
             WaveElem wave = pq.top(); // get next element
             pq.pop(); // remove from wavefront
             Node *currNode = wave.node;
-            for(int i =0;i<destinations.size();i++){
-                if(destinations[i] != invalid){
+            /*set element of dummy destination to invalid if its found */
+            for(int i =0;i<destNum;i++){
+                if(dummyDest[i] != invalid){
                     done = false;
                     break;
                 }
@@ -40,9 +43,9 @@ bool one_source_multi_dest(Node* sourceNode, vector<IntersectionIndex> destinati
             if(done == true){
                 return true;
             }
-            for(int i=0;i< destinations.size();i++){
-                if(currNode->id == destinations[i]){
-                    destinations[i] = invalid;
+            for(int i=0;i< destNum;i++){
+                if(currNode->id == dummyDest[i]){
+                    dummyDest[i] = invalid;
                 }
             }
             currNode->set_visited(true);
@@ -115,33 +118,6 @@ bool make_depot_to_PU(const std::vector<DeliveryInfo>& deliveries, const std::ve
     return true;
 }
 
-/*
-bool make_DO_to_depots(const std::vector<DeliveryInfo>& deliveries, const std::vector<int>& depots, double turn_penalty){
-    int deliNum = deliveries.size();
-    int depotNum = depots.size();
-    vector<IntersectionIndex> all_DO;
-    for(int i=0;i< deliNum;i++){
-        all_DO.push_back(deliveries[i].dropOff);
-    }
-    
-    for(int i=0;i<deliNum;i++){
-        vector<pathInfo> one_DO_to_all_depot;
-        bool all_path_found = false;
-        Node* source = getNodebyID(all_DO[i]);
-        all_path_found = one_source_multi_dest(source, depots, turn_penalty);
-        if(all_path_found){
-            for(int j=0;j< depotNum;j++){
-                path to_one_depot = convertListToVec(bfsTraceback(depots[j]));
-                pathInfo one_DO_to_one_depo(to_one_depot, compute_path_travel_time(to_one_depot, turn_penalty));
-                one_DO_to_all_depot.push_back(one_DO_to_one_depo);
-            }
-        }
-        else{return false;}
-        all_DO_to_depots.push_back(one_DO_to_all_depot);
-    }
-    return true;
-}
-*/
 vector<StreetSegmentIndex> convertListToVec(list<StreetSegmentIndex> l){
     vector<StreetSegmentIndex> v;
     for(int i=0;i< l.size();i++){
@@ -184,7 +160,6 @@ bool make_PU_to_other_points(const std::vector<DeliveryInfo>& deliveries, double
     return true;
     
 }
-
 
 bool make_DO_to_points(const std::vector<DeliveryInfo>& deliveries,const std::vector<int>& depots, double turn_penalty){
     int deliNum = deliveries.size();
@@ -245,24 +220,33 @@ bool precompute_all_paths(const std::vector<DeliveryInfo>& deliveries, const std
             && make_PU_to_other_points(deliveries, turn_penalty)
             && make_DO_to_points(deliveries,depots, turn_penalty));
 }
+void clear_all_precomputed_paths(){
+    all_PU_to_other_points.clear();
+    all_DO_to_other_points.clear();
+    depots_to_all_PU.clear();
+    all_DO_to_depots.clear();
 
+}
 std::vector<CourierSubpath> traveling_courier(
 		            const std::vector<DeliveryInfo>& deliveries,
 	       	        const std::vector<int>& depots, 
 		            const float turn_penalty, 
 		            const float truck_capacity){
-    vector<CourierSubpath> shortest = greedy(deliveries, depots,
-                                            turn_penalty, truck_capacity, 0);
+    if( precompute_all_paths(deliveries,depots ,turn_penalty)){
+        vector<CourierSubpath> shortest = greedy(deliveries, depots,
+                                                turn_penalty, truck_capacity, 0);
     
-    for(int i =0;i<depots.size();i++){
-        vector<CourierSubpath> temp = greedy(deliveries, depots,
-                                            turn_penalty, truck_capacity, 0);
-        if(computeCourierPathTravelTime(turn_penalty,shortest) 
-           > computeCourierPathTravelTime(turn_penalty, temp)){
-            shortest = temp;
+        for(int i =0;i<depots.size();i++){
+            vector<CourierSubpath> temp = greedy(deliveries, depots,
+                                                turn_penalty, truck_capacity, 0);
+            if(computeCourierPathTravelTime(turn_penalty,shortest) 
+            > computeCourierPathTravelTime(turn_penalty, temp)){
+                shortest = temp;
+            }
         }
+        return shortest;
     }
-    return shortest;
+    else {return {};}
     
 }
 
@@ -395,13 +379,12 @@ CourierSubpath initializeSubpath(IntersectionIndex start, IntersectionIndex end,
     a.end_intersection = end;
     a.subpath = path_;
     a.pickUp_indices = pickupIndex;
+    return a;
 }
 IntersectionIndex getStartInter(path path_){
-    int size = path_.size();
+    //int size = path_.size();
     InfoStreetSegment first = getInfoStreetSegment(path_[0]);
-    
     InfoStreetSegment second = getInfoStreetSegment(path_[1]);
-    
     if(first.from == second.to || first.from == second.from){
         return first.to;
     }
@@ -428,6 +411,7 @@ vector<int> find_indices_of_pu(IntersectionIndex index, const std::vector<Delive
             a.push_back(i);
         }
     }
+    return a;
 }
 
 vector<int> find_indices_of_do(IntersectionIndex index, const std::vector<DeliveryInfo>& deliveries){
