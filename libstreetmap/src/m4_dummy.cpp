@@ -10,6 +10,7 @@
 #include "m3.h"
 #include "m3_global.hpp"
 #include <vector>
+#include <list>
 #include <string>
 #include <iostream>
 #include "m4.h"
@@ -31,19 +32,22 @@ std::vector<CourierSubpath> traveling_courier(
     // take shortest
     // use shortest to calculate to next legal index
     // when all pickups and dropoffs are complete, return to depot
-    vector<StreetSegmentIndex> courier_path;            // path to be returned
+    //vector<StreetSegmentIndex> courier_path;            // path to be returned
     list<StreetSegmentIndex> current_path;    // path currently being calculated
+    vector<CourierSubpath> return_path;
     
     makeNodeTable();
     double best_time = WORST_TIME;
     double current_time;
     float current_weight;
-    double pickup_num;
+    int pickup_num;
+    int prev_num;
+    int depot_num;
     
     // Calculate shortest time between each depot and each pickup
-    for (int i=0; i<depots.size(); i++){
+    /*for (int i=0; i<depots.size(); i++){
         Node* sourceNode = getNodebyID(depots[i]);
-        for (int j=0; i<deliveries.size(); j++){
+        for (int j=0; j<deliveries.size(); j++){
             if (bfsPath(sourceNode, deliveries[j].pickUp, turn_penalty)){
                 current_time = getNodebyID(deliveries[j].pickUp)->bestTime;
                 if (current_time < best_time){
@@ -51,17 +55,32 @@ std::vector<CourierSubpath> traveling_courier(
                     current_path = bfsTraceback(deliveries[j].pickUp);
                     current_weight = deliveries[j].itemWeight;
                     pickup_num = j; // Note that this pickup location was visited
+                    depot_num = i;
                 }
             }
             reset_nodeTable(); // reset nodetable for correct calculations in next path
         }
+    }*/
+    if (bfsPath(getNodebyID(depots[0]), deliveries[0].pickUp, turn_penalty)){
+        current_path = bfsTraceback(deliveries[0].pickUp);
+        depot_num = 0;
+        pickup_num = 0;
+        prev_num = 0;
     }
     // vector<StreetSegmentIndex> v{make_move_iterator(begin(current_path)), make_move_iterator(end(current_path))}; // Convert list to vector
     // Add all elements of list into the path vector
-    for (int i=0; i < current_path.size(); i++){
-        courier_path.push_back(current_path.front());
+    int list_size = current_path.size();
+    CourierSubpath courier_path;
+    for (int i=0; i < list_size; i++){
+        (courier_path.subpath).push_back(current_path.front());
         current_path.pop_front();
     }
+
+    courier_path.start_intersection = depots[depot_num];
+    courier_path.end_intersection = deliveries[pickup_num].pickUp;
+    courier_path.pickUp_indices = {};        
+    
+    return_path.push_back(courier_path);
     
     vector<bool> pickup_checklist;
     vector<bool> dropoff_checklist;
@@ -76,7 +95,7 @@ std::vector<CourierSubpath> traveling_courier(
     // Repeat this until no more deliveries are left
     while (!all_dropped_off(dropoff_checklist)){
         best_time = WORST_TIME;
-        Node* subpath_start = getNodebyID(courier_path.back());     // Start of subpath is the last visited location in path
+        Node* subpath_start = getNodebyID(courier_path.end_intersection);     // Start of subpath is the last visited location in path
         float new_weight;
         for (int i=0; i < deliveries.size(); i++){
             
@@ -108,21 +127,39 @@ std::vector<CourierSubpath> traveling_courier(
                 reset_nodeTable();               
             }
         }
+        
+        current_weight += new_weight; // update truck weight
+        // add subpath to path
+        courier_path.subpath.clear(); // clears previous subpath
+        list_size = current_path.size();
+        for (int i=0; i < list_size; i++){
+            courier_path.subpath.push_back(current_path.front());
+            current_path.pop_front();
+        }
+        courier_path.start_intersection = courier_path.end_intersection;
+        
+        
         // update checklists accordingly
         if (pickup_num < 0) {
             int dropoff_num = pickup_num * (-1) -1;
             dropoff_checklist[dropoff_num] = true;
-        } else { pickup_checklist[pickup_num] = true; }
-        
-        current_weight += new_weight; // update truck weight
-        // add subpath to path
-        for (int i=0; i < current_path.size(); i++){
-            courier_path.push_back(current_path.front());
-            current_path.pop_front();
+
+            courier_path.end_intersection = deliveries[dropoff_num].dropOff;
+        } else { 
+            pickup_checklist[pickup_num] = true;
+            //courier_path.pickUp_indices = {prev_num};
+            courier_path.end_intersection = deliveries[pickup_num].pickUp;
         }
+        if (prev_num < 0){
+            courier_path.pickUp_indices = {};
+        } else { courier_path.pickUp_indices = {prev_num}; }
+        prev_num = pickup_num;
+        return_path.push_back(courier_path);
     }
+    
+    
     // now find paths back to depot
-    Node* last_dropoff = getNodebyID(courier_path.back());
+    Node* last_dropoff = getNodebyID(courier_path.end_intersection);
     best_time = WORST_TIME;
     for (int i=0; i<depots.size(); i++){
         if (bfsPath(last_dropoff, depots[i], turn_penalty)){
@@ -130,16 +167,25 @@ std::vector<CourierSubpath> traveling_courier(
             if (current_time < best_time){
                 best_time = current_time;
                 current_path = bfsTraceback(depots[i]);
+                depot_num = i;
             }
         }
         reset_nodeTable();
     }
     // add subpath to path
-    for (int i=0; i < current_path.size(); i++){
-        courier_path.push_back(current_path.front());
+    courier_path.subpath.clear();
+    list_size = current_path.size();
+    for (int i=0; i < list_size; i++){
+        courier_path.subpath.push_back(current_path.front());
         current_path.pop_front();
     }
-    return courier_path;
+    courier_path.pickUp_indices = {};
+    courier_path.start_intersection = courier_path.end_intersection;
+    courier_path.end_intersection = depots[depot_num];
+    
+    return_path.push_back(courier_path);
+    
+    return return_path;
 }
 
 bool all_dropped_off(vector<bool> v){
