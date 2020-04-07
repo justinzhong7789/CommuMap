@@ -70,7 +70,9 @@ void close_button_delivery(GtkWidget */*widget*/, ezgl::application *application
     clean_map(application);
     
    // opt_two();
-    //traveling_courier(deliveriesShow, depotsShow, 0, 0);
+    
+  
+    
 }
 
 
