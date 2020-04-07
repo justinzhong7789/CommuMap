@@ -498,7 +498,7 @@ Direction getDirection(LatLon onePos, LatLon twoPos)
     return direction;
 }
 
-//Finding the closestCurvePoint
+//Finding the length of segments
 double get_length_of_segments(int start, std::vector<int> seg_ids, int end){
     double street_length = 0;
     for(int i = start; i < end; i++ ){
