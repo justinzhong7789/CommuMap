@@ -43,9 +43,11 @@ std::vector<CourierSubpath> traveling_courier(
     int pickup_num;
     int prev_num;
     int depot_num;
+    double current_dist;
+    double best_dist = LARGEST_DISTANCE;
     
     // Calculate shortest time between each depot and each pickup
-    /*for (int i=0; i<depots.size(); i++){
+    for (int i=0; i<depots.size(); i++){
         Node* sourceNode = getNodebyID(depots[i]);
         for (int j=0; j<deliveries.size(); j++){
             if (bfsPath(sourceNode, deliveries[j].pickUp, turn_penalty)){
@@ -56,17 +58,18 @@ std::vector<CourierSubpath> traveling_courier(
                     current_weight = deliveries[j].itemWeight;
                     pickup_num = j; // Note that this pickup location was visited
                     depot_num = i;
+                    prev_num = j;
                 }
             }
             reset_nodeTable(); // reset nodetable for correct calculations in next path
         }
-    }*/
-    if (bfsPath(getNodebyID(depots[0]), deliveries[0].pickUp, turn_penalty)){
+    }
+    /*if (bfsPath(getNodebyID(depots[0]), deliveries[0].pickUp, turn_penalty)){
         current_path = bfsTraceback(deliveries[0].pickUp);
         depot_num = 0;
         pickup_num = 0;
         prev_num = 0;
-    }
+    }*/
     // vector<StreetSegmentIndex> v{make_move_iterator(begin(current_path)), make_move_iterator(end(current_path))}; // Convert list to vector
     // Add all elements of list into the path vector
     int list_size = current_path.size();
@@ -95,6 +98,7 @@ std::vector<CourierSubpath> traveling_courier(
     // Repeat this until no more deliveries are left
     while (!all_dropped_off(dropoff_checklist)){
         best_time = WORST_TIME;
+        best_dist = LARGEST_DISTANCE;
         Node* subpath_start = getNodebyID(courier_path.end_intersection);     // Start of subpath is the last visited location in path
         float new_weight;
         for (int i=0; i < deliveries.size(); i++){
@@ -102,11 +106,20 @@ std::vector<CourierSubpath> traveling_courier(
             reset_nodeTable();
             // if the delivery has not been picked up
             if (!pickup_checklist[i] && (current_weight + deliveries[i].itemWeight < truck_capacity)){
-                if (bfsPath(subpath_start, deliveries[i].pickUp, turn_penalty)){
+                /*if (bfsPath(subpath_start, deliveries[i].pickUp, turn_penalty)){
                     current_time = getNodebyID(deliveries[i].pickUp)->bestTime;
                     if (current_time < best_time){
                         best_time = current_time;
                         new_weight = (deliveries[i]).itemWeight;
+                        current_path = bfsTraceback(deliveries[i].pickUp);
+                        pickup_num = i;
+                    }
+                }*/
+                current_dist = find_distance_between_two_points(make_pair(getIntersectionPosition(courier_path.end_intersection), getIntersectionPosition(deliveries[i].pickUp)));
+                if (current_dist < best_dist){
+                    if (bfsPath(subpath_start, deliveries[i].pickUp, turn_penalty)){
+                        best_dist = current_dist;
+                        new_weight = deliveries[i].itemWeight;
                         current_path = bfsTraceback(deliveries[i].pickUp);
                         pickup_num = i;
                     }
@@ -115,7 +128,7 @@ std::vector<CourierSubpath> traveling_courier(
             }
             // if delivery has been picked up but not dropped off    
             else if (pickup_checklist[i] && !dropoff_checklist[i]){
-                if (bfsPath(subpath_start, deliveries[i].dropOff, turn_penalty)){
+                /*if (bfsPath(subpath_start, deliveries[i].dropOff, turn_penalty)){
                     current_time = getNodebyID(deliveries[i].dropOff)->bestTime;
                     if (current_time < best_time){
                         best_time = current_time;
@@ -123,8 +136,17 @@ std::vector<CourierSubpath> traveling_courier(
                         current_path = bfsTraceback(deliveries[i].dropOff);
                         pickup_num = (i+1)*(-1); // dropoff is indicated by negative pickup_num
                     }
+                }*/
+                current_dist = find_distance_between_two_points(make_pair(getIntersectionPosition(courier_path.end_intersection), getIntersectionPosition(deliveries[i].dropOff)));
+                if (current_dist < best_dist){
+                    if (bfsPath(subpath_start, deliveries[i].dropOff, turn_penalty)){
+                        best_dist = current_dist;
+                        new_weight = deliveries[i].itemWeight * (-1);
+                        current_path = bfsTraceback(deliveries[i].dropOff);
+                        pickup_num = (i+1) * (-1);
+                    }
+                reset_nodeTable();        
                 }
-                reset_nodeTable();               
             }
         }
         
