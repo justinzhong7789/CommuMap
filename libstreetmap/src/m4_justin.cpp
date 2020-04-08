@@ -273,14 +273,14 @@ bool make_DO_to_points(const std::vector<DeliveryInfo>& deliveries,const std::ve
         /*if(all_paths_found){
             for(int j =0; (j<deliNum)&& (j<depotNum);j++){
                 if(j<deliNum){
-                    path one_do_to_one_pu = convertListToVec(bfsTraceback(PU[i]));
-                    path one_do_to_one_do = convertListToVec(bfsTraceback(DO[i]));
+                    path one_do_to_one_pu = convertListToVec(bfsTraceback(PU[j]));
+                    path one_do_to_one_do = convertListToVec(bfsTraceback(DO[j]));
                     pathInfo to_one_pu(one_do_to_one_pu, compute_path_travel_time(one_do_to_one_pu, turn_penalty));
                     pathInfo to_one_do(one_do_to_one_do, compute_path_travel_time(one_do_to_one_do, turn_penalty));
                     one_DO_to_all_points.push_back(make_pair(to_one_pu, to_one_do));
                 }
                 if(j<depotNum){
-                    path one_do_to_one_depot = convertListToVec(bfsTraceback(depots[i]));
+                    path one_do_to_one_depot = convertListToVec(bfsTraceback(depots[j]));
                     pathInfo to_one_depot(one_do_to_one_depot, compute_path_travel_time(one_do_to_one_depot, turn_penalty));
                     one_DO_to_all_depots.push_back(to_one_depot);
                 
