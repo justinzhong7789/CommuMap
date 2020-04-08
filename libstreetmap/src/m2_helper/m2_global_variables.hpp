@@ -205,24 +205,3 @@ void highlight_deliveries(ezgl::renderer * g);
 void highlightDropOff(ezgl::renderer *g, int intersectionID, char num);
 void highlightPickUp (ezgl::renderer *g, int intersectionID, char num);
 void highlightDepot (ezgl::renderer *g, int intersectionID, char num);
-
-
-
-/////FUNCTION FOR M4
-//extern std::vector<DeliveryInfo> deliveryOPT;
-//extern std::vector<CourierSubpath> solutionPath;
-//extern std::vector<CourierSubpath> tempPath;
-//extern std::vector<int> depotsOPT;
-//extern std::vector<std::vector<int>> deliveryOrderOpt;
-//extern std::vector<std::vector<int>> dropOff_indices;
-//extern std::vector<std::vector<int>> pickUp_indices;
-//extern double originalTime;
-
-
-
-//double findPathTime(std::vector<CourierSubpath> solutionPath);
-//std::vector<std::vector<int>> makeDeliveryOrder(std::vector<CourierSubpath> solutionPath, std::vector<DeliveryInfo> deliveryOpt );
-//bool checkForNoDoubles(int index, std::vector<std::vector<int>> order);
-//bool opt_two(std::vector<CourierSubpath> solutionPath, std::vector<DeliveryInfo> deliveryOpt);
-//bool checkOrderLegal(std::vector<std::vector<int>> order, double truckCapacity, int size, std::vector<DeliveryInfo> deliveryOpt);
-//std::vector<std::vector<int>> makeDropOffIndices(std::vector<CourierSubpath> solution, std::vector<DeliveryInfo> deliveryOpt);
