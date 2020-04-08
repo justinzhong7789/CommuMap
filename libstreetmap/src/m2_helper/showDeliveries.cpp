@@ -68,6 +68,11 @@ void close_button_delivery(GtkWidget */*widget*/, ezgl::application *application
     GtkWidget * dialog = (GtkWidget *) application -> get_object("DeliveryWindow");
     gtk_widget_hide_on_delete(dialog);
     clean_map(application);
+    
+   // opt_two();
+    
+  
+    
 }
 
 
@@ -123,7 +128,6 @@ void delivery_entry(GtkWidget */*widget*/, ezgl::application *application)
                 
             }
             else if(set_dropoffs_show){
-                
                 
                 label = (GtkLabel*) application->get_object("DropOffs");
                 

@@ -140,7 +140,7 @@ void drawOneWay(ezgl::renderer *g){
             double length;
             double textWidth = g->textWidth({center.first,center.second}, arrow);
             
-            if((angle != 0)||(angle != 180) ||(angle != 360)){
+            if((angle != 0)){
             length = (getIntersectionPosition(info.to).lat()- getIntersectionPosition(info.from).lat())/sin(angle);
             }
                     
@@ -211,10 +211,10 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
             auto latM = segData.midpoint.lat();
             point2d segmentMid(lonM, latM);
             
-            double length;
+            double length = 0;
             double textWidth = g->textWidth(segmentMid, street_name);
             
-            if((angle != 0)||(angle != 180) ||(angle != 360)){
+            if((angle != 0)){
                 length = (segDataNext.toPos.lat() - segData.fromPos.lat())/sin(angle);
             }
                     

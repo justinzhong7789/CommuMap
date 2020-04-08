@@ -3,6 +3,8 @@
 #include "m1.h"
 #include "m2.h"
 #include "m4.h"
+#include "m3.h"
+#include "m4_opt.hpp"
 #include "global_variables.hpp"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
