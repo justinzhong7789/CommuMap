@@ -1,9 +1,138 @@
+
+#include "StreetsDatabaseAPI.h"
+#include "m1.h"
+#include "m2.h"
+#include "m3.h"
+#include "m3_global.hpp"
+#include <vector>
+#include <list>
+#include <string>
 #include <iostream>
 #include "m4.h"
 #include "m4_global.hpp"
 
+std::vector<CourierSubpath> opt_two(int & trial, const std::vector<CourierSubpath> & currentPath, const std::vector<DeliveryInfo> & deliveries, 
+                                               const std::vector<std::vector<int>> & dropOffIndices, float turnPenalty, float truckCapacity){
+    
+    std::vector<CourierSubpath> result;
+    std::vector<int> deliveryOrder;
+    
+   
+    
+    int deliverySize = deliveries.size();
+    
+    if(!containsPickUpAndDelivery(trial, currentPath)){
+        
+    }
+    else{
+        trial++;
+    }
+    
+    
+}
 
+bool checkOrderLegal(const std::vector<CourierSubpath> & newPath, std::vector<std::vector<int>> & dropOffIndices, const float & truckCapacity, const std::vector<DeliveryInfo> & deliveries)
+{
+    int size = deliveries.size();
+    float truckLoad=0;
+    std::vector<bool> truckContainer;
+    truckContainer.resize(size);
+    double weightPick = 0;
+    double weightDrop = 0;
+    
+    //dropOffIndices[13].push_back(12);
+    //newPath[15].pickUp_indices.push_back((unsigned)7);
+    //HAVENT CHECKED FALSE PICK UPS
+    
+    for(int i = 0; i< newPath.size(); i++){
+        
+        std::vector<unsigned> pickUpInd = newPath[i].pickUp_indices;
+        
+        for(int p= 0; p< pickUpInd.size() ; p++ ){
+            
+            int index = pickUpInd[p];
 
+            weightPick = deliveries[index].itemWeight;
+
+            //SHOULD RETURN FALSE IF ALREADY DELIVERED
+            if((weightPick + truckLoad) >truckCapacity){
+                return false;
+            }else{
+                cout<< "Picking up ["<<index<<"] at ["<<i<<"]\n";
+                truckLoad += weightPick;
+                truckContainer[index] = true; //the one indicates that it is in the truck
+            }
+            
+        }   
+            
+        std::vector<int> dropOffInd = dropOffIndices[i];
+        for(int d = 0; d<dropOffInd.size(); d++){    //WHAT HAPPENS FOR DROP OFFS
+            
+            int index = dropOffInd[d];
+            weightDrop = deliveries[index].itemWeight;
+
+            if(truckContainer[index]){ //Package is in the truck
+                cout<<"Dropping off ["<<index<<"] at ["<<i<<"]\n";
+                truckLoad -= weightDrop;
+                truckContainer[index] = false;
+            }else{
+                return false;
+            }
+        
+        }
+    }
+    return true;
+}
+
+std::vector<std::vector<int>> makeDropOffIndices(const std::vector<CourierSubpath> & currentPath, const std::vector<DeliveryInfo> & deliveries)
+{
+     std::vector<std::vector<int>> dropOff_indices;
+     dropOff_indices.resize(currentPath.size());
+
+    for(int i= 0; i< currentPath.size(); i++){
+        
+        int startIntersection = currentPath[i].start_intersection;
+        
+        for(int j =0; j<deliveries.size(); j++){
+            if(startIntersection == deliveries[j].dropOff){
+                dropOff_indices[i].push_back(j); //Add drop off item.
+            }
+        }
+    }
+     
+    return dropOff_indices;
+}
+
+bool containsPickUpAndDelivery(const int trial, const std::vector<CourierSubpath> & currentPath, const std::vector<std::vector<int>> & dropOffIndices)
+{
+    std::vector<int> total;
+    
+    for(int i = trial; i< trial + 3; i++){
+        std::vector<unsigned> pickUpIndices = currentPath[i].pickUp_indices;
+        for(int pu = 0; pu< pickUpIndices.size(); pu++ ){
+            total.push_back(pickUpIndices[pu]);
+           // std::cout<<"PickUp["<<i<<"]:"<<pickUpIndices[pu]<<endl;
+        }
+        for(int df = 0; df< dropOffIndices[i].size(); df++){
+            total.push_back(dropOffIndices[i][df]);
+           // std::cout<<"DropOff["<<i<<"]:"<<dropOffIndices[i][df]<<endl;
+        }
+    }
+    
+    std::sort(total.begin(), total.end());
+    int num = total[0];
+//    std::cout<<"Total size: "<<total.size()<<endl;
+    for(int i = 1; i< total.size(); i++){
+        if(num == total[i]){
+            return true;
+        }else{
+            num = total[i];
+        }
+        
+   //  std::cout<<"["<<i<<"]:"<<total[i]<<endl;
+    }
+    return false;   
+}
 
 
 
