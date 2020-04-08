@@ -51,7 +51,7 @@ std::vector<CourierSubpath> traveling_courier(
     CourierSubpath best_courier_path, second_courier_path;
     bool two_depots_plus = false;
         
-    makeNodeTable();
+    //makeNodeTable();
     // Calculate shortest time between each depot and each pickup
     /*for (int i=0; i<depots.size(); i++){
         LatLon depot_pos = getIntersectionPosition(depots[i]);
@@ -157,7 +157,8 @@ std::vector<CourierSubpath> traveling_courier(
         dropoff_checklist_2.push_back(false);
     }
     pickup_checklist_1[best_start_pickup] = true;    // update status of first pickup
-    pickup_checklist_2[second_best_pickup] = true;
+    
+    if (two_depots_plus) pickup_checklist_2[second_best_pickup] = true;
     
     // Calculate shortest time between fastest pickup and next legal stop
     // Repeat this until no more deliveries are left
@@ -292,7 +293,7 @@ std::vector<CourierSubpath> traveling_courier(
     
     return_path_2.push_back(second_courier_path);
     }
-    deleteNodeTable();
+    //deleteNodeTable();
     
     cout << "Best depot start time is: " << total_time_1 << endl;
     cout << "Second depot start time is: " << total_time_2 << endl;
