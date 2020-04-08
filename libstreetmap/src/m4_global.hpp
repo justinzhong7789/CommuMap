@@ -39,6 +39,7 @@ using namespace std;
 //MJ commented this out
 //typedef vector<StreetSegmentIndex> path;
 typedef int deliIndex;
+typedef int PickUpIndex;
 /*
  * 
  * first element of pair 
@@ -177,4 +178,22 @@ std::pair<int,bool> findClosestPickUpOrDropOff(const std::vector<DeliveryInfo> &
 
 int findClosestDepot(const std::vector<int> &depots, IntersectionIndex intersection);
 double computeVectorCourierPathTime(std::vector<CourierSubpath> path, float turnPenalty);
+
+//MJ FUNCTIONS
+std::pair<IntersectionIndex, PickUpIndex> find_next_delivery_or_pickup(const std::vector<DeliveryInfo> & deliveries, std::vector<bool> & completeDeliveries,
+                                                                    std::vector<bool> & truckContainer, IntersectionIndex start, const float & truckLoad, const float truckCapacity );
+CourierSubpath makeSubPath(int start, int end, int pickUpIndex, float turnPenalty);
+std::vector<CourierSubpath> greedyHeuristic(const std::vector<DeliveryInfo>& deliveries,
+	       	        const std::vector<int>& depots, 
+		            const float turnPenalty, 
+		            const float truckCapacity);
+
+
+//Opt 2 functions
+std::vector<std::vector<int>> makeDropOffIndices(const std::vector<CourierSubpath> & currentPath, const std::vector<DeliveryInfo> & deliveries);
+bool containsPickUpAndDelivery(const int trial, const std::vector<CourierSubpath> & currentPath, const std::vector<std::vector<int>> & dropOffIndices);
+bool checkOrderLegal(const std::vector<CourierSubpath> & newPath,std::vector<std::vector<int>> & dropOffIndices, const float & truckCapacity, const std::vector<DeliveryInfo> & deliveries);
+std::vector<CourierSubpath> opt_two(int & trial, const std::vector<CourierSubpath> & currentPath, const std::vector<DeliveryInfo> & deliveries, 
+                                               const std::vector<std::vector<int>> & dropOffIndices,const float & turnPenalty, const float & truckCapacity);
+
 
