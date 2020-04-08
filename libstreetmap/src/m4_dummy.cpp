@@ -103,7 +103,7 @@ std::vector<CourierSubpath> traveling_courier(
         current_path = bfsTraceback(best_courier_path.end_intersection); 
     }
     total_time_1 = getNodebyID(best_courier_path.end_intersection)->bestTime;    // keep track of times so we can compare at the end
-    cout << total_time_1 << endl;
+   // cout << total_time_1 << endl;
     
     reset_nodeTable();
     // Add all elements of list into the path vector
@@ -191,7 +191,7 @@ std::vector<CourierSubpath> traveling_courier(
             }
         }
         total_time_1 += getNodebyID(best_courier_path.end_intersection)->bestTime;   
-        cout << total_time_1 << endl;
+      //  cout << total_time_1 << endl;
         reset_nodeTable();
 
         // Adding subpath          
@@ -295,8 +295,8 @@ std::vector<CourierSubpath> traveling_courier(
     }
     //deleteNodeTable();
     
-    cout << "Best depot start time is: " << total_time_1 << endl;
-    cout << "Second depot start time is: " << total_time_2 << endl;
+//    cout << "Best depot start time is: " << total_time_1 << endl;
+//    cout << "Second depot start time is: " << total_time_2 << endl;
     
     return return_path_1;
          
