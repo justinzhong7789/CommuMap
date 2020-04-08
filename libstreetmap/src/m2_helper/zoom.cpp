@@ -211,7 +211,7 @@ void drawStreetNames(vector<StreetData> streets, renderer *g, int font_size, int
             auto latM = segData.midpoint.lat();
             point2d segmentMid(lonM, latM);
             
-            double length;
+            double length = 0;
             double textWidth = g->textWidth(segmentMid, street_name);
             
             if((angle != 0)){

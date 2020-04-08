@@ -26,6 +26,13 @@ typedef int deliIndex;
  * first element of pair 
  */
 
+double findPathTime(std::vector<CourierSubpath> solutionPath);
+std::vector<std::vector<int>> makeDeliveryOrder(std::vector<CourierSubpath> solutionPath, std::vector<DeliveryInfo> deliveryOpt );
+bool checkForNoDoubles(int index, std::vector<std::vector<int>> order);
+bool opt_two(std::vector<CourierSubpath> solutionPath, std::vector<DeliveryInfo> deliveryOpt);
+bool checkOrderLegal(std::vector<std::vector<int>> order, double truckCapacity, int size, std::vector<DeliveryInfo> deliveryOpt);
+std::vector<std::vector<int>> makeDropOffIndices(std::vector<CourierSubpath> solution, std::vector<DeliveryInfo> deliveryOpt);
+
 class pathInfo{
 public: 
     pathInfo(path path_, double time):the_path(path_), path_travel_time(time){};
