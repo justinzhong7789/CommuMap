@@ -29,7 +29,7 @@ std::vector<std::vector<pathInfo>> pathInfoFromDepots;
 std::chrono::steady_clock::time_point start;
 std::chrono::steady_clock::time_point testerStart;
 std::chrono::steady_clock::time_point testerEnd;
-
+/*
 std::vector<CourierSubpath> traveling_courier(
 		            const std::vector<DeliveryInfo>& deliveries,
 	       	        const std::vector<int>& depots, 
@@ -94,7 +94,7 @@ std::vector<CourierSubpath> traveling_courier(
 }
 
 
-
+*/
 std::vector<CourierSubpath> opt_two(int & trial, const std::vector<CourierSubpath> & currentPath, const std::vector<DeliveryInfo> & deliveries, 
                                                const std::vector<std::vector<int>> & dropOffIndices, const float & turnPenalty, const float & truckCapacity){
     
@@ -275,7 +275,7 @@ std::vector<CourierSubpath> greedyHeuristic1(const std::vector<DeliveryInfo>& de
 		            const float truckCapacity)
 {
     std::vector<CourierSubpath> courierRoute;
-    CourierSubpath path;
+    CourierSubpath path_;
     int numOfDeliveries = deliveries.size();
     int numOfDeliveriesCompleted = 0;
     std::vector<int> deliveryStatusVector; // 0 = not picked up, 1 = picked up, 2 = dropped off
@@ -298,8 +298,8 @@ std::vector<CourierSubpath> greedyHeuristic1(const std::vector<DeliveryInfo>& de
     int startingPickUpIndex = startingDepotAndPickUpIndex.second;
     
     // path is the path between the depot and its closest pick up point
-    path = updatePathInfo(depots[startingDepotIndex], deliveries[startingPickUpIndex].pickUp, -1, turnPenalty);
-    courierRoute.push_back(path);
+    path_ = updatePathInfo(depots[startingDepotIndex], deliveries[startingPickUpIndex].pickUp, -1, turnPenalty);
+    courierRoute.push_back(path_);
     
     
 //    pickUpIndices[0].push_back(startingPickUpIndex);//mj
@@ -323,7 +323,7 @@ std::vector<CourierSubpath> greedyHeuristic1(const std::vector<DeliveryInfo>& de
         if(!isDropOff){
             // find the path between the sourceIntersection and nearest pickUp
             // update the variables
-            path = updatePathInfo(sourceIntersection, deliveries[deliveryIndex].pickUp, pickUpIndex, turnPenalty);
+            path_ = updatePathInfo(sourceIntersection, deliveries[deliveryIndex].pickUp, pickUpIndex, turnPenalty);
             deliveryStatusVector[deliveryIndex] = 1;
             sourceIntersection = deliveries[deliveryIndex].pickUp;
             pickUpIndex = deliveryIndex; //this path's end is a pick up, so next path's start is going to be a pick up so set pickUpIdx
@@ -334,7 +334,7 @@ std::vector<CourierSubpath> greedyHeuristic1(const std::vector<DeliveryInfo>& de
         else{
             // find the path between the sourceIntersection and nearest dropOff
             // update the variables
-            path = updatePathInfo(sourceIntersection, deliveries[deliveryIndex].dropOff, pickUpIndex, turnPenalty);
+            path_ = updatePathInfo(sourceIntersection, deliveries[deliveryIndex].dropOff, pickUpIndex, turnPenalty);
             deliveryStatusVector[deliveryIndex] = 2;
             sourceIntersection = deliveries[deliveryIndex].dropOff;
             numOfDeliveriesCompleted++;
@@ -345,7 +345,7 @@ std::vector<CourierSubpath> greedyHeuristic1(const std::vector<DeliveryInfo>& de
         
 //        indices++;//mj
         // add the path to the route
-        courierRoute.push_back(path);
+        courierRoute.push_back(path_);
     }
     
     // add the path from the last drop off point to its nearest depot
@@ -353,8 +353,8 @@ std::vector<CourierSubpath> greedyHeuristic1(const std::vector<DeliveryInfo>& de
     int lastDropOffIntersection = deliveries[deliveryIndex].dropOff;
     int closestFinishDepotIndex = findClosestDepot(depots, lastDropOffIntersection);
     
-    path = updatePathInfo(lastDropOffIntersection, depots[closestFinishDepotIndex], -1, turnPenalty);
-    courierRoute.push_back(path);
+    path_ = updatePathInfo(lastDropOffIntersection, depots[closestFinishDepotIndex], -1, turnPenalty);
+    courierRoute.push_back(path_);
     
     return courierRoute;
     
@@ -497,25 +497,25 @@ std::pair<int, int> findDepotWithClosestPickUp(const std::vector<DeliveryInfo>& 
 }
 
 CourierSubpath updatePathInfo(IntersectionIndex startIntersection, IntersectionIndex endIntersection, int indexOfDelivery, int turnPenalty){
-    CourierSubpath path;
+    CourierSubpath subpath;
     
-    path.start_intersection = startIntersection;
-    path.end_intersection = endIntersection;
+    subpath.start_intersection = startIntersection;
+    subpath.end_intersection = endIntersection;
     if(indexOfDelivery != -1){ 
-        path.pickUp_indices.push_back(indexOfDelivery);
+        subpath.pickUp_indices.push_back(indexOfDelivery);
     }
-    path.subpath = find_path_between_intersections(startIntersection, endIntersection, turnPenalty);    
+    subpath.subpath = find_path_between_intersections(startIntersection, endIntersection, turnPenalty);    
     
-    return path;
+    return subpath;
 }
 
 
 
-double computeVectorCourierPathTime(std::vector<CourierSubpath> path, float turnPenalty)
+double computeVectorCourierPathTime(std::vector<CourierSubpath> courier_path, float turnPenalty)
 {
     double time=0;
-    for(int i = 0; i<path.size(); i++){
-        time += compute_path_travel_time(path[i].subpath, turnPenalty);
+    for(int i = 0; i<courier_path.size(); i++){
+        time += compute_path_travel_time(courier_path[i].subpath, turnPenalty);
     }
     
     return time;

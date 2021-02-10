@@ -134,6 +134,12 @@ bool make_DO_to_points(const std::vector<DeliveryInfo>& deliveries,const std::ve
 bool precompute_all_paths(const std::vector<DeliveryInfo>& deliveries, const std::vector<int>& depots, double turn_penalty);
 CourierSubpath initializeSubpath(IntersectionIndex start, IntersectionIndex end, std::vector<int> path_, vector<unsigned> pickupIndex);
 double computeCourierPathTravelTime(double turn_penalty, vector<CourierSubpath> a);
+void traceback_multi_dest(vector<int> destinations);
+std::vector<CourierSubpath> stupid_path(
+	            const std::vector<DeliveryInfo>& deliveries,
+	       	        const std::vector<int>& depots, 
+		            const float turn_penalty, 
+		            const float truck_capacity);
 
 vector<int> find_indices_of_do(IntersectionIndex index, const std::vector<DeliveryInfo>& deliveries);
 vector<int> find_indices_of_pu(IntersectionIndex index, const std::vector<DeliveryInfo>& deliveries);

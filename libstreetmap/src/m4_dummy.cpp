@@ -503,7 +503,7 @@
 //// Returns closest depot index
 //int find_best_depot (const vector<int>& depots, IntersectionIndex last_intersection){
 //    double current_dist;
-//    double best_dist = LARGEST_DISTANCE;\
+//    double best_dist = LARGEST_DISTANCE;
 //    int depots_num = depots.size();
 //    int best_depot;
 //    
